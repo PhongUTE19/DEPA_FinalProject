@@ -1,0 +1,12 @@
+<div class="card">
+    <div class="card-header">
+        Lĩnh vực học tập
+    </div>
+    <div class="list-group list-group-flush">
+        {{#each global_categories}}
+        <a href="/category?categoryId={{categoryId}}" class="list-group-item list-group-item-action">
+            {{name}}
+        </a>
+        {{/each}}
+    </div>
+</div>

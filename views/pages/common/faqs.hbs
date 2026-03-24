@@ -1,0 +1,24 @@
+<div class="container my-5">
+    <h1 class="text-center mb-4">Câu hỏi thường gặp</h1>
+    <p class="text-center text-muted mb-5">Những thắc mắc phổ biến khi học tại Bình dân học vụ số</p>
+
+    <div class="accordion" id="faqAccordion">
+        {{#each faqs}}
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button {{#unless @first}}collapsed{{/unless}}" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq-{{faq_id}}">
+                    {{question}}
+                </button>
+            </h2>
+
+            <div id="faq-{{faq_id}}" class="accordion-collapse collapse {{#if @first}}show{{/if}}"
+                data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    {{{answer}}}
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>

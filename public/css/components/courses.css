@@ -1,0 +1,163 @@
+/* ========================
+COURSE CARD
+======================== */
+
+.course-card {
+    height: 100%;
+    border: none;
+    border-radius: var(--radius-soft);
+    background-color: var(--white-main);
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform var(--ease-time) cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow var(--ease-time) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.course-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 18px 0 rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.course-card-title {
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.course-card-title::before,
+.course-card-title::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 24px;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.course-card-title::before {
+    left: 0;
+    background: linear-gradient(to right, var(--white-main), transparent);
+}
+
+.course-card-title::after {
+    right: 0;
+    background: linear-gradient(to left, var(--white-main), transparent);
+}
+
+.course-card-title span {
+    display: inline-block;
+    transform: translateX(0);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--text-dark);
+}
+
+.course-card:hover .course-card-title.is-overflow span {
+    transition: transform var(--scroll-duration, 6s) linear;
+    transform: translateX(calc(-1 * var(--scroll-distance)));
+}
+
+/* @media (prefers-reduced-motion: reduce) {
+    .course-card-title span {
+        transition: none;
+        transform: none;
+    }
+} */
+
+.course-card-description-text-ellipsis {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 3em;
+    line-height: 1.5em;
+}
+
+.course-card-thumbnail {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+ /* === COURSE DETAIL COMPONENT === */
+.course-detail-title {
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+}
+
+
+.course-detail-card {
+    border: none;
+    border-radius: var(--radius-soft);
+    box-shadow: 0 12px 0 rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+
+.course-detail-img {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: var(--radius-soft);
+    margin-bottom: 1.5rem;
+}
+
+
+.course-detail-name {
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+
+.course-detail-description {
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+}
+
+
+/* === META INFO === */
+
+.course-meta,
+.course-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+
+.course-meta span,
+.course-stats span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+
+.course-meta i {
+    color: var(--text-muted);
+}
+
+
+.course-stats i {
+    color: var(--yellow-soft);
+}
+
+
+/* subtle divider feel */
+.course-stats {
+    margin-top: 0.25rem;
+}
+
+.course-badge {
+    color: var(--text-dark);
+    border-radius: var(--radius-soft);
+    border-color: var(--green-soft);
+    font-style: italic;
+    font-weight: 700;
+}

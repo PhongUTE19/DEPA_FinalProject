@@ -1,0 +1,74 @@
+/* === CAROUSEL INDICATORS === */
+
+.my-carousel .carousel-indicators {
+    position: static !important;
+    margin-top: 20px;
+    gap: 0.75rem;
+}
+
+.my-carousel .carousel-indicators button {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+
+    min-width: 20px;
+    height: 20px;
+    background-color: var(--white-main);
+    border: 3px solid var(--green-soft);
+    opacity: 1;
+    transition:
+        transform var(--ease-time) ease,
+        background-color var(--ease-time) ease,
+        box-shadow var(--ease-time) ease;
+}
+
+/* active indicator */
+.my-carousel .carousel-indicators .active {
+    background-color: var(--green-soft);
+    border-color: var(--yellow-soft);
+}
+
+/* hover (non-active only) */
+.my-carousel .carousel-indicators button:not(.active):hover {
+    background-color: var(--yellow-soft);
+    transform: translateY(-3px);
+}
+
+/* === CAROUSEL CONTROLS === */
+
+.my-carousel .carousel-control-prev,
+.my-carousel .carousel-control-next {
+    width: 50px;
+    height: 100px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    background-color: var(--white-main);
+    border: 3px solid var(--text-dark);
+    color: var(--text-dark);
+    border-radius: var(--radius-soft);
+    border-color: var(--green-soft);
+
+    transition:
+        transform var(--ease-time) ease,
+        opacity var(--ease-time) ease,
+        background-color var(--ease-time) ease,
+        box-shadow var(--ease-time) ease;
+}
+
+.my-carousel .carousel-control-prev {
+    left: 20px;
+}
+
+.my-carousel .carousel-control-next {
+    right: 20px;
+}
+
+/* hover */
+.my-carousel .carousel-control-prev:hover,
+.my-carousel .carousel-control-next:hover {
+    background-color: var(--yellow-soft);
+    opacity: 1;
+    transform: translateY(-50%) translateY(-6px);
+    /* border-color: var(--green-main); */
+}

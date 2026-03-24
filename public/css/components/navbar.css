@@ -1,0 +1,56 @@
+.navbar {
+    background-color: var(--white-main) !important;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.08);
+    padding: 0.75rem 1.25rem;
+}
+
+/* Brand */
+.navbar-brand {
+    font-weight: 900;
+    font-size: 1.4rem;
+    color: var(--green-soft);
+    transition: color var(--ease-time) ease;
+
+}
+
+.navbar-brand:hover {
+    color: var(--yellow-soft);
+}
+
+.navbar .nav-link {
+    font-weight: 700;
+    color: var(--text-dark);
+    border-radius: var(--radius-soft);
+    padding: 0.45rem 0.9rem;
+    transition: background-color var(--ease-time) ease,
+        transform var(--ease-time) ease;
+}
+
+.navbar .nav-link:hover {
+    background-color: var(--yellow-soft);
+    transform: translateY(-2px);
+}
+
+.dropdown-menu {
+    border-radius: var(--radius-soft);
+    border: none;
+    box-shadow: 0 10px 0 rgba(0, 0, 0, 0.12);
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 0.55rem 0.75rem;
+}
+
+.dropdown-item:hover {
+    background-color: var(--yellow-soft);
+}
+
+/* Mobile tweak */
+/* @media (max-width: 992px) {
+    .navbar-collapse {
+        margin-top: 1rem;
+    }
+} */

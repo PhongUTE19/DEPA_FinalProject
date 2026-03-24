@@ -1,0 +1,19 @@
+.card {
+    border: none;
+}
+
+.card-header {
+    background-color: var(--yellow-light);
+    border: none;
+    font-weight: 700;
+}
+
+.card-footer {
+    background-color: var(--white-main);
+    border: none;
+}
+
+.card-title {
+    margin-bottom: 40px;
+    font-weight: 700;
+}
