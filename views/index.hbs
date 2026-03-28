@@ -1,0 +1,41 @@
+<style>
+    .container { display: flex; gap: 2rem; }
+    .menu, .cart { flex: 1; border: 1px solid #ccc; padding: 1rem; }
+    .menu-item, .cart-item { border-bottom: 1px solid #eee; padding: 0.5rem 0; }
+    .menu-item:hover { background-color: #f9f9f9; cursor: pointer; }
+    .customization-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 1px solid #333; padding: 2rem; z-index: 100; }
+    .modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; }
+</style>
+
+<h1>Food Ordering MVP</h1>
+<div style="margin-bottom: 1rem;">
+    <a href="/kitchen" style="padding: 0.5rem 1rem; background: #333; color: white; text-decoration: none; border-radius: 4px;">👨‍🍳 Go to Kitchen Dashboard</a>
+</div>
+<div class="container">
+    <div class="menu">
+        <h2>Menu (Factory)</h2>
+        <div id="menu-list"></div>
+    </div>
+    <div class="cart">
+        <h2>Cart</h2>
+        <div id="cart-list"></div>
+        <h3 id="cart-total">Total: $0.00</h3>
+        <button id="place-order-btn" style="width: 100%; padding: 1rem; margin-top: 1rem;">Place Order (Builder & Facade)</button>
+    </div>
+</div>
+
+<!-- Decorator Pattern Demo Modal -->
+<div id="modal-backdrop" class="modal-backdrop"></div>
+<div id="customization-modal" class="customization-modal">
+    <h3 id="modal-item-name">Customize Item</h3>
+    <div id="modal-options">
+        <!-- Checkboxes will be injected here -->
+    </div>
+    <hr>
+    <p>Preview: <strong id="modal-preview-name"></strong></p>
+    <p>Price: <strong id="modal-preview-price"></strong></p>
+    <button id="add-to-cart-btn">Add to Cart</button>
+    <button id="close-modal-btn">Cancel</button>
+</div>
+
+<script src="/public/js/app.js"></script>

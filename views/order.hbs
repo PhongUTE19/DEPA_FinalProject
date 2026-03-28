@@ -1,0 +1,30 @@
+<style>
+    .progress-bar { display: flex; list-style: none; padding: 0; justify-content: space-between; }
+    .progress-step { flex: 1; text-align: center; position: relative; }
+    .progress-step.active { font-weight: bold; color: green; }
+    .progress-step::before { content: '⚪'; font-size: 2rem; }
+    .progress-step.active::before { content: '🟢'; }
+</style>
+
+<h1>Tracking Order #{{orderId}}</h1>
+<p>Your order status will update here in real-time (Observer Pattern).</p>
+
+<ul class="progress-bar" id="progress-bar">
+    <li class="progress-step" data-status="pending">Pending</li>
+    <li class="progress-step" data-status="cooking">Cooking</li>
+    <li class="progress-step" data-status="delivery">Delivery</li>
+    <li class="progress-step" data-status="completed">Completed</li>
+    <li class="progress-step" data-status="cancelled" style="display: none;">Cancelled</li>
+</ul>
+
+<h2 id="status-message"></h2>
+
+<div style="margin-top: 2rem; display: flex; gap: 1rem;">
+    <button id="pay-btn" style="display: none; padding: 0.5rem 1rem; background: #007bff; color: white; border: none; cursor: pointer;">Pay Now</button>
+    <button id="cancel-btn" style="display: none; padding: 0.5rem 1rem; background: #dc3545; color: white; border: none; cursor: pointer;">Cancel Order</button>
+    <button id="reorder-btn" style="display: none; padding: 0.5rem 1rem; background: #28a745; color: white; border: none; cursor: pointer;">Quick Reorder</button>
+</div>
+<div style="margin-top: 1rem;"><a href="/">Back to Menu</a></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/public/js/tracker.js"></script>

@@ -1,0 +1,26 @@
+<script>
+	document.querySelectorAll('.btn-expand').forEach(btn => {
+		const icon = btn.querySelector('i');
+		const text = btn.querySelector('.btn-text');
+
+		if (!text) return;
+
+		// Temporarily reveal text to measure
+		const prevOpacity = text.style.opacity;
+		const prevTransform = text.style.transform;
+
+		text.style.opacity = '1';
+		text.style.transform = 'none';
+
+		const totalWidth =
+			icon.offsetWidth +
+			text.offsetWidth +
+			42; // padding + gap safety
+
+		btn.style.setProperty('--btn-expand-width', `${totalWidth}px`);
+
+		// Restore hidden state
+		text.style.opacity = prevOpacity;
+		text.style.transform = prevTransform;
+	});
+</script>

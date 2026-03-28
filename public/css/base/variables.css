@@ -1,0 +1,30 @@
+:root {
+    --font-xs: 12px;
+    --font-sm: 14px;
+    --font-md: 16px;
+    --font-lg: 20px;
+    --font-xl: 28px;
+
+    --color-primary: #007bff;
+    --color-secondary: #6c757d;
+    --color-success: #28a745;
+    --color-danger: #dc3545;
+
+    --text-title: 600 20px/1.4 "Inter", sans-serif;
+    --text-body: 400 16px/1.4 "Inter", sans-serif;
+
+
+    --white-main: #ffffff;
+    --green-soft: #4CAF50;
+    --green-light: #E8F5E9;
+    --yellow-soft: #FFC107;
+    --yellow-light: #FFF8E1;
+
+    --text-dark: #1f2933;
+    --text-muted: #4b5563;
+
+
+    --radius-soft: 25px;
+
+    --ease-time: 0.3s;
+}

@@ -1,0 +1,27 @@
+body {
+    padding-top: 70px;
+    background-color: var(--white-main);
+    color: var(--text-dark);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: 18px;
+    line-height: 1.7;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+h1 {
+    color: var(--green-soft);
+    text-align: center;
+}
+
+p,
+li {
+    color: var(--text-muted);
+}

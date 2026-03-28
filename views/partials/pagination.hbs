@@ -1,0 +1,45 @@
+<div class="row">
+    <nav>
+        <ul class="pagination my-pagination justify-content-center">
+
+            {{#if (lt pagination.prevPage 1)}}
+            <li class="page-item disabled">
+                <a class="page-link">Trước</a>
+            </li>
+            {{else}}
+            <li class="page-item">
+                <a class="page-link" href="?{{pagination.query}}&page={{pagination.prevPage}}">
+                    Trước
+                </a>
+            </li>
+            {{/if}}
+
+            {{#each pagination.pageNumbers}}
+            {{#if isCurrent}}
+            <li class="page-item active">
+                <span class="page-link">{{value}}</span>
+            </li>
+            {{else}}
+            <li class="page-item">
+                <a class="page-link" href="?{{../pagination.query}}&page={{value}}">
+                    {{value}}
+                </a>
+            </li>
+            {{/if}}
+            {{/each}}
+
+            {{#if (gt pagination.nextPage pagination.pageNumbers.length)}}
+            <li class="page-item disabled">
+                <a class="page-link">Sau</a>
+            </li>
+            {{else}}
+            <li class="page-item">
+                <a class="page-link" href="?{{pagination.query}}&page={{pagination.nextPage}}">
+                    Sau
+                </a>
+            </li>
+            {{/if}}
+
+        </ul>
+    </nav>
+</div>

@@ -1,0 +1,13 @@
+.form {
+    gap: 0.5rem;
+}
+
+.form-control {
+    border: 2px solid var(--text-dark);
+    font-weight: 600;
+}
+
+.form-control:focus {
+    border-color: var(--green-soft);
+    box-shadow: none;
+}

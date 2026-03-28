@@ -1,0 +1,22 @@
+.footer-dark {
+    background-color: var(--text-dark);
+}
+
+.footer-dark footer {
+    border-top: none;
+}
+
+.footer-text {
+    color: var(--white-main);
+    font-weight: 500;
+}
+
+.footer-link {
+    color: var(--white-main);
+    font-weight: 700;
+    transition: color var(--ease-time) ease;
+}
+
+.footer-link:hover {
+    color: var(--yellow-soft);
+}
