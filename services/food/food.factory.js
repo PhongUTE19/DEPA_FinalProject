@@ -1,13 +1,8 @@
-﻿﻿import FoodModel from '../../models/food.model.js';
-
-// Base Food class
-export class Food {
-  constructor({ id, name, price }) {
-    this.id = id;
-    this.name = name;
-    this.price = price;
-  }
-}
+import FoodModel from '../../models/food.model.js';
+import { Food } from './food.js';
+import { 
+  ExtraCheese, SpicySauce, VeganOption, ExtraBacon, Boba, CheeseFoam 
+} from './food.decorators.js';
 
 export class IFoodFactory {
   create(type) { throw new Error(`create(${type}) must be implemented`); }
@@ -32,8 +27,6 @@ export class FoodFactory extends IFoodFactory {
     };
   }
 
-  // FIX: Load catalog from the foods table.
-  // Called once at startup from app.js (or lazily on first request).
   async loadFromDB() {
     try {
       const rows = await FoodModel.findAll();
@@ -46,15 +39,12 @@ export class FoodFactory extends IFoodFactory {
       }
       this._loaded = true;
     } catch (err) {
-      // DB not yet configured — keep hardcoded fallback so the app still works
       console.warn('[FoodFactory] Could not load menu from DB, using fallback catalog:', err.message);
       this._loaded = true;
     }
   }
 
-  // FIX: Create by type name OR by numeric foodId
   create(typeOrId) {
-    // Numeric id lookup (used by reorder flow)
     if (typeof typeOrId === 'number' || /^\d+$/.test(String(typeOrId))) {
       const id = Number(typeOrId);
       const found = Object.values(this._catalog).find(f => f.id === id);
@@ -76,7 +66,6 @@ export class FoodFactory extends IFoodFactory {
     for (const opt of options) {
       const optionName = String(opt).toLowerCase();
 
-      // Exception Flow: Out of Stock
       if (this.inventory[optionName] === 0) {
         throw new Error(`Topping Out of Stock: '${opt}' is temporarily sold out.`);
       }
@@ -92,16 +81,4 @@ export class FoodFactory extends IFoodFactory {
   }
 }
 
-// Decorator base
-export class ToppingDecorator extends Food {
-  constructor(food) { super(food); this.food = food; }
-  get name()  { return this.food.name; }
-  get price() { return this.food.price; }
-}
-
-export class ExtraCheese  extends ToppingDecorator { get name() { return `${this.food.name} + Extra Cheese`;  } get price() { return this.food.price + 10; } }
-export class SpicySauce   extends ToppingDecorator { get name() { return `${this.food.name} + Spicy Sauce`;   } get price() { return this.food.price + 5;  } }
-export class VeganOption  extends ToppingDecorator { get name() { return `${this.food.name} (Vegan)`;         } get price() { return this.food.price + 0;  } }
-export class ExtraBacon   extends ToppingDecorator { get name() { return `${this.food.name} + Extra Bacon`;   } get price() { return this.food.price + 15; } }
-export class Boba         extends ToppingDecorator { get name() { return `${this.food.name} + Boba`;          } get price() { return this.food.price + 5;  } }
-export class CheeseFoam   extends ToppingDecorator { get name() { return `${this.food.name} + Cheese Foam`;   } get price() { return this.food.price + 10; } }
+export const sharedFoodFactory = new FoodFactory();

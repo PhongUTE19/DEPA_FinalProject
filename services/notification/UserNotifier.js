@@ -1,4 +1,4 @@
-﻿﻿
+﻿﻿﻿﻿
 import { IObserver } from './IObserver.js';
 import { getIo, isUserOnline } from './websocket.js';
 import NotificationModel from '../../models/notification.model.js';
@@ -20,8 +20,9 @@ export class UserNotifier extends IObserver {
             console.log(`[Email/SMS Service] User ${data.userId} offline. Falling back to Email/SMS: ${message}`);
         }
 
-        // Save notification to DB (non-blocking)
-        NotificationModel.create({ user_id: data.userId || null, order_id: data.orderId || null, type: 'user', event, message }).catch(err => console.error('[UserNotifier] DB error:', err));
+        // Save notification to DB (non-blocking).
+        // Explicitly set order_id to null to prevent Postgres integer out-of-range errors.
+        NotificationModel.create({ user_id: data.userId || null, order_id: null, type: 'user', event, message }).catch(err => console.error('[UserNotifier] DB error:', err));
     }
 
     _buildMessage(event, data) {

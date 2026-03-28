@@ -3,10 +3,18 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Guard: catch missing env vars early with a clear error message
+// instead of letting Postgres fail with the cryptic SASL error.
+const required = ['DB_HOST', 'DB_PORT', 'DB_DATABASE', 'DB_USER', 'DB_PASSWORD'];
+const missing = required.filter(k => !process.env[k]);
+if (missing.length > 0) {
+  throw new Error(
+    `Missing required environment variables: ${missing.join(', ')}\n` +
+    `Create a .env file in the project root. See .env.example for reference.`
+  );
+}
+
 // SINGLETON PATTERN
-// Ensures only one database connection pool exists for the entire application.
-// The static instance is preserved across all imports thanks to ES module caching,
-// but the explicit class makes the intent clear and matches the design pattern spec.
 class DatabaseSingleton {
   static #instance = null;
 
@@ -15,11 +23,11 @@ class DatabaseSingleton {
       DatabaseSingleton.#instance = knex({
         client: 'pg',
         connection: {
-          host: process.env.DB_HOST,
-          port: process.env.DB_PORT,
+          host:     process.env.DB_HOST,
+          port:     Number(process.env.DB_PORT),
           database: process.env.DB_DATABASE,
-          user: process.env.DB_USER,
-          password: process.env.DB_PASSWORD,
+          user:     process.env.DB_USER,
+          password: String(process.env.DB_PASSWORD), // must be a string, never undefined
         },
         pool: { min: 0, max: 15 }
       });
@@ -28,6 +36,5 @@ class DatabaseSingleton {
   }
 }
 
-// Export the single instance — all imports share the same connection pool
 const db = DatabaseSingleton.getInstance();
 export default db;

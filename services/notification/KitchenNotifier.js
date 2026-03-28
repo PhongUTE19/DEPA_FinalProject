@@ -1,4 +1,4 @@
-﻿﻿
+﻿﻿﻿﻿
 import { IObserver } from './IObserver.js';
 import NotificationModel from '../../models/notification.model.js';
 
@@ -9,7 +9,8 @@ export class KitchenNotifier extends IObserver {
 
         console.log(`[KitchenNotifier] 🍳 ${message}`);
 
-        NotificationModel.create({ user_id: null, order_id: data.orderId || null, type: 'kitchen', event, message }).catch(err => console.error('[KitchenNotifier] DB error:', err));
+        // Explicitly set order_id to null to prevent Postgres integer out-of-range errors.
+        NotificationModel.create({ user_id: null, order_id: null, type: 'kitchen', event, message }).catch(err => console.error('[KitchenNotifier] DB error:', err));
     }
 
     _buildMessage(event, data) {

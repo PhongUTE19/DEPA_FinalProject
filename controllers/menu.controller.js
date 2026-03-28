@@ -1,6 +1,4 @@
-﻿﻿import { FoodFactory } from '../services/food/FoodFactory.js';
-
-const factory = new FoodFactory();
+﻿﻿import { sharedFoodFactory as factory } from '../services/food/food.factory.js';
 
 const MenuController = {
   // GET /menu — return minimal list
