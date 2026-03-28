@@ -1,0 +1,148 @@
+import { PaymentAdapter } from '../services/payment/PaymentAdapter.js';
+import PaymentModel from '../models/payment.model.js';
+import orderSubject from '../services/notification/OrderSubject.js';
+
+const PaymentController = {
+    // GET /payment/:orderId — Trang thanh toán
+    async showPaymentPage(req, res, next) {
+        try {
+            const { orderId } = req.params;
+            const userId = req.session?.authUser?.id;
+
+            // Kiểm tra đã thanh toán chưa
+            const existing = await PaymentModel.findByOrderId(orderId);
+            if (existing) {
+                return res.render('pages/payment/result', {
+                    title: 'Kết quả thanh toán',
+                    payment: existing,
+                    alreadyPaid: true,
+                });
+            }
+
+            const methods = PaymentAdapter.getAvailableMethods();
+
+            res.render('pages/payment/index', {
+                title: 'Thanh toán đơn hàng',
+                orderId,
+                methods,
+                userId,
+            });
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    // POST /payment — Xử lý thanh toán
+    async processPayment(req, res, next) {
+        try {
+            const { orderId, paymentMethod, totalAmount, userId } = req.body;
+
+            // 1. Gọi PaymentAdapter (bên trong dùng Strategy Pattern)
+            const result = await PaymentAdapter.process(paymentMethod, {
+                orderId,
+                totalAmount,
+                userId,
+            });
+
+            if (!result.success) {
+                return res.render('pages/payment/result', {
+                    title: 'Thanh toán thất bại',
+                    success: false,
+                    message: result.message,
+                });
+            }
+
+            // 2. Lưu vào DB
+            const payment = await PaymentModel.create({
+                orderId,
+                userId: userId || req.session?.authUser?.id,
+                method: result.method,
+                transactionId: result.transactionId,
+                amount: result.amount,
+                status: 'success',
+            });
+
+            // 3. Notify Observers (UserNotifier + KitchenNotifier)
+            orderSubject.notify('ORDER_PAID', {
+                orderId,
+                userId: payment.user_id,
+                transactionId: result.transactionId,
+                amount: result.amount,
+            });
+
+            res.render('pages/payment/result', {
+                title: 'Thanh toán thành công',
+                success: true,
+                payment,
+                result,
+            });
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    // GET /payment/history — Lịch sử thanh toán
+    async paymentHistory(req, res, next) {
+        try {
+            const userId = req.session?.authUser?.id;
+            const payments = await PaymentModel.findByUserId(userId);
+
+            res.render('pages/payment/history', {
+                title: 'Lịch sử thanh toán',
+                payments,
+            });
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    // ===================================================
+    // API Endpoints (JSON)
+    // ===================================================
+
+    // POST /api/payment
+    async apiProcessPayment(req, res, next) {
+        try {
+            const { orderId, paymentMethod, totalAmount, userId } = req.body;
+
+            if (!orderId || !paymentMethod || !totalAmount) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Thiếu thông tin: orderId, paymentMethod, totalAmount',
+                });
+            }
+
+            const result = await PaymentAdapter.process(paymentMethod, {
+                orderId,
+                totalAmount,
+                userId,
+            });
+
+            if (!result.success) {
+                return res.status(402).json({ success: false, message: result.message });
+            }
+
+            const payment = await PaymentModel.create({
+                orderId,
+                userId,
+                method: result.method,
+                transactionId: result.transactionId,
+                amount: result.amount,
+                status: 'success',
+            });
+
+            orderSubject.notify('ORDER_PAID', {
+                orderId,
+                userId,
+                transactionId: result.transactionId,
+                amount: result.amount,
+            });
+
+            res.json({ success: true, payment, result });
+        } catch (err) {
+            next(err);
+        }
+    },
+};
+
+export default PaymentController;

@@ -1,0 +1,89 @@
+{{#fillSection "css"}}
+<style>
+    .result-card {
+        border-radius: 20px;
+        padding: 48px 40px;
+        text-align: center;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    .result-icon {
+        font-size: 5rem;
+        margin-bottom: 16px;
+    }
+    .result-success { background: #f0fff4; border: 2px solid #b7ebce; }
+    .result-fail { background: #fff5f5; border: 2px solid #ffc9c9; }
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .amount-big {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2f9e44;
+    }
+</style>
+{{/fillSection}}
+
+<div class="col-12">
+    <div class="container py-5">
+        {{#if success}}
+        <div class="result-card result-success">
+            <div class="result-icon">✅</div>
+            <h2 class="fw-bold text-success mb-1">Thanh toán thành công!</h2>
+            <p class="text-muted mb-4">Đơn hàng của bạn đã được xác nhận</p>
+
+            <div class="text-start mb-4">
+                <div class="info-row">
+                    <span class="text-muted">Mã đơn hàng</span>
+                    <span class="fw-semibold">#{{payment.order_id}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="text-muted">Mã giao dịch</span>
+                    <span class="fw-semibold" style="font-size:0.85rem">{{payment.transaction_id}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="text-muted">Phương thức</span>
+                    <span class="fw-semibold text-capitalize">{{payment.method}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="text-muted">Số tiền</span>
+                    <span class="amount-big">{{formatCurrency payment.amount}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="text-muted">Thời gian</span>
+                    <span>{{formatDate payment.paid_at}}</span>
+                </div>
+            </div>
+
+            <a href="/" class="btn btn-success rounded-pill px-4 me-2">
+                <i class="bi bi-house-fill me-1"></i>Về trang chủ
+            </a>
+            <a href="/notification" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-bell me-1"></i>Thông báo
+            </a>
+        </div>
+
+        {{else if alreadyPaid}}
+        <div class="result-card result-success">
+            <div class="result-icon">ℹ️</div>
+            <h2 class="fw-bold mb-1">Đã thanh toán</h2>
+            <p class="text-muted">Đơn hàng này đã được thanh toán trước đó</p>
+            <a href="/" class="btn btn-primary rounded-pill px-4 mt-3">Về trang chủ</a>
+        </div>
+
+        {{else}}
+        <div class="result-card result-fail">
+            <div class="result-icon">❌</div>
+            <h2 class="fw-bold text-danger mb-1">Thanh toán thất bại</h2>
+            <p class="text-muted mb-4">{{message}}</p>
+            <button onclick="history.back()" class="btn btn-danger rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i>Thử lại
+            </button>
+        </div>
+        {{/if}}
+    </div>
+</div>

@@ -8,6 +8,8 @@ import accountRouter from './routes/account.route.js';
 import courseRouter from './routes/course.route.js';
 import adminCourseRouter from './routes/admin/course.route.js';
 import adminCategoryRouter from './routes/admin/category.route.js';
+import paymentRouter from './routes/payment.route.js';
+import notificationRouter from './routes/notification.route.js';
 
 import authMiddleware from './middlewares/auth.middleware.js';
 import errorMiddleware from './middlewares/error.middleware.js';
@@ -71,6 +73,8 @@ app.use(viewMiddleware.injectAuthState);
 app.use('/', homeRouter);
 app.use("/account", accountRouter);
 app.use("/course", courseRouter);
+app.use("payment", paymentRouter)
+app.use("notify", notificationRouter)
 app.use("/admin/course", authMiddleware.requireAuth, authMiddleware.requireAdmin, adminCourseRouter);
 app.use("/admin/category", authMiddleware.requireAuth, authMiddleware.requireAdmin, adminCategoryRouter);
 
