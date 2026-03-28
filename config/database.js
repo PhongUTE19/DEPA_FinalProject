@@ -14,4 +14,8 @@ const db = knex({
     pool: { min: 0, max: 15 }
 });
 
+<<<<<<< HEAD
 export default db;
+=======
+export default db;
+>>>>>>> 516199e (Upload file feature/food)

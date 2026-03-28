@@ -74,6 +74,16 @@ const helpers = {
 		}
 		return chunks;
 	},
+<<<<<<< HEAD
+=======
+	typeEmoji: function(type) {
+  const map = {
+    pizza: '🍕', burger: '🍔', pasta: '🍝',
+    salad: '🥗', soup: '🍲', dessert: '🍰', drink: '🥤'
+  };
+  return map[type] || '🍽️';
+},
+>>>>>>> 516199e (Upload file feature/food)
 };
 
 export default helpers;

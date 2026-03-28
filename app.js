@@ -8,6 +8,10 @@ import accountRouter from './routes/account.route.js';
 import courseRouter from './routes/course.route.js';
 import adminCourseRouter from './routes/admin/course.route.js';
 import adminCategoryRouter from './routes/admin/category.route.js';
+<<<<<<< HEAD
+=======
+import foodRouter from './routes/food.route.js';
+>>>>>>> 516199e (Upload file feature/food)
 
 import authMiddleware from './middlewares/auth.middleware.js';
 import errorMiddleware from './middlewares/error.middleware.js';
@@ -73,6 +77,10 @@ app.use("/account", accountRouter);
 app.use("/course", courseRouter);
 app.use("/admin/course", authMiddleware.requireAuth, authMiddleware.requireAdmin, adminCourseRouter);
 app.use("/admin/category", authMiddleware.requireAuth, authMiddleware.requireAdmin, adminCategoryRouter);
+<<<<<<< HEAD
+=======
+app.use("/menu", foodRouter);
+>>>>>>> 516199e (Upload file feature/food)
 
 // 8. Error handling middleware
 app.use(errorMiddleware.notFound);
