@@ -1,41 +1,311 @@
 <style>
-    .container { display: flex; gap: 2rem; }
-    .menu, .cart { flex: 1; border: 1px solid #ccc; padding: 1rem; }
-    .menu-item, .cart-item { border-bottom: 1px solid #eee; padding: 0.5rem 0; }
-    .menu-item:hover { background-color: #f9f9f9; cursor: pointer; }
-    .customization-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 1px solid #333; padding: 2rem; z-index: 100; }
-    .modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; }
+  .page-header { margin-bottom: 28px; }
+  .page-header h1 { font-size: 26px; font-weight: bold; }
+  .page-header p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  .layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+  @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } }
+
+  /* Menu */
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+
+  .menu-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px;
+    cursor: pointer; transition: all 0.15s;
+    text-align: center;
+  }
+  .menu-item:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(212,80,30,0.12); }
+
+  .menu-emoji { font-size: 40px; display: block; margin-bottom: 8px; }
+  .menu-name { font-weight: 700; font-size: 15px; }
+  .menu-price { color: var(--accent); font-weight: 600; font-size: 14px; margin-top: 4px; }
+  .menu-type-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+  /* Cart */
+  .cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .cart-header h2 { font-size: 17px; font-weight: bold; }
+  .cart-count { background: var(--accent); color: white; border-radius: 20px; padding: 1px 8px; font-size: 12px; }
+
+  .cart-empty { text-align: center; padding: 32px 0; color: var(--muted); font-size: 14px; }
+  .cart-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 8px; }
+  .cart-item:last-child { border-bottom: none; }
+  .cart-item-name { font-size: 13px; font-weight: 600; }
+  .cart-item-opts { font-size: 11px; color: var(--muted); }
+  .cart-item-price { font-size: 13px; font-weight: 600; color: var(--accent); white-space: nowrap; }
+  .cart-item-qty { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+  .qty-btn { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.1s; }
+  .qty-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .qty-val { font-size: 13px; font-weight: 600; min-width: 16px; text-align: center; }
+
+  .cart-total { display: flex; justify-content: space-between; padding: 12px 0; font-weight: 700; font-size: 16px; }
+
+  /* Customization modal */
+  .option-checkbox { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.1s; margin-bottom: 6px; }
+  .option-checkbox:hover { border-color: var(--accent); background: var(--accent-light); }
+  .option-checkbox input { cursor: pointer; accent-color: var(--accent); }
+  .option-label { flex: 1; font-size: 13px; }
+  .option-price { font-size: 12px; color: var(--accent); font-weight: 600; }
+
+  .preview-box { background: var(--accent-light); border: 1px solid #f0b99e; border-radius: 8px; padding: 10px 14px; margin-top: 12px; }
+  .preview-box .name { font-weight: 600; font-size: 14px; }
+  .preview-box .price { color: var(--accent); font-weight: 700; font-size: 16px; }
+
+  /* Custom requests textarea */
+  .custom-req-section { margin-top: 12px; }
 </style>
 
-<h1>Food Ordering MVP</h1>
-<div style="margin-bottom: 1rem;">
-    <a href="/kitchen" style="padding: 0.5rem 1rem; background: #333; color: white; text-decoration: none; border-radius: 4px;">👨‍🍳 Go to Kitchen Dashboard</a>
+<div class="page-header">
+  <h1>Our Menu</h1>
+  <p>Click an item to customize and add to cart</p>
 </div>
-<div class="container">
-    <div class="menu">
-        <h2>Menu (Factory)</h2>
-        <div id="menu-list"></div>
+
+<div class="layout">
+  <div>
+    <div class="menu-grid" id="menu-grid">
+      <div style="color:var(--muted); font-size:14px; padding:20px;">Loading menu…</div>
     </div>
-    <div class="cart">
+  </div>
+
+  <div>
+    <div class="card" style="position:sticky; top:72px;">
+      <div class="cart-header">
         <h2>Cart</h2>
-        <div id="cart-list"></div>
-        <h3 id="cart-total">Total: $0.00</h3>
-        <button id="place-order-btn" style="width: 100%; padding: 1rem; margin-top: 1rem;">Place Order (Builder & Facade)</button>
+        <span class="cart-count" id="cart-count">0</span>
+      </div>
+      <div id="cart-body">
+        <div class="cart-empty">Your cart is empty.<br>Pick something tasty!</div>
+      </div>
+      <div id="cart-footer" style="display:none;">
+        <hr class="divider">
+        <div class="cart-total">
+          <span>Total</span>
+          <span id="cart-total">$0.00</span>
+        </div>
+        <div class="form-group">
+          <label>Custom Request (optional)</label>
+          <textarea id="custom-request" rows="2" placeholder="e.g. Less spicy, no onions…"></textarea>
+        </div>
+        <button class="btn btn-primary w-full" id="place-order-btn" onclick="placeOrder()">
+          Place Order →
+        </button>
+      </div>
     </div>
+  </div>
 </div>
 
-<!-- Decorator Pattern Demo Modal -->
-<div id="modal-backdrop" class="modal-backdrop"></div>
-<div id="customization-modal" class="customization-modal">
-    <h3 id="modal-item-name">Customize Item</h3>
-    <div id="modal-options">
-        <!-- Checkboxes will be injected here -->
+<!-- Customization Modal -->
+<div class="modal-backdrop" id="modal-backdrop" onclick="closeModal(event)">
+  <div class="modal">
+    <h3 id="modal-title">Customize</h3>
+    <p class="text-sm text-muted" style="margin-bottom:14px;">Add toppings to your item</p>
+    <div id="modal-options"></div>
+    <div class="preview-box" id="modal-preview">
+      <div class="name" id="preview-name">—</div>
+      <div class="price" id="preview-price">$0.00</div>
     </div>
-    <hr>
-    <p>Preview: <strong id="modal-preview-name"></strong></p>
-    <p>Price: <strong id="modal-preview-price"></strong></p>
-    <button id="add-to-cart-btn">Add to Cart</button>
-    <button id="close-modal-btn">Cancel</button>
+    <hr class="divider">
+    <div class="flex gap-8" style="justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="addToCart()">Add to Cart</button>
+    </div>
+  </div>
 </div>
 
-<script src="/public/js/app.js"></script>
+<script>
+const EMOJIS = { pizza: '🍕', burger: '🍔', drink: '🥤' };
+const TOPPINGS = [
+  { key: 'extra cheese', label: 'Extra Cheese', price: 10 },
+  { key: 'spicy sauce', label: 'Spicy Sauce', price: 5 },
+  { key: 'vegan option', label: 'Vegan Option', price: 0 },
+  { key: 'extra bacon', label: 'Extra Bacon', price: 15 },
+  { key: 'boba', label: 'Boba', price: 5 },
+  { key: 'cheese foam', label: 'Cheese Foam', price: 10 },
+];
+
+let menuItems = [];
+let cart = [];
+let currentItem = null;
+
+async function loadMenu() {
+  try {
+    const res = await fetch('/menu');
+    menuItems = await res.json();
+    renderMenu();
+  } catch(e) {
+    document.getElementById('menu-grid').innerHTML = '<div style="color:var(--red);font-size:14px;">Could not load menu. Is the server running?</div>';
+  }
+}
+
+function renderMenu() {
+  const grid = document.getElementById('menu-grid');
+  grid.innerHTML = menuItems.map(item => `
+    <div class="menu-item" onclick="openModal(${item.id}, '${item.name}', ${item.price})">
+      <span class="menu-emoji">${EMOJIS[item.name.toLowerCase()] || '🍽'}</span>
+      <div class="menu-name">${item.name}</div>
+      <div class="menu-price">$${item.price.toFixed(2)}</div>
+      <div class="menu-type-label">tap to customize</div>
+    </div>
+  `).join('');
+}
+
+function openModal(id, name, basePrice) {
+  currentItem = { id, name, basePrice, type: name.toLowerCase() };
+  document.getElementById('modal-title').textContent = `Customize ${name}`;
+  document.getElementById('modal-options').innerHTML = TOPPINGS.map(t => `
+    <label class="option-checkbox">
+      <input type="checkbox" value="${t.key}" onchange="updatePreview()">
+      <span class="option-label">${t.label}</span>
+      <span class="option-price">${t.price > 0 ? '+$' + t.price : 'Free'}</span>
+    </label>
+  `).join('');
+  updatePreview();
+  document.getElementById('modal-backdrop').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal-backdrop')) {
+    document.getElementById('modal-backdrop').classList.remove('open');
+    currentItem = null;
+  }
+}
+
+async function updatePreview() {
+  if (!currentItem) return;
+  const opts = [...document.querySelectorAll('#modal-options input:checked')].map(i => i.value);
+  try {
+    const res = await fetch('/menu/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: currentItem.type, options: opts })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      document.getElementById('preview-name').textContent = data.name;
+      document.getElementById('preview-price').textContent = '$' + data.price.toFixed(2);
+      currentItem.previewName = data.name;
+      currentItem.previewPrice = data.price;
+      currentItem.selectedOptions = opts;
+    }
+  } catch(e) {
+    // fallback: compute locally
+    const opts2 = [...document.querySelectorAll('#modal-options input:checked')].map(i => i.value);
+    const extra = TOPPINGS.filter(t => opts2.includes(t.key)).reduce((s, t) => s + t.price, 0);
+    const price = currentItem.basePrice + extra;
+    const suffix = opts2.map(o => TOPPINGS.find(t => t.key === o)?.label || o).join(' + ');
+    document.getElementById('preview-name').textContent = currentItem.name + (suffix ? ' + ' + suffix : '');
+    document.getElementById('preview-price').textContent = '$' + price.toFixed(2);
+    currentItem.previewName = document.getElementById('preview-name').textContent;
+    currentItem.previewPrice = price;
+    currentItem.selectedOptions = opts2;
+  }
+}
+
+function addToCart() {
+  if (!currentItem) return;
+  const opts = currentItem.selectedOptions || [];
+  const existing = cart.find(c =>
+    c.id === currentItem.id && JSON.stringify(c.options) === JSON.stringify(opts)
+  );
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({
+      id: currentItem.id,
+      name: currentItem.previewName || currentItem.name,
+      price: currentItem.previewPrice || currentItem.basePrice,
+      type: currentItem.type,
+      options: opts,
+      qty: 1
+    });
+  }
+  closeModal();
+  renderCart();
+  showToast('Added to cart!');
+}
+
+function renderCart() {
+  const body = document.getElementById('cart-body');
+  const footer = document.getElementById('cart-footer');
+  const count = document.getElementById('cart-count');
+
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  count.textContent = cart.reduce((s, i) => s + i.qty, 0);
+  document.getElementById('cart-total').textContent = '$' + total.toFixed(2);
+
+  if (cart.length === 0) {
+    body.innerHTML = '<div class="cart-empty">Your cart is empty.<br>Pick something tasty!</div>';
+    footer.style.display = 'none';
+    return;
+  }
+
+  footer.style.display = 'block';
+  body.innerHTML = cart.map((item, idx) => `
+    <div class="cart-item">
+      <div>
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-qty">
+          <button class="qty-btn" onclick="changeQty(${idx}, -1)">−</button>
+          <span class="qty-val">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div class="cart-item-price">$${(item.price * item.qty).toFixed(2)}</div>
+        <button onclick="removeItem(${idx})" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:12px;margin-top:4px;">remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function changeQty(idx, delta) {
+  cart[idx].qty += delta;
+  if (cart[idx].qty <= 0) cart.splice(idx, 1);
+  renderCart();
+}
+
+function removeItem(idx) {
+  cart.splice(idx, 1);
+  renderCart();
+}
+
+async function placeOrder() {
+  if (cart.length === 0) return;
+  const btn = document.getElementById('place-order-btn');
+  btn.disabled = true;
+  btn.textContent = 'Placing order…';
+
+  const customReq = document.getElementById('custom-request').value.trim();
+  const payload = {
+    userId: 1,
+    items: cart.map(i => ({ type: i.type, quantity: i.qty, options: i.options })),
+    customRequests: customReq ? [customReq] : []
+  };
+
+  try {
+    const res = await fetch('/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (res.ok) {
+      cart = [];
+      renderCart();
+      document.getElementById('custom-request').value = '';
+      showToast('Order placed! Redirecting…');
+      setTimeout(() => window.location.href = '/order-tracking/' + data.orderId, 1000);
+    } else {
+      showToast('Error: ' + (data.message || 'Unknown error'));
+      btn.disabled = false;
+      btn.textContent = 'Place Order →';
+    }
+  } catch(e) {
+    showToast('Network error. Is the server running?');
+    btn.disabled = false;
+    btn.textContent = 'Place Order →';
+  }
+}
+
+loadMenu();
+</script>

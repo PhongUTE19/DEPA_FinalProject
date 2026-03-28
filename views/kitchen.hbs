@@ -1,11 +1,173 @@
 <style>
-    .order-card { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; background: #fdfdfd; }
-    .order-card h3 { margin-top: 0; }
+  .kitchen-header { margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
+  .kitchen-header h1 { font-size: 22px; }
+  .kitchen-header p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+  .refresh-bar { display: flex; align-items: center; gap: 10px; }
+  .auto-badge { font-size: 11px; background: var(--green-light); color: var(--green); padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+
+  /* Order cards */
+  .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+  .order-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px;
+    box-shadow: var(--shadow); transition: all 0.2s;
+  }
+  .order-card:hover { border-color: var(--accent); }
+  .order-card.status-cooking { border-left: 3px solid #f57f17; }
+  .order-card.status-delivery { border-left: 3px solid #1565c0; }
+  .order-card.status-pending { border-left: 3px solid var(--accent); }
+  .order-card.status-completed { border-left: 3px solid var(--green); opacity: 0.7; }
+  .order-card.status-cancelled { border-left: 3px solid var(--red); opacity: 0.5; }
+
+  .order-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .order-card-id { font-weight: 700; font-size: 14px; }
+  .order-card-time { font-size: 11px; color: var(--muted); }
+
+  .order-items-list { font-size: 12px; color: var(--muted); margin: 8px 0; }
+  .order-items-list li { list-style: none; padding: 2px 0; }
+  .order-items-list li::before { content: '• '; color: var(--accent); }
+
+  .order-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .order-amount { font-weight: 700; font-size: 14px; color: var(--accent); }
+
+  .advance-btn {
+    padding: 5px 12px; border-radius: 8px; border: none;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; font-family: inherit;
+  }
+  .advance-btn.to-cooking { background: #fff3e0; color: #e65100; }
+  .advance-btn.to-cooking:hover { background: #ffe0b2; }
+  .advance-btn.to-delivery { background: #e3f2fd; color: #1565c0; }
+  .advance-btn.to-delivery:hover { background: #bbdefb; }
+  .advance-btn.to-completed { background: var(--green-light); color: var(--green); }
+  .advance-btn.to-completed:hover { background: #c8e6c9; }
+  .advance-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .empty-state { text-align: center; padding: 64px 0; color: var(--muted); }
+  .empty-state .big { font-size: 48px; display: block; margin-bottom: 12px; }
+
+  .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-tab {
+    padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border);
+    font-size: 13px; cursor: pointer; background: var(--surface); color: var(--muted);
+    transition: all 0.15s; font-family: inherit;
+  }
+  .filter-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
 </style>
 
-<h1>Kitchen Dashboard (State Pattern)</h1>
-<p>Staff advances the order state here, which triggers Observers to update the customer UI.</p>
-<a href="/">Back to Menu</a>
-<hr>
-<div id="orders-list">Loading orders...</div>
-<script src="/public/js/kitchen.js"></script>
+<div class="kitchen-header">
+  <div>
+    <h1>👨‍🍳 Kitchen Dashboard</h1>
+    <p>Advance order states — customers get live updates</p>
+  </div>
+  <div class="refresh-bar">
+    <span class="auto-badge">⚡ Live</span>
+    <button class="btn btn-ghost" onclick="loadOrders()">↺ Refresh</button>
+    <a href="/" class="btn btn-ghost">← Menu</a>
+  </div>
+</div>
+
+<div class="filter-tabs">
+  <button class="filter-tab active" data-filter="all" onclick="setFilter('all', this)">All</button>
+  <button class="filter-tab" data-filter="pending" onclick="setFilter('pending', this)">Pending</button>
+  <button class="filter-tab" data-filter="cooking" onclick="setFilter('cooking', this)">Cooking</button>
+  <button class="filter-tab" data-filter="delivery" onclick="setFilter('delivery', this)">Delivery</button>
+  <button class="filter-tab" data-filter="completed" onclick="setFilter('completed', this)">Completed</button>
+</div>
+
+<div id="orders-container">
+  <div class="empty-state"><span class="big">⏳</span>Loading orders…</div>
+</div>
+
+<script>
+let allOrders = [];
+let currentFilter = 'all';
+
+const NEXT_STATUS = { pending: 'cooking', cooking: 'delivery', delivery: 'completed' };
+const NEXT_LABEL = { pending: '→ Start Cooking', cooking: '→ Out for Delivery', delivery: '→ Mark Complete' };
+const NEXT_CLASS = { pending: 'to-cooking', cooking: 'to-delivery', delivery: 'to-completed' };
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderOrders();
+}
+
+function shortId(id) {
+  return id.toString().slice(-6);
+}
+
+function renderOrders() {
+  const container = document.getElementById('orders-container');
+  const filtered = currentFilter === 'all'
+    ? allOrders
+    : allOrders.filter(o => o.status === currentFilter);
+
+  // sort: active first, then by time desc
+  const order = ['pending','cooking','delivery','completed','cancelled'];
+  filtered.sort((a,b) => order.indexOf(a.status) - order.indexOf(b.status));
+
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty-state"><span class="big">🍽</span>No orders ${currentFilter !== 'all' ? 'in "' + currentFilter + '"' : 'yet'}.</div>`;
+    return;
+  }
+
+  container.innerHTML = `<div class="orders-grid">${filtered.map(o => {
+    const canAdvance = NEXT_STATUS[o.status];
+    return `
+      <div class="order-card status-${o.status}">
+        <div class="order-card-header">
+          <span class="order-card-id">#${shortId(o.id)}</span>
+          <span class="badge badge-${o.status}">${o.status}</span>
+        </div>
+        <ul class="order-items-list">
+          ${(o.items || []).slice(0,4).map(i => `<li>${i.name} × ${i.quantity || 1}</li>`).join('')}
+          ${(o.items || []).length > 4 ? `<li style="color:var(--accent)">+${o.items.length - 4} more</li>` : ''}
+        </ul>
+        <div class="order-card-footer">
+          <span class="order-amount">$${(o.totalAmount || 0).toFixed(2)}</span>
+          ${canAdvance
+            ? `<button class="advance-btn ${NEXT_CLASS[o.status]}" onclick="advanceOrder('${o.id}', this)">${NEXT_LABEL[o.status]}</button>`
+            : `<span style="font-size:11px;color:var(--muted);">${o.status === 'completed' ? 'Done ✅' : o.status === 'cancelled' ? 'Cancelled' : ''}</span>`
+          }
+        </div>
+      </div>
+    `;
+  }).join('')}</div>`;
+}
+
+async function loadOrders() {
+  try {
+    const res = await fetch('/api/order');
+    allOrders = await res.json();
+    renderOrders();
+  } catch(e) {
+    document.getElementById('orders-container').innerHTML = '<div class="alert alert-error">Could not load orders. Is the server running?</div>';
+  }
+}
+
+async function advanceOrder(orderId, btn) {
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/order/status', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, next: true })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+    showToast('Order #' + orderId.toString().slice(-6) + ' → ' + data.status);
+    await loadOrders();
+  } catch(e) {
+    showToast('Error: ' + (e.message || 'Unknown'));
+    btn.disabled = false;
+  }
+}
+
+loadOrders();
+// Auto-refresh every 15s
+setInterval(loadOrders, 15000);
+</script>

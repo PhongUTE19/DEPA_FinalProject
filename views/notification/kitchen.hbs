@@ -1,23 +1,64 @@
-﻿{{#extend "layouts/main"}}
-{{#content "body"}}
-<div class="container py-4" style="max-width: 760px;">
-  <h3 class="mb-3">Thông báo Bếp</h3>
+<style>
+  .kitchen-notif-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .kitchen-notif-header h1 { font-size: 22px; }
 
-  {{#if (isEmpty notifications)}}
-    <div class="alert alert-info">Chưa có thông báo cho bếp.</div>
-  {{else}}
-    <div class="list-group">
-      {{#each notifications}}
-        <div class="list-group-item d-flex justify-content-between align-items-start">
-          <div class="ms-2 me-auto">
-            <div class="fw-semibold">{{event}}</div>
-            <div class="text-muted">{{message}}</div>
-            <small class="text-secondary">{{formatDate created_at}}</small>
-          </div>
-        </div>
-      {{/each}}
-    </div>
-  {{/if}}
+  .notif-list { display: flex; flex-direction: column; gap: 10px; max-width: 640px; }
+  .notif-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .notif-item.new-item { border-left: 3px solid var(--accent); background: var(--accent-light); }
+  .notif-icon { font-size: 22px; flex-shrink: 0; }
+  .notif-event { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
+  .notif-msg { font-size: 14px; font-weight: 600; margin: 2px 0; }
+  .notif-meta { font-size: 11px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+  .new-tag { background: var(--accent); color: white; padding: 1px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+
+  .empty-state { text-align: center; padding: 64px 0; color: var(--muted); }
+  .empty-state .big { font-size: 48px; display: block; margin-bottom: 12px; }
+</style>
+
+<div class="kitchen-notif-header">
+  <div>
+    <h1>🍳 Kitchen Notifications</h1>
+    <p style="color:var(--muted);font-size:13px;margin-top:4px;">Auto-refreshes every 30s</p>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-ghost" onclick="location.reload()">↺ Refresh</button>
+    <a href="/kitchen" class="btn btn-ghost">← Dashboard</a>
+  </div>
 </div>
-{{/content}}
-{{/extend}}
+
+{{#if (isEmpty notifications)}}
+  <div class="empty-state">
+    <span class="big">🔕</span>
+    <div>No kitchen notifications yet.</div>
+  </div>
+{{else}}
+  <div class="notif-list">
+    {{#each notifications}}
+    <div class="notif-item {{#if (isNew created_at)}}new-item{{/if}}">
+      <span class="notif-icon">
+        {{#if (eq event "ORDER_PAID")}}🔥
+        {{else if (eq event "ORDER_STATUS_CHANGED")}}🔄
+        {{else if (eq event "ORDER_CANCELLED")}}🚫
+        {{else}}📢{{/if}}
+      </span>
+      <div>
+        <div class="notif-event">{{event}}</div>
+        <div class="notif-msg">{{message}}</div>
+        <div class="notif-meta">
+          <span>{{formatDate created_at}}</span>
+          {{#if order_id}}<span>Order #{{order_id}}</span>{{/if}}
+          {{#if (isNew created_at)}}<span class="new-tag">NEW</span>{{/if}}
+        </div>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+{{/if}}
+
+<script>
+setTimeout(() => location.reload(), 30000);
+</script>

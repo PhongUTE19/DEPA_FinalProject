@@ -1,11 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}} — FoodOrder</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f3ef;
+      --surface: #ffffff;
+      --border: #e0dbd0;
+      --text: #1a1a1a;
+      --muted: #6b6560;
+      --accent: #d4501e;
+      --accent-light: #fdf0eb;
+      --accent-dark: #b03f16;
+      --green: #2e7d32;
+      --green-light: #e8f5e9;
+      --red: #c62828;
+      --red-light: #ffebee;
+      --radius: 10px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: -0.5px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .nav-links { display: flex; gap: 8px; align-items: center; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-links a:hover { background: var(--bg); color: var(--text); }
+
+    main { padding: 32px 24px; max-width: 960px; margin: 0 auto; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: var(--radius);
+      border: none; cursor: pointer;
+      font-size: 14px; font-family: inherit;
+      font-weight: 600; text-decoration: none;
+      transition: all 0.15s; white-space: nowrap;
+    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+    .btn-outline:hover { background: var(--accent-light); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--bg); color: var(--text); }
+    .btn-green { background: var(--green); color: white; }
+    .btn-green:hover { background: #1b5e20; }
+    .btn-red { background: var(--red); color: white; }
+    .btn-red:hover { background: #b71c1c; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Cards */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    /* Tags/badges */
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+    }
+    .badge-pending { background: #fff3e0; color: #e65100; }
+    .badge-cooking { background: #fff8e1; color: #f57f17; }
+    .badge-delivery { background: #e3f2fd; color: #1565c0; }
+    .badge-completed { background: var(--green-light); color: var(--green); }
+    .badge-cancelled { background: var(--red-light); color: var(--red); }
+
+    /* Alerts */
+    .alert {
+      padding: 12px 16px; border-radius: var(--radius);
+      font-size: 14px; margin-bottom: 16px;
+    }
+    .alert-success { background: var(--green-light); color: var(--green); border: 1px solid #a5d6a7; }
+    .alert-error { background: var(--red-light); color: var(--red); border: 1px solid #ef9a9a; }
+    .alert-info { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+
+    /* Modal */
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--surface); border-radius: 14px;
+      padding: 28px; width: 100%; max-width: 440px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal h3 { font-size: 18px; margin-bottom: 16px; }
+
+    /* Forms */
+    label { font-size: 13px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 4px; }
+    input[type=text], input[type=number], select, textarea {
+      width: 100%; padding: 8px 12px; border: 1px solid var(--border);
+      border-radius: var(--radius); font-size: 14px; font-family: inherit;
+      background: var(--bg); color: var(--text); outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    .form-group { margin-bottom: 14px; }
+
+    /* Utility */
+    .flex { display: flex; }
+    .flex-center { display: flex; align-items: center; justify-content: center; }
+    .gap-8 { gap: 8px; }
+    .gap-12 { gap: 12px; }
+    .gap-16 { gap: 16px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .text-muted { color: var(--muted); }
+    .text-sm { font-size: 13px; }
+    .text-right { text-align: right; }
+    .w-full { width: 100%; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1a1a1a; color: white;
+      padding: 12px 20px; border-radius: var(--radius);
+      font-size: 14px; z-index: 999;
+      transform: translateY(80px); opacity: 0;
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+  </style>
 </head>
 <body>
-    {{{body}}}
+
+<nav>
+  <a href="/" class="nav-brand">🍽 FoodOrder</a>
+  <div class="nav-links">
+    <a href="/">Menu</a>
+    <a href="/kitchen">Kitchen</a>
+    <a href="/notification?userId=1">Notifications</a>
+  </div>
+</nav>
+
+<main>
+  {{{body}}}
+</main>
+
+<div id="toast"></div>
+
+<script>
+  function showToast(msg, duration = 3000) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+  }
+</script>
+
 </body>
 </html>

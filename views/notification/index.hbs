@@ -1,43 +1,86 @@
-﻿{{#extend "layouts/main"}}
-{{#content "body"}}
-<div class="container py-4" style="max-width: 760px;">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0">Thông báo (User #{{userId}})</h3>
-    <button id="btnReadAll" class="btn btn-outline-secondary btn-sm">Đánh dấu đã đọc tất cả</button>
-  </div>
+<style>
+  .notif-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .notif-header h1 { font-size: 22px; }
 
-  {{#if (isEmpty notifications)}}
-    <div class="alert alert-info">Chưa có thông báo.</div>
-  {{else}}
-    <div class="list-group">
-      {{#each notifications}}
-        <div class="list-group-item d-flex justify-content-between align-items-start">
-          <div class="ms-2 me-auto">
-            <div class="fw-semibold">{{event}}</div>
-            <div class="text-muted">{{message}}</div>
-            <small class="text-secondary">{{formatDate created_at}}</small>
-          </div>
-          {{#unless is_read}}
-          <button class="btn btn-sm btn-outline-primary mark-read" data-id="{{id}}">Đã đọc</button>
-          {{/unless}}
-        </div>
-      {{/each}}
-    </div>
-  {{/if}}
+  .notif-list { display: flex; flex-direction: column; gap: 10px; max-width: 640px; }
+  .notif-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    display: flex; align-items: flex-start; gap: 12px;
+    transition: all 0.15s;
+  }
+  .notif-item.unread { border-left: 3px solid var(--accent); background: var(--accent-light); }
+  .notif-icon { font-size: 22px; flex-shrink: 0; }
+  .notif-content { flex: 1; }
+  .notif-event { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 0.5px; }
+  .notif-msg { font-size: 14px; font-weight: 600; margin: 2px 0; }
+  .notif-time { font-size: 11px; color: var(--muted); }
+  .notif-action { flex-shrink: 0; }
+
+  .empty-state { text-align: center; padding: 64px 0; color: var(--muted); }
+  .empty-state .big { font-size: 48px; display: block; margin-bottom: 12px; }
+
+  .unread-badge { background: var(--accent); color: white; border-radius: 20px; padding: 2px 8px; font-size: 12px; font-weight: 600; }
+</style>
+
+<div class="notif-header">
+  <div>
+    <h1>🔔 Notifications
+      {{#if unread}}<span class="unread-badge">{{unread}}</span>{{/if}}
+    </h1>
+    <p style="color:var(--muted);font-size:13px;margin-top:4px;">User #{{userId}}</p>
+  </div>
+  <button class="btn btn-ghost" onclick="markAll()" {{#unless unread}}disabled{{/unless}}>
+    Mark all read
+  </button>
 </div>
 
+{{#if (isEmpty notifications)}}
+  <div class="empty-state">
+    <span class="big">🔕</span>
+    <div>No notifications yet.</div>
+  </div>
+{{else}}
+  <div class="notif-list">
+    {{#each notifications}}
+    <div class="notif-item {{#unless is_read}}unread{{/unless}}">
+      <span class="notif-icon">
+        {{#if (eq event "ORDER_PAID")}}💳
+        {{else if (eq event "ORDER_CREATED")}}📋
+        {{else if (eq event "ORDER_STATUS_CHANGED")}}🔄
+        {{else if (eq event "ORDER_DONE")}}✅
+        {{else}}📢{{/if}}
+      </span>
+      <div class="notif-content">
+        <div class="notif-event">{{event}}</div>
+        <div class="notif-msg">{{message}}</div>
+        <div class="notif-time">{{formatDate created_at}}</div>
+      </div>
+      {{#unless is_read}}
+      <div class="notif-action">
+        <button class="btn btn-ghost" style="font-size:12px;padding:4px 10px;" onclick="markRead({{id}}, this)">Mark read</button>
+      </div>
+      {{/unless}}
+    </div>
+    {{/each}}
+  </div>
+{{/if}}
+
 <script>
-  document.getElementById('btnReadAll')?.addEventListener('click', async () => {
-    await fetch('/notification/read-all', { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ userId: {{userId}} }) });
-    location.reload();
+async function markAll() {
+  await fetch('/notification/read-all', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId: {{userId}} })
   });
-  document.querySelectorAll('.mark-read').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const id = btn.dataset.id;
-      await fetch(`/notification/${id}/read`, { method: 'PATCH' });
-      location.reload();
-    });
-  });
+  location.reload();
+}
+
+async function markRead(id, btn) {
+  btn.disabled = true;
+  await fetch('/notification/' + id + '/read', { method: 'PATCH' });
+  const item = btn.closest('.notif-item');
+  item.classList.remove('unread');
+  btn.closest('.notif-action').remove();
+}
 </script>
-{{/content}}
-{{/extend}}

@@ -1,89 +1,71 @@
-{{#fillSection "css"}}
 <style>
-    .result-card {
-        border-radius: 20px;
-        padding: 48px 40px;
-        text-align: center;
-        max-width: 500px;
-        margin: 0 auto;
-    }
-    .result-icon {
-        font-size: 5rem;
-        margin-bottom: 16px;
-    }
-    .result-success { background: #f0fff4; border: 2px solid #b7ebce; }
-    .result-fail { background: #fff5f5; border: 2px solid #ffc9c9; }
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid #e9ecef;
-    }
-    .info-row:last-child { border-bottom: none; }
-    .amount-big {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #2f9e44;
-    }
+  .result-wrap { max-width: 480px; margin: 0 auto; text-align: center; padding-top: 20px; }
+  .result-icon { font-size: 72px; margin-bottom: 16px; }
+  .result-title { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+  .result-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+
+  .info-table { text-align: left; width: 100%; margin-bottom: 24px; }
+  .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { color: var(--muted); }
+  .info-val { font-weight: 600; }
+  .info-val.amount { color: var(--green); font-size: 18px; font-weight: 700; }
+
+  .result-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 </style>
-{{/fillSection}}
 
-<div class="col-12">
-    <div class="container py-5">
-        {{#if success}}
-        <div class="result-card result-success">
-            <div class="result-icon">✅</div>
-            <h2 class="fw-bold text-success mb-1">Thanh toán thành công!</h2>
-            <p class="text-muted mb-4">Đơn hàng của bạn đã được xác nhận</p>
+<div class="result-wrap">
+  {{#if success}}
+    <div class="result-icon">✅</div>
+    <div class="result-title" style="color:var(--green)">Payment Successful!</div>
+    <div class="result-sub">Your order has been confirmed and sent to the kitchen.</div>
 
-            <div class="text-start mb-4">
-                <div class="info-row">
-                    <span class="text-muted">Mã đơn hàng</span>
-                    <span class="fw-semibold">#{{payment.order_id}}</span>
-                </div>
-                <div class="info-row">
-                    <span class="text-muted">Mã giao dịch</span>
-                    <span class="fw-semibold" style="font-size:0.85rem">{{payment.transaction_id}}</span>
-                </div>
-                <div class="info-row">
-                    <span class="text-muted">Phương thức</span>
-                    <span class="fw-semibold text-capitalize">{{payment.method}}</span>
-                </div>
-                <div class="info-row">
-                    <span class="text-muted">Số tiền</span>
-                    <span class="amount-big">{{formatCurrency payment.amount}}</span>
-                </div>
-                <div class="info-row">
-                    <span class="text-muted">Thời gian</span>
-                    <span>{{formatDate payment.paid_at}}</span>
-                </div>
-            </div>
-
-            <a href="/" class="btn btn-success rounded-pill px-4 me-2">
-                <i class="bi bi-house-fill me-1"></i>Về trang chủ
-            </a>
-            <a href="/notification" class="btn btn-outline-secondary rounded-pill px-4">
-                <i class="bi bi-bell me-1"></i>Thông báo
-            </a>
+    <div class="card">
+      <div class="info-table">
+        <div class="info-row">
+          <span class="info-label">Order ID</span>
+          <span class="info-val">#{{payment.order_id}}</span>
         </div>
-
-        {{else if alreadyPaid}}
-        <div class="result-card result-success">
-            <div class="result-icon">ℹ️</div>
-            <h2 class="fw-bold mb-1">Đã thanh toán</h2>
-            <p class="text-muted">Đơn hàng này đã được thanh toán trước đó</p>
-            <a href="/" class="btn btn-primary rounded-pill px-4 mt-3">Về trang chủ</a>
+        <div class="info-row">
+          <span class="info-label">Transaction ID</span>
+          <span class="info-val" style="font-size:12px;word-break:break-all">{{payment.transaction_id}}</span>
         </div>
-
-        {{else}}
-        <div class="result-card result-fail">
-            <div class="result-icon">❌</div>
-            <h2 class="fw-bold text-danger mb-1">Thanh toán thất bại</h2>
-            <p class="text-muted mb-4">{{message}}</p>
-            <button onclick="history.back()" class="btn btn-danger rounded-pill px-4">
-                <i class="bi bi-arrow-left me-1"></i>Thử lại
-            </button>
+        <div class="info-row">
+          <span class="info-label">Method</span>
+          <span class="info-val" style="text-transform:capitalize">{{payment.method}}</span>
         </div>
-        {{/if}}
+        <div class="info-row">
+          <span class="info-label">Amount</span>
+          <span class="info-val amount">${{payment.amount}}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Date</span>
+          <span class="info-val">{{formatDate payment.paid_at}}</span>
+        </div>
+      </div>
     </div>
+
+    <div class="result-actions mt-16">
+      <a href="/order-tracking/{{payment.order_id}}" class="btn btn-primary">Track Order →</a>
+      <a href="/" class="btn btn-ghost">Back to Menu</a>
+      <a href="/notification?userId=1" class="btn btn-ghost">🔔 Notifications</a>
+    </div>
+
+  {{else if alreadyPaid}}
+    <div class="result-icon">ℹ️</div>
+    <div class="result-title">Already Paid</div>
+    <div class="result-sub">This order has already been paid.</div>
+    <div class="result-actions">
+      <a href="/" class="btn btn-primary">Back to Menu</a>
+    </div>
+
+  {{else}}
+    <div class="result-icon">❌</div>
+    <div class="result-title" style="color:var(--red)">Payment Failed</div>
+    <div class="result-sub">{{message}}</div>
+    <div class="result-actions">
+      <button class="btn btn-red" onclick="history.back()">Try Again</button>
+      <a href="/" class="btn btn-ghost">Back to Menu</a>
+    </div>
+  {{/if}}
 </div>

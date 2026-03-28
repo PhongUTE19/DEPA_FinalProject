@@ -1,30 +1,217 @@
 <style>
-    .progress-bar { display: flex; list-style: none; padding: 0; justify-content: space-between; }
-    .progress-step { flex: 1; text-align: center; position: relative; }
-    .progress-step.active { font-weight: bold; color: green; }
-    .progress-step::before { content: '⚪'; font-size: 2rem; }
-    .progress-step.active::before { content: '🟢'; }
+  .back-link { font-size: 14px; color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 20px; }
+  .back-link:hover { color: var(--text); }
+
+  .tracking-card { max-width: 640px; }
+
+  .order-id-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .order-id-header h1 { font-size: 22px; }
+
+  /* Progress stepper */
+  .stepper { display: flex; align-items: flex-start; margin-bottom: 32px; }
+  .step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 14px; left: 50%; right: -50%;
+    height: 2px; background: var(--border); z-index: 0;
+  }
+  .step.done:not(:last-child)::after { background: var(--accent); }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; position: relative; z-index: 1;
+    transition: all 0.3s;
+  }
+  .step.done .step-dot { border-color: var(--accent); background: var(--accent); color: white; }
+  .step.active .step-dot { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(212,80,30,0.15); }
+  .step-label { font-size: 11px; color: var(--muted); margin-top: 6px; text-align: center; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+  .step.done .step-label, .step.active .step-label { color: var(--accent); }
+
+  .step.cancelled .step-dot { border-color: var(--red); background: var(--red); color: white; }
+  .step.cancelled .step-label { color: var(--red); }
+
+  /* Status message */
+  .status-msg { background: var(--accent-light); border: 1px solid #f0b99e; border-radius: 8px; padding: 12px 16px; font-size: 14px; font-weight: 600; color: var(--accent-dark); margin-bottom: 20px; min-height: 42px; }
+  .status-msg.cancelled-msg { background: var(--red-light); border-color: #ef9a9a; color: var(--red); }
+
+  /* Order details */
+  .order-items-section h3 { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .order-item-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+  .order-item-row:last-child { border-bottom: none; }
+  .order-total-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 15px; padding-top: 10px; margin-top: 6px; border-top: 2px solid var(--border); }
+
+  /* Action buttons */
+  .actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+
+  /* Live dot */
+  .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-right: 6px; animation: blink 1.5s ease-in-out infinite; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
 </style>
 
-<h1>Tracking Order #{{orderId}}</h1>
-<p>Your order status will update here in real-time (Observer Pattern).</p>
+<a href="/" class="back-link">← Back to Menu</a>
 
-<ul class="progress-bar" id="progress-bar">
-    <li class="progress-step" data-status="pending">Pending</li>
-    <li class="progress-step" data-status="cooking">Cooking</li>
-    <li class="progress-step" data-status="delivery">Delivery</li>
-    <li class="progress-step" data-status="completed">Completed</li>
-    <li class="progress-step" data-status="cancelled" style="display: none;">Cancelled</li>
-</ul>
+<div class="tracking-card">
+  <div class="order-id-header">
+    <h1>Order <span style="color:var(--accent)">#{{orderId}}</span></h1>
+    <span style="font-size:13px;color:var(--muted)"><span class="live-dot"></span>Live updates</span>
+  </div>
 
-<h2 id="status-message"></h2>
+  <!-- Stepper -->
+  <div class="stepper" id="stepper">
+    <div class="step" data-status="pending">
+      <div class="step-dot">📋</div>
+      <div class="step-label">Pending</div>
+    </div>
+    <div class="step" data-status="cooking">
+      <div class="step-dot">🍳</div>
+      <div class="step-label">Cooking</div>
+    </div>
+    <div class="step" data-status="delivery">
+      <div class="step-dot">🚀</div>
+      <div class="step-label">Delivery</div>
+    </div>
+    <div class="step" data-status="completed">
+      <div class="step-dot">✅</div>
+      <div class="step-label">Done</div>
+    </div>
+  </div>
 
-<div style="margin-top: 2rem; display: flex; gap: 1rem;">
-    <button id="pay-btn" style="display: none; padding: 0.5rem 1rem; background: #007bff; color: white; border: none; cursor: pointer;">Pay Now</button>
-    <button id="cancel-btn" style="display: none; padding: 0.5rem 1rem; background: #dc3545; color: white; border: none; cursor: pointer;">Cancel Order</button>
-    <button id="reorder-btn" style="display: none; padding: 0.5rem 1rem; background: #28a745; color: white; border: none; cursor: pointer;">Quick Reorder</button>
+  <div class="status-msg" id="status-msg">Loading order status…</div>
+
+  <!-- Order items -->
+  <div class="card order-items-section" id="order-details">
+    <div style="color:var(--muted);font-size:14px;">Loading…</div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions" id="actions"></div>
 </div>
-<div style="margin-top: 1rem;"><a href="/">Back to Menu</a></div>
 
 <script src="/socket.io/socket.io.js"></script>
-<script src="/public/js/tracker.js"></script>
+<script>
+const orderId = '{{orderId}}';
+const userId = 1;
+
+const STATUS_SEQUENCE = ['pending', 'cooking', 'delivery', 'completed'];
+const STATUS_MESSAGES = {
+  pending: '⏳ Your order is confirmed and waiting to be cooked.',
+  cooking: '🍳 Your order is being cooked right now!',
+  delivery: '🚀 On the way! Your order is out for delivery.',
+  completed: '✅ Order completed. Enjoy your meal!',
+  cancelled: '❌ This order was cancelled.'
+};
+
+function updateStepper(status) {
+  const steps = document.querySelectorAll('.stepper .step');
+  const cancelled = status === 'cancelled';
+
+  steps.forEach(step => {
+    step.classList.remove('done', 'active', 'cancelled');
+    const s = step.dataset.status;
+    if (cancelled) {
+      // show a cancelled indicator at pending
+      if (s === 'pending') step.classList.add('cancelled');
+      return;
+    }
+    const idx = STATUS_SEQUENCE.indexOf(status);
+    const sIdx = STATUS_SEQUENCE.indexOf(s);
+    if (sIdx < idx) step.classList.add('done');
+    else if (sIdx === idx) step.classList.add('done', 'active');
+  });
+
+  const msg = document.getElementById('status-msg');
+  msg.textContent = STATUS_MESSAGES[status] || '';
+  msg.className = 'status-msg' + (cancelled ? ' cancelled-msg' : '');
+}
+
+function renderOrderDetails(order) {
+  const items = order.items || [];
+  const el = document.getElementById('order-details');
+  if (!items.length) { el.innerHTML = '<div style="color:var(--muted);font-size:14px;">No items found.</div>'; return; }
+  el.innerHTML = `
+    <h3>Order Items</h3>
+    ${items.map(i => `
+      <div class="order-item-row">
+        <span>${i.name} × ${i.quantity || 1}</span>
+        <span>$${(i.price * (i.quantity || 1)).toFixed(2)}</span>
+      </div>
+    `).join('')}
+    <div class="order-total-row">
+      <span>Total</span>
+      <span style="color:var(--accent)">$${(order.totalAmount || 0).toFixed(2)}</span>
+    </div>
+  `;
+}
+
+function renderActions(status) {
+  const el = document.getElementById('actions');
+  let html = '';
+  if (status === 'pending') {
+    html += `<a href="/payment/${orderId}" class="btn btn-primary">💳 Pay Now</a>`;
+    html += `<button class="btn btn-red" onclick="cancelOrder()">Cancel Order</button>`;
+  }
+  if (status === 'cooking') {
+    html += `<button class="btn btn-red" onclick="cancelOrder()">Cancel Order</button>`;
+  }
+  if (status === 'completed' || status === 'cancelled') {
+    html += `<button class="btn btn-green" onclick="reorder()">🔄 Quick Reorder</button>`;
+  }
+  el.innerHTML = html;
+}
+
+async function loadOrder() {
+  try {
+    const res = await fetch(`/api/order/${orderId}`);
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    updateStepper(data.status);
+    renderOrderDetails(data);
+    renderActions(data.status);
+  } catch(e) {
+    document.getElementById('status-msg').textContent = '⚠️ Could not load order. Check the server.';
+  }
+}
+
+async function cancelOrder() {
+  if (!confirm('Cancel this order?')) return;
+  try {
+    const res = await fetch(`/api/order/${orderId}/cancel`, { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+    updateStepper('cancelled');
+    renderActions('cancelled');
+    showToast('Order cancelled.');
+  } catch(e) {
+    showToast('Cannot cancel: ' + (e.message || 'Error'));
+  }
+}
+
+async function reorder() {
+  try {
+    const res = await fetch(`/api/order/${orderId}/reorder`, { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+    showToast('New order placed!');
+    setTimeout(() => window.location.href = '/order-tracking/' + data.orderId, 800);
+  } catch(e) {
+    showToast('Reorder failed: ' + (e.message || 'Error'));
+  }
+}
+
+// WebSocket for live updates
+try {
+  const socket = io();
+  socket.on('connect', () => {
+    socket.emit('join_order_room', { orderId, userId });
+  });
+  socket.on('order_status_update', (data) => {
+    updateStepper(data.status);
+    renderActions(data.status);
+    showToast(data.message);
+  });
+} catch(e) {}
+
+loadOrder();
+</script>
