@@ -1,70 +1,45 @@
-import NotificationModel from '../models/notification.model.js';
-import orderSubject from '../services/notification/OrderSubject.js';
+﻿import NotificationModel from '../models/notification.model.js';
 
 const NotificationController = {
-    // GET /notification — Trang thông báo của user
-    async showNotifications(req, res, next) {
-        try {
-            const userId = req.session?.authUser?.id;
-            const notifications = await NotificationModel.findByUserId(userId);
-            const unreadCount = notifications.filter(n => !n.is_read).length;
+  async showNotifications(req, res, next) {
+    try {
+      const userId = Number(req.query.userId || req.session?.authUser?.id || 1);
+      const notifications = await NotificationModel.findByUserId(userId);
+      const unread = await NotificationModel.countUnread(userId);
+      res.render('notification/index', { title: 'Thông báo', notifications, unread, userId });
+    } catch (err) { next(err); }
+  },
 
-            res.render('pages/notification/index', {
-                title: 'Thông báo',
-                notifications,
-                unreadCount,
-            });
-        } catch (err) {
-            next(err);
-        }
-    },
+  async showKitchenNotifications(req, res, next) {
+    try {
+      const notifications = await NotificationModel.findKitchenNotifications();
+      res.render('notification/kitchen', { title: 'Bếp - Thông báo', notifications });
+    } catch (err) { next(err); }
+  },
 
-    // GET /notification/kitchen — Bảng thông báo bếp
-    async showKitchenNotifications(req, res, next) {
-        try {
-            const notifications = await NotificationModel.findKitchenNotifications();
+  async markAllAsRead(req, res, next) {
+    try {
+      const userId = Number(req.body.userId || req.session?.authUser?.id || 1);
+      await NotificationModel.markAllAsRead(userId);
+      res.json({ success: true });
+    } catch (err) { next(err); }
+  },
 
-            res.render('pages/notification/kitchen', {
-                title: 'Thông báo bếp',
-                notifications,
-            });
-        } catch (err) {
-            next(err);
-        }
-    },
+  async markAsRead(req, res, next) {
+    try {
+      const id = Number(req.params.id);
+      await NotificationModel.markAsRead(id);
+      res.json({ success: true });
+    } catch (err) { next(err); }
+  },
 
-    // PATCH /notification/:id/read — Đánh dấu đã đọc
-    async markAsRead(req, res, next) {
-        try {
-            const { id } = req.params;
-            await NotificationModel.markAsRead(id);
-            res.json({ success: true });
-        } catch (err) {
-            next(err);
-        }
-    },
-
-    // PATCH /notification/read-all — Đánh dấu tất cả đã đọc
-    async markAllAsRead(req, res, next) {
-        try {
-            const userId = req.session?.authUser?.id;
-            await NotificationModel.markAllAsRead(userId);
-            res.json({ success: true });
-        } catch (err) {
-            next(err);
-        }
-    },
-
-    // POST /api/notification/trigger — Test: trigger event thủ công
-    async triggerEvent(req, res, next) {
-        try {
-            const { event, data } = req.body;
-            orderSubject.notify(event, data);
-            res.json({ success: true, message: `Event "${event}" đã được phát` });
-        } catch (err) {
-            next(err);
-        }
-    },
+  // Simple webhook/test trigger
+  async triggerEvent(req, res, next) {
+    try {
+      // Subject-based notifications are emitted from controllers/services; this is a placeholder
+      res.json({ ok: true });
+    } catch (err) { next(err); }
+  }
 };
 
 export default NotificationController;

@@ -1,6 +1,6 @@
-
+﻿
 import { IObserver } from './IObserver.js';
-import db from '../../config/database.js';
+import NotificationModel from '../../models/notification.model.js';
 
 export class UserNotifier extends IObserver {
     update(event, data) {
@@ -9,26 +9,20 @@ export class UserNotifier extends IObserver {
 
         console.log(`[UserNotifier] ${message}`);
 
-        // Lưu notification vào DB (không chặn main flow)
-        this._save({
-            user_id: data.userId || null,
-            order_id: data.orderId || null,
-            type: 'user',
-            event,
-            message,
-        }).catch(err => console.error('[UserNotifier] DB error:', err));
+        // LÆ°u notification vÃ o DB (khÃ´ng cháº·n main flow)
+        NotificationModel.create({ user_id: data.userId || null, order_id: data.orderId || null, type: 'user', event, message }).catch(err => console.error('[UserNotifier] DB error:', err));
     }
 
     _buildMessage(event, data) {
         switch (event) {
             case 'ORDER_CREATED':
-                return `Đơn hàng #${data.orderId} của bạn đã được tạo thành công!`;
+                return `ÄÆ¡n hÃ ng #${data.orderId} cá»§a báº¡n Ä‘Ã£ Ä‘Æ°á»£c táº¡o thÃ nh cÃ´ng!`;
             case 'ORDER_PAID':
-                return `Thanh toán đơn hàng #${data.orderId} thành công. Mã GD: ${data.transactionId}`;
+                return `Thanh toÃ¡n Ä‘Æ¡n hÃ ng #${data.orderId} thÃ nh cÃ´ng. MÃ£ GD: ${data.transactionId}`;
             case 'ORDER_STATUS_CHANGED':
-                return `Đơn hàng #${data.orderId} đã chuyển sang trạng thái: ${data.status}`;
+                return `ÄÆ¡n hÃ ng #${data.orderId} Ä‘Ã£ chuyá»ƒn sang tráº¡ng thÃ¡i: ${data.status}`;
             case 'ORDER_DONE':
-                return `Đơn hàng #${data.orderId} đã hoàn thành. Cảm ơn bạn!`;
+                return `ÄÆ¡n hÃ ng #${data.orderId} Ä‘Ã£ hoÃ n thÃ nh. Cáº£m Æ¡n báº¡n!`;
             default:
                 return null;
         }
@@ -41,3 +35,4 @@ export class UserNotifier extends IObserver {
         });
     }
 }
+

@@ -1,44 +1,42 @@
-import db from '../config/database.js';
+﻿import db from '../config/database.js';
+
+const mem = { notifications: [] };
 
 const NotificationModel = {
-    // Lấy tất cả notification của user
+    async create(payload) {
+        if (!DB_ENABLED) {
+            const row = { id: mem.notifications.length + 1, ...payload, created_at: new Date(), is_read: false };
+            mem.notifications.unshift(row);
+            return row;
+        }
+        const [row] = await db('notifications').insert({ ...payload, created_at: new Date() }).returning('*');
+        return row;
+    },
+
     async findByUserId(userId) {
-        return db('notifications')
-            .where({ user_id: userId })
-            .orderBy('created_at', 'desc');
+        if (!DB_ENABLED) return mem.notifications.filter(n => n.type === 'user' && n.user_id === Number(userId));
+        return db('notifications').where({ type: 'user', user_id: userId }).orderBy('created_at', 'desc');
     },
 
-    // Lấy notification của bếp
     async findKitchenNotifications() {
-        return db('notifications')
-            .where({ type: 'kitchen' })
-            .orderBy('created_at', 'desc')
-            .limit(50);
+        if (!DB_ENABLED) return mem.notifications.filter(n => n.type === 'kitchen');
+        return db('notifications').where({ type: 'kitchen' }).orderBy('created_at', 'desc');
     },
 
-    // Đánh dấu đã đọc
-    async markAsRead(id) {
-        const [updated] = await db('notifications')
-            .where({ id })
-            .update({ is_read: true })
-            .returning('*');
-        return updated;
-    },
-
-    // Đánh dấu tất cả đã đọc cho user
     async markAllAsRead(userId) {
-        return db('notifications')
-            .where({ user_id: userId, is_read: false })
-            .update({ is_read: true });
+        if (!DB_ENABLED) { mem.notifications.forEach(n => { if (n.user_id === Number(userId) && n.type === 'user') n.is_read = true; }); return { count: true }; }
+        return db('notifications').where({ user_id: userId, type: 'user' }).update({ is_read: true });
     },
 
-    // Đếm notification chưa đọc
+    async markAsRead(id) {
+        if (!DB_ENABLED) { const n = mem.notifications.find(n => n.id === Number(id)); if (n) n.is_read = true; return n || null; }
+        return db('notifications').where({ id }).update({ is_read: true });
+    },
+
     async countUnread(userId) {
-        const result = await db('notifications')
-            .where({ user_id: userId, is_read: false })
-            .count('id as count')
-            .first();
-        return parseInt(result?.count || 0);
+        if (!DB_ENABLED) return mem.notifications.filter(n => n.user_id === Number(userId) && n.type === 'user' && !n.is_read).length;
+        const row = await db('notifications').where({ user_id: userId, type: 'user', is_read: false }).count({ cnt: '*' }).first();
+        return Number(row?.cnt || 0);
     },
 };
 

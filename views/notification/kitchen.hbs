@@ -1,108 +1,23 @@
-{{#fillSection "css"}}
-<style>
-    .kitchen-header {
-        background: linear-gradient(135deg, #ff6b35, #f7931e);
-        border-radius: 16px;
-        padding: 24px 32px;
-        color: white;
-        margin-bottom: 32px;
-    }
-    .kitchen-header h2 { font-size: 1.8rem; font-weight: 800; margin: 0; }
-    .notif-item {
-        border-radius: 12px;
-        border: 1px solid #e9ecef;
-        padding: 16px 20px;
-        transition: all 0.2s;
-    }
-    .notif-item.new {
-        background: #fff8f0;
-        border-left: 4px solid #ff6b35;
-        animation: pulse 1.5s ease-in-out;
-    }
-    @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(255,107,53,0.4); }
-        70% { box-shadow: 0 0 0 10px rgba(255,107,53,0); }
-        100% { box-shadow: 0 0 0 0 rgba(255,107,53,0); }
-    }
-    .notif-time { font-size: 0.78rem; color: #adb5bd; }
-    .notif-icon { font-size: 1.8rem; }
-    .empty-state { text-align: center; padding: 60px 0; color: #adb5bd; }
-    .empty-state i { font-size: 4rem; }
-    .badge-event {
-        font-size: 0.75rem;
-        border-radius: 8px;
-        padding: 3px 10px;
-        font-weight: 600;
-    }
-    .refresh-btn {
-        background: white;
-        border: 1px solid #ff6b35;
-        color: #ff6b35;
-        border-radius: 8px;
-        padding: 6px 16px;
-    }
-    .refresh-btn:hover { background: #ff6b35; color: white; }
-</style>
-{{/fillSection}}
+﻿{{#extend "layouts/main"}}
+{{#content "body"}}
+<div class="container py-4" style="max-width: 760px;">
+  <h3 class="mb-3">Thông báo Bếp</h3>
 
-<div class="col-12">
-    <div class="container py-4" style="max-width: 800px;">
-
-        <div class="kitchen-header d-flex justify-content-between align-items-center">
-            <div>
-                <h2>🍳 Bảng thông báo bếp</h2>
-                <p class="mb-0 opacity-75">Cập nhật đơn hàng theo thời gian thực</p>
-            </div>
-            <button class="refresh-btn" onclick="location.reload()">
-                <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
-            </button>
+  {{#if (isEmpty notifications)}}
+    <div class="alert alert-info">Chưa có thông báo cho bếp.</div>
+  {{else}}
+    <div class="list-group">
+      {{#each notifications}}
+        <div class="list-group-item d-flex justify-content-between align-items-start">
+          <div class="ms-2 me-auto">
+            <div class="fw-semibold">{{event}}</div>
+            <div class="text-muted">{{message}}</div>
+            <small class="text-secondary">{{formatDate created_at}}</small>
+          </div>
         </div>
-
-        {{#if (isEmpty notifications)}}
-        <div class="empty-state">
-            <i class="bi bi-bell-slash"></i>
-            <p class="mt-3 fs-5">Chưa có thông báo nào</p>
-        </div>
-        {{else}}
-        <div class="d-flex flex-column gap-3">
-            {{#each notifications}}
-            <div class="notif-item {{#if (isNew created_at)}}new{{/if}}">
-                <div class="d-flex align-items-start gap-3">
-                    <span class="notif-icon">
-                        {{#if (eq event "ORDER_PAID")}}🔥
-                        {{else if (eq event "ORDER_STATUS_CHANGED")}}🔄
-                        {{else if (eq event "ORDER_CANCELLED")}}🚫
-                        {{else}}📢{{/if}}
-                    </span>
-                    <div class="flex-grow-1">
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="fw-bold">{{message}}</span>
-                            {{#if (isNew created_at)}}
-                            <span class="badge badge-event bg-danger text-white">MỚI</span>
-                            {{/if}}
-                        </div>
-                        <div class="d-flex gap-2 align-items-center">
-                            <span class="notif-time">
-                                <i class="bi bi-clock me-1"></i>{{formatDate created_at}}
-                            </span>
-                            {{#if order_id}}
-                            <span class="badge badge-event bg-light text-dark">
-                                Đơn #{{order_id}}
-                            </span>
-                            {{/if}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {{/each}}
-        </div>
-        {{/if}}
+      {{/each}}
     </div>
+  {{/if}}
 </div>
-
-{{#fillSection "js"}}
-<script>
-    // Tự động reload mỗi 30 giây để cập nhật đơn mới
-    setTimeout(() => location.reload(), 30000);
-</script>
-{{/fillSection}}
+{{/content}}
+{{/extend}}
