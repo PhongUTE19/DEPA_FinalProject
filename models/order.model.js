@@ -31,6 +31,10 @@ const OrderModel = {
       .orderBy('created_at', 'desc');
   },
 
+  async findAll() {
+    return db('orders').orderBy('created_at', 'desc');
+  },
+
   async updateStatus(id, status) {
     const [updated] = await db('orders')
       .where({ id: String(id) })           // FIX: string

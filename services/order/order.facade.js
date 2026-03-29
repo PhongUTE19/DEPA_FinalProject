@@ -8,7 +8,7 @@ export class OrderFacade {
     this.factory = factory;
   }
 
-  createOrder({ userId, items, extraSauce, noOnions, lessSugar, customRequests = [] }) {
+  async createOrder({ userId, items, extraSauce, noOnions, lessSugar, customRequests = [] }) {
     const builder = new OrderBuilder().setUser(userId);
 
     for (const it of items || []) {
@@ -42,24 +42,46 @@ export class OrderFacade {
     this.store.save(order);
 
     // FIX: also persist to DB so payment and notifications can find the order
-    // after a server restart. Fire-and-forget — don't block the HTTP response.
-    OrderModel.create({
+    // after a server restart. We now await it to ensure it's successfully saved.
+    await OrderModel.create({
       id:             order.id,
       userId:         userId || null,
       items:          order.items,
       customizations: order.customizations,
       status:         order.status(),
       totalAmount:    order.totalAmount(),
-    }).catch(err => console.error('[OrderFacade] DB persist error:', err.message));
+    });
 
     orderSubject.notify('ORDER_CREATED', { orderId: order.id, userId });
     return order;
   }
 
-  updateStatus(orderId, next = false, targetStatus = null) {
-    // FIX: try in-memory first, then fall back to reconstructing from DB
+  async _getOrder(orderId) {
     let order = this.store.get(orderId);
-    if (!order) throw new Error('Order not found');
+    if (!order) {
+      const dbOrder = await OrderModel.findById(orderId);
+      if (!dbOrder) throw new Error('Order not found');
+
+      const builder = new OrderBuilder().setUser(dbOrder.user_id);
+      
+      const items = typeof dbOrder.items === 'string' ? JSON.parse(dbOrder.items) : dbOrder.items;
+      for (const it of items) builder.addItem(it);
+
+      const customizations = typeof dbOrder.customizations === 'string' ? JSON.parse(dbOrder.customizations) : dbOrder.customizations;
+      for (const req of customizations) builder.addCustomRequest(req);
+
+      order = builder.build();
+      order.id = dbOrder.id; // Override auto-generated ID with the DB ID
+      if (dbOrder.status) order.transitionTo(dbOrder.status); // Restore state
+      
+      this.store.save(order);
+    }
+    return order;
+  }
+
+  async updateStatus(orderId, next = false, targetStatus = null) {
+    // FIX: try in-memory first, then fall back to reconstructing from DB
+    const order = await this._getOrder(orderId);
 
     if (next) {
       order.advance();
@@ -70,8 +92,7 @@ export class OrderFacade {
     this.store.save(order);
 
     // FIX: sync new status to DB
-    OrderModel.updateStatus(orderId, order.status())
-      .catch(err => console.error('[OrderFacade] DB status update error:', err.message));
+    await OrderModel.updateStatus(orderId, order.status());
 
     orderSubject.notify('ORDER_STATUS_CHANGED', { orderId: order.id, status: order.status() });
     if (order.status() === 'completed') {
@@ -80,16 +101,14 @@ export class OrderFacade {
     return order;
   }
 
-  cancelOrder(orderId) {
-    const order = this.store.get(orderId);
-    if (!order) throw new Error('Order not found');
+  async cancelOrder(orderId) {
+    const order = await this._getOrder(orderId);
 
     order.cancel();
     this.store.save(order);
 
     // FIX: sync cancellation to DB
-    OrderModel.updateStatus(orderId, order.status())
-      .catch(err => console.error('[OrderFacade] DB cancel error:', err.message));
+    await OrderModel.updateStatus(orderId, order.status());
 
     orderSubject.notify('ORDER_CANCELLED', { orderId: order.id, status: order.status() });
     return order;

@@ -1,11 +1,32 @@
 ﻿import db from '../config/database.js';
 
+// FIX: The notifications table has order_id as INTEGER in most Postgres setups,
+// but our order IDs are timestamp-based strings like "1700000000000-123".
+// Two options: (a) change the column to TEXT, or (b) store null for order_id
+// and put the string id in the message (which is already there).
+// We go with option (b) — zero schema changes required, message already contains
+// the order reference, so order_id in the table stays null for string-id orders.
+
 const NotificationModel = {
   async create(payload) {
-    const [row] = await db('notifications')
-      .insert({ ...payload, created_at: new Date() })
-      .returning('*');
-    return row;
+    // FIX: Sanitize order_id — only pass it if it's actually a valid integer.
+    // String-based order IDs (e.g. "1700000000000-42") cannot go into an INT column.
+    const safePayload = {
+      ...payload,
+      order_id: isValidIntegerId(payload.order_id) ? Number(payload.order_id) : null,
+      created_at: new Date(),
+    };
+
+    try {
+      const [row] = await db('notifications')
+        .insert(safePayload)
+        .returning('*');
+      return row;
+    } catch (err) {
+      // Log but don't crash the request — notifications are non-critical
+      console.error('[NotificationModel] create error:', err.message);
+      return null;
+    }
   },
 
   async findByUserId(userId) {
@@ -40,5 +61,12 @@ const NotificationModel = {
     return Number(row?.cnt || 0);
   },
 };
+
+// Helper: returns true only for values that are safe to cast to a Postgres INTEGER
+function isValidIntegerId(val) {
+  if (val === null || val === undefined) return false;
+  const n = Number(val);
+  return Number.isInteger(n) && n > 0 && n <= 2147483647;
+}
 
 export default NotificationModel;

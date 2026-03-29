@@ -2,18 +2,17 @@ import db from '../config/database.js';
 
 const FoodModel = {
   async findAll() {
-    return db('foods').select('*').orderBy('id', 'asc');
+    return db('food').select('*').orderBy('id', 'asc');
   },
 
   async findById(id) {
-    return db('foods').where({ id: Number(id) }).first();
+    return db('food').where({ id: Number(id) }).first();
   },
 
   async create(food) {
-    const [newFood] = await db('foods')
+    const [newFood] = await db('food')
       .insert({
         ...food,
-        created_at: new Date(),
       })
       .returning('*');
     return newFood;
