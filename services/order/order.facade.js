@@ -72,7 +72,19 @@ export class OrderFacade {
 
       order = builder.build();
       order.id = dbOrder.id; // Override auto-generated ID with the DB ID
-      if (dbOrder.status) order.transitionTo(dbOrder.status); // Restore state
+      
+      // Restore state by fast-forwarding the state machine
+      if (dbOrder.status && dbOrder.status !== 'pending') {
+        if (dbOrder.status === 'cancelled') {
+          order.transitionTo('cancelled');
+        } else {
+          const statuses = ['pending', 'cooking', 'delivery', 'completed'];
+          const targetIdx = statuses.indexOf(dbOrder.status);
+          for (let i = 1; i <= targetIdx; i++) {
+            order.transitionTo(statuses[i]);
+          }
+        }
+      }
       
       this.store.save(order);
     }

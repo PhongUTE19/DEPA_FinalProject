@@ -6,6 +6,7 @@ export class OrderState {
   next() { throw new Error('next() not implemented'); }
   cancel() { throw new Error(`Cannot cancel an order that is in ${this.name()} state.`); }
   transitionTo(targetStatus) {
+    if (this.name() === targetStatus) return;
     throw new Error(`Illegal State Transition: Cannot move from ${this.name()} directly to ${targetStatus}.`);
   }
 }
