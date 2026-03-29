@@ -1,0 +1,140 @@
+{{#fillSection "css"}}
+<style>
+    .payment-card {
+        border: 2px solid #e9ecef;
+        border-radius: 16px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .payment-card:hover {
+        border-color: #ff6b35;
+        background: #fff5f0;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(255, 107, 53, 0.15);
+    }
+
+    .payment-card.selected {
+        border-color: #ff6b35;
+        background: #fff5f0;
+    }
+
+    .payment-card .method-icon {
+        font-size: 2.5rem;
+    }
+
+    .payment-card input[type="radio"] {
+        display: none;
+    }
+
+    .btn-pay {
+        background: #ff6b35;
+        border: none;
+        border-radius: 12px;
+        padding: 14px 40px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+        width: 100%;
+        transition: background 0.2s;
+    }
+
+    .btn-pay:hover {
+        background: #e85a24;
+    }
+
+    .order-summary {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 24px;
+    }
+
+    .total-amount {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #ff6b35;
+    }
+</style>
+{{/fillSection}}
+
+<div class="col-12">
+    <div class="container py-5" style="max-width: 680px;">
+        <h2 class="fw-bold mb-1">🧾 Thanh toán đơn hàng</h2>
+        <p class="text-muted mb-4">Mã đơn: <strong>#{{orderId}}</strong></p>
+
+        <form action="/payment" method="POST" id="paymentForm">
+            <input type="hidden" name="orderId" value="{{orderId}}">
+            <input type="hidden" name="userId" value="{{userId}}">
+            <input type="hidden" name="totalAmount" id="totalAmountInput" value="{{totalAmount}}">
+            <input type="hidden" id="totalAmountData" value="{{totalAmount}}">
+
+            {{!-- Order Summary --}}
+            <div class="order-summary mb-4">
+                <h5 class="fw-semibold mb-3">Tóm tắt đơn hàng</h5>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Mã đơn hàng</span>
+                    <span class="fw-medium">#{{orderId}}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold">Tổng cộng</span>
+                    <span class="total-amount" id="displayAmount">Đang tải...</span>
+                </div>
+            </div>
+
+            {{!-- Payment Methods --}}
+            <h5 class="fw-semibold mb-3">Chọn phương thức thanh toán</h5>
+            <div class="row g-3 mb-4">
+                {{#each methods}}
+                <div class="col-12 col-sm-4">
+                    <label class="payment-card d-flex flex-column align-items-center gap-2 w-100"
+                        onclick="selectMethod(this)" data-method="{{this}}">
+                        <input type="radio" name="paymentMethod" value="{{this}}" required>
+                        <span class="method-icon">
+                            {{#if (eq this "cash")}}💵
+                            {{else if (eq this "bank")}}🏦
+                            {{else if (eq this "momo")}}📱
+                            {{else}}💳{{/if}}
+                        </span>
+                        <span class="fw-semibold text-capitalize">
+                            {{#if (eq this "cash")}}Tiền mặt
+                            {{else if (eq this "bank")}}Ngân hàng
+                            {{else if (eq this "momo")}}MoMo
+                            {{else}}{{this}}{{/if}}
+                        </span>
+                        <small class="text-muted text-center">
+                            {{#if (eq this "cash")}}Thanh toán khi nhận hàng
+                            {{else if (eq this "bank")}}Chuyển khoản ngân hàng
+                            {{else if (eq this "momo")}}Ví điện tử MoMo
+                            {{/if}}
+                        </small>
+                    </label>
+                </div>
+                {{/each}}
+            </div>
+
+            <button type="submit" class="btn-pay">
+                <i class="bi bi-lock-fill me-2"></i>Xác nhận thanh toán
+            </button>
+        </form>
+    </div>
+</div>
+
+{{#fillSection "js"}}
+<script>
+    function selectMethod(el) {
+        document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        el.querySelector('input[type="radio"]').checked = true;
+    }
+
+    function displayOrderAmount() {
+        const amount = parseInt(document.getElementById('totalAmountData').value) || 0;
+        document.getElementById('totalAmountInput').value = amount;
+        document.getElementById('displayAmount').textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    }
+
+    displayOrderAmount();
+</script>
+{{/fillSection}}
