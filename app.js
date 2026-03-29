@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import { engine } from 'express-handlebars';
 import session from 'express-session';
 import helpers from './views/helpers.js';
@@ -9,6 +9,7 @@ import courseRouter from './routes/course.route.js';
 import adminCourseRouter from './routes/admin/course.route.js';
 import adminCategoryRouter from './routes/admin/category.route.js';
 import foodRouter from './routes/food.route.js';
+import orderRouter from './routes/order.route.js';
 
 import authMiddleware from './middlewares/auth.middleware.js';
 import errorMiddleware from './middlewares/error.middleware.js';
@@ -63,6 +64,7 @@ app.set('views', './views');
 app.use(express.urlencoded({
     extended: true
 }));
+app.use(express.json());
 
 // 5. Global middleware: Place these before routes to create global data
 app.use(viewMiddleware.injectGlobals);
@@ -75,6 +77,7 @@ app.use("/course", courseRouter);
 app.use("/admin/course", authMiddleware.requireAuth, authMiddleware.requireAdmin, adminCourseRouter);
 app.use("/admin/category", authMiddleware.requireAuth, authMiddleware.requireAdmin, adminCategoryRouter);
 app.use("/menu", foodRouter);
+app.use("/order", orderRouter);
 
 // 8. Error handling middleware
 app.use(errorMiddleware.notFound);

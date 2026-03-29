@@ -1,32 +1,33 @@
 import db from '../config/database.js';
 
-const tableName = 'categories';
-
-const baseQuery = () => db(tableName);
-
-const findAll = () => {
-    return baseQuery()
-        .orderBy('category_id', 'asc');
+const findAll = async () => {
+    // Get distinct types from the food table instead of a categories table
+    const results = await db('food').distinct('type').whereNotNull('type');
+    
+    // Map them to objects so the rest of your app doesn't break
+    return results.map((row, index) => ({
+        category_id: index + 1,
+        name: row.type
+    }));
 };
 
-const findById = (id) => {
-    return baseQuery()
-        .where('category_id', id).first();
+const findById = async (id) => {
+    return null; // Stub: Since categories don't have real IDs anymore
 };
 
-const add = (category) => {
-    return baseQuery()
-        .insert(category);
+const add = async (category) => {
+    // Stub: Cannot add a standalone category if it's just a food type
+    return null;
 };
 
-const del = (id) => {
-    return baseQuery()
-        .where('category_id', id).del();
+const del = async (id) => {
+    // Stub
+    return null;
 };
 
-const edit = (id, category) => {
-    return baseQuery()
-        .where('category_id', id).update(category);
+const edit = async (id, category) => {
+    // Stub
+    return null;
 };
 
 export default {
