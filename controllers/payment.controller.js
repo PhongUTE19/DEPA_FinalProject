@@ -49,6 +49,17 @@ const PaymentController = {
                 });
             }
 
+            // Check order status - only allow payment if pending
+            const status = String(dbOrder.status || '').toLowerCase();
+            const allowedStatuses = new Set(['pending', 'new', '']);
+            if (!allowedStatuses.has(status)) {
+                return res.render('payment/result', {
+                    title: 'Thanh toán không hợp lệ',
+                    success: false,
+                    message: `Đơn hàng đang ở trạng thái '${dbOrder.status}'. Không thể thanh toán.`
+                });
+            }
+
             const amountToPay = Number(totalAmount || dbOrder.total_amount || 0);
             if (!amountToPay) {
                 return res.render('payment/result', {
@@ -140,7 +151,7 @@ const PaymentController = {
             const existing = await PaymentModel.findByOrderId(orderId);
             if (existing) return res.status(409).json({ success: false, message: 'Đơn đã thanh toán.' });
 
-            // Cho phép client không gửi totalAmount; tự lấy từ DB
+
             let amountToPay = Number(totalAmount || 0);
             if (!amountToPay) amountToPay = Number(dbOrder.total_amount || 0);
             if (!amountToPay) return res.status(400).json({ success: false, message: 'Không xác định được tổng tiền đơn hàng.' });
