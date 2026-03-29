@@ -76,15 +76,15 @@ class NoSugar extends ToppingDecorator {
 // → options = { extraCheese: true, spicy: true } → bọc 2 lớp, giá cộng dồn
 function applyToppings(food, options = {}) {
   let result = food;
-  if (options.extraCheese)  result = new ExtraCheese(result);
-  if (options.extraSauce)   result = new ExtraSauce(result);
-  if (options.noOnion)      result = new NoOnion(result);
-  if (options.extraMeat)    result = new ExtraMeat(result);
-  if (options.spicy)        result = new Spicy(result);
+  if (options.extraCheese) result = new ExtraCheese(result);
+  if (options.extraSauce) result = new ExtraSauce(result);
+  if (options.noOnion) result = new NoOnion(result);
+  if (options.extraMeat) result = new ExtraMeat(result);
+  if (options.spicy) result = new Spicy(result);
   if (options.extraVeggies) result = new ExtraVeggies(result);
-  if (options.noDressing)   result = new NoDressing(result);
-  if (options.extraIce)     result = new ExtraIce(result);
-  if (options.noSugar)      result = new NoSugar(result);
+  if (options.noDressing) result = new NoDressing(result);
+  if (options.extraIce) result = new ExtraIce(result);
+  if (options.noSugar) result = new NoSugar(result);
   return result;
 }
 

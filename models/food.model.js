@@ -1,11 +1,15 @@
 import db from '../config/database.js';
 
+const tableName = 'food';
+
+const baseQuery = () => db(tableName);
+
 const FoodModel = {
   async getAll() {
-    return await db('food').select('id', 'name', 'price', 'type', 'image_url');
+    return await baseQuery();
   },
   async getById(id) {
-    return await db('food').where({ id }).first();
+    return await baseQuery().where({ id }).first();
   },
 };
 
