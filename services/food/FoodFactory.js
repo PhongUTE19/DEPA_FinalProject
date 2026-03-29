@@ -1,14 +1,4 @@
-class Food {
-  constructor({ id, name, price, type }) {
-    this.id = id;
-    this.name = name;
-    this.price = price;
-    this.type = type || 'food';
-  }
-  getInfo() {
-    return { id: this.id, name: this.name, price: this.price, type: this.type }
-  }
-}
+import { Food } from './Food.js';
 
 class Pizza extends Food { constructor(d) { super({ ...d, type: 'pizza' }); } }
 class Salad extends Food { constructor(d) { super({ ...d, type: 'salad' }); } }
@@ -19,18 +9,18 @@ class Soup extends Food { constructor(d) { super({ ...d, type: 'soup' }); } }
 class Dessert extends Food { constructor(d) { super({ ...d, type: 'dessert' }); } }
 
 class FoodFactory {
-  static create(type, data) {
-    switch (type.toLowerCase()) {
-      case 'pizza': return new Pizza(data);
-      case 'salad': return new Salad(data);
-      case 'pasta': return new Pasta(data);
-      case 'burger': return new Burger(data);
-      case 'drink': return new Drink(data);
-      case 'soup': return new Soup(data);
-      case 'dessert': return new Dessert(data);
-      default: return new Food(data);
+    static create(type, data) {
+        switch (type.toLowerCase()) {
+            case 'pizza': return new Pizza(data);
+            case 'salad': return new Salad(data);
+            case 'pasta': return new Pasta(data);
+            case 'burger': return new Burger(data);
+            case 'drink': return new Drink(data);
+            case 'soup': return new Soup(data);
+            case 'dessert': return new Dessert(data);
+            default: return new Food(data);
+        }
     }
-  }
 }
 
 export default FoodFactory;

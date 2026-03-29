@@ -1,6 +1,6 @@
 import foodModel from '../models/food.model.js';
 import FoodFactory from '../services/food/FoodFactory.js'
-import { applyToppings } from '../services/food/ToppingDecorator.js';
+import { applyToppings } from '../services/food/FoodDecorator.js';
 
 const FoodController = {
 

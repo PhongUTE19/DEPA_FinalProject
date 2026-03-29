@@ -74,6 +74,13 @@ const helpers = {
 		}
 		return chunks;
 	},
+	typeEmoji: function (type) {
+		const map = {
+			pizza: '🍕', burger: '🍔', pasta: '🍝',
+			salad: '🥗', soup: '🍲', dessert: '🍰', drink: '🥤'
+		};
+		return map[type] || '🍽️';
+	},
 };
 
 export default helpers;
