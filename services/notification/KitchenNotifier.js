@@ -15,17 +15,17 @@ export class KitchenNotifier extends IObserver {
     _buildMessage(event, data) {
         switch (event) {
             case 'ORDER_PAID':
-                return `ÄÆ¡n hÃ ng #${data.orderId} Ä‘Ã£ thanh toÃ¡n â€” Báº®T Äáº¦U CHáº¾ BIáº¾N!`;
+                return `Đơn hàng #${data.orderId} đã thanh toán – BẢT ĐẦU CHỉ BIẾN!`;
             case 'ORDER_STATUS_CHANGED':
                 if (data.status === 'cooking') {
-                    return `ÄÆ¡n hÃ ng #${data.orderId} Ä‘ang cháº¿ biáº¿n`;
+                    return `Đơn hàng #${data.orderId} đang chỉ biến`;
                 }
                 if (data.status === 'done') {
-                    return `ÄÆ¡n hÃ ng #${data.orderId} Ä‘Ã£ xong, sáºµn sÃ ng giao`;
+                    return `Đơn hàng #${data.orderId} đã xong, sẵn sàng giao`;
                 }
                 return null;
             case 'ORDER_CANCELLED':
-                return `ÄÆ¡n hÃ ng #${data.orderId} Ä‘Ã£ bá»‹ há»§y â€” dá»«ng cháº¿ biáº¿n`;
+                return `Đơn hàng #${data.orderId} đã bị hủy – dừng chỉ biến`;
             default:
                 return null;
         }

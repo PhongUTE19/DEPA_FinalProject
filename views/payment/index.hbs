@@ -7,22 +7,27 @@
         cursor: pointer;
         transition: all 0.2s ease;
     }
+
     .payment-card:hover {
         border-color: #ff6b35;
         background: #fff5f0;
         transform: translateY(-2px);
-        box-shadow: 0 4px 16px rgba(255,107,53,0.15);
+        box-shadow: 0 4px 16px rgba(255, 107, 53, 0.15);
     }
+
     .payment-card.selected {
         border-color: #ff6b35;
         background: #fff5f0;
     }
+
     .payment-card .method-icon {
         font-size: 2.5rem;
     }
+
     .payment-card input[type="radio"] {
         display: none;
     }
+
     .btn-pay {
         background: #ff6b35;
         border: none;
@@ -34,12 +39,17 @@
         width: 100%;
         transition: background 0.2s;
     }
-    .btn-pay:hover { background: #e85a24; }
+
+    .btn-pay:hover {
+        background: #e85a24;
+    }
+
     .order-summary {
         background: #f8f9fa;
         border-radius: 16px;
         padding: 24px;
     }
+
     .total-amount {
         font-size: 1.8rem;
         font-weight: 700;
@@ -56,7 +66,8 @@
         <form action="/payment" method="POST" id="paymentForm">
             <input type="hidden" name="orderId" value="{{orderId}}">
             <input type="hidden" name="userId" value="{{userId}}">
-            <input type="hidden" name="totalAmount" id="totalAmountInput" value="0">
+            <input type="hidden" name="totalAmount" id="totalAmountInput" value="{{totalAmount}}">
+            <input type="hidden" id="totalAmountData" value="{{totalAmount}}">
 
             {{!-- Order Summary --}}
             <div class="order-summary mb-4">
@@ -77,8 +88,8 @@
             <div class="row g-3 mb-4">
                 {{#each methods}}
                 <div class="col-12 col-sm-4">
-                    <label class="payment-card d-flex flex-column align-items-center gap-2 w-100" 
-                           onclick="selectMethod(this)" data-method="{{this}}">
+                    <label class="payment-card d-flex flex-column align-items-center gap-2 w-100"
+                        onclick="selectMethod(this)" data-method="{{this}}">
                         <input type="radio" name="paymentMethod" value="{{this}}" required>
                         <span class="method-icon">
                             {{#if (eq this "cash")}}💵
@@ -118,25 +129,12 @@
         el.querySelector('input[type="radio"]').checked = true;
     }
 
-    // Lấy tổng tiền từ order (gọi API nếu Person B đã có)
-    async function loadOrderAmount() {
-        const orderId = '{{orderId}}';
-        try {
-            const res = await fetch(`/api/order/${orderId}`);
-            if (res.ok) {
-                const data = await res.json();
-                const amount = data.totalAmount || data.total_amount || 0;
-                document.getElementById('totalAmountInput').value = amount;
-                document.getElementById('displayAmount').textContent =
-                    new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-            } else {
-                document.getElementById('displayAmount').textContent = 'Liên hệ nhân viên';
-            }
-        } catch {
-            document.getElementById('displayAmount').textContent = 'Liên hệ nhân viên';
-        }
+    function displayOrderAmount() {
+        const amount = parseInt(document.getElementById('totalAmountData').value) || 0;
+        document.getElementById('totalAmountInput').value = amount;
+        document.getElementById('displayAmount').textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
     }
 
-    loadOrderAmount();
+    displayOrderAmount();
 </script>
 {{/fillSection}}

@@ -2,8 +2,27 @@
 
 const NotificationModel = {
   async create(payload) {
+    // Chuẩn hoá dữ liệu theo schema bảng notifications:
+    // id (serial), user_id int4, order_id int4, type text, event text,
+    // message text, is_read bool, created_at timestamptz
+    const parsedUserId = Number(payload.user_id);
+    const parsedOrderId = Number(payload.order_id);
+    const normalized = {
+      user_id: payload.user_id == null || payload.user_id === '' || !Number.isFinite(parsedUserId)
+        ? null
+        : parsedUserId,
+      order_id: payload.order_id == null || payload.order_id === '' || !Number.isFinite(parsedOrderId)
+        ? null
+        : parsedOrderId,
+      type: (payload.type || '').trim() || null,
+      event: (payload.event || '').trim() || null,
+      message: payload.message ?? null,
+      is_read: payload.is_read ?? false,
+      created_at: new Date()
+    };
+
     const [row] = await db('notifications')
-      .insert({ ...payload, created_at: new Date() })
+      .insert(normalized)
       .returning('*');
     return row;
   },

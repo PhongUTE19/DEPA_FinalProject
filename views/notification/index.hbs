@@ -1,35 +1,33 @@
-﻿{{#extend "layouts/main"}}
-{{#content "body"}}
-<div class="container py-4" style="max-width: 760px;">
+﻿<div class="container py-4" style="max-width: 760px;">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">Thông báo (User #{{userId}})</h3>
     <button id="btnReadAll" class="btn btn-outline-secondary btn-sm">Đánh dấu đã đọc tất cả</button>
   </div>
 
   {{#if (isEmpty notifications)}}
-    <div class="alert alert-info">Chưa có thông báo.</div>
+  <div class="alert alert-info">Chưa có thông báo.</div>
   {{else}}
-    <div class="list-group">
-      {{#each notifications}}
-        <div class="list-group-item d-flex justify-content-between align-items-start">
-          <div class="ms-2 me-auto">
-            <div class="fw-semibold">{{event}}</div>
-            <div class="text-muted">{{message}}</div>
-            <small class="text-secondary">{{formatDate created_at}}</small>
-          </div>
-          {{#unless is_read}}
-          <button class="btn btn-sm btn-outline-primary mark-read" data-id="{{id}}">Đã đọc</button>
-          {{/unless}}
-        </div>
-      {{/each}}
+  <div class="list-group">
+    {{#each notifications}}
+    <div class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-semibold">{{event}}</div>
+        <div class="text-muted">{{message}}</div>
+        <small class="text-secondary">{{formatDate created_at}}</small>
+      </div>
+      {{#unless is_read}}
+      <button class="btn btn-sm btn-outline-primary mark-read" data-id="{{id}}">Đánh dấu đã đọc</button>
+      {{/unless}}
     </div>
+    {{/each}}
+  </div>
   {{/if}}
 </div>
 
 <script>
   document.getElementById('btnReadAll')?.addEventListener('click', async () => {
-    await fetch('/notification/read-all', { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ userId: {{userId}} }) });
-    location.reload();
+    await fetch('/notification/read-all', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: {{ userId }} }) });
+  location.reload();
   });
   document.querySelectorAll('.mark-read').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -39,5 +37,3 @@
     });
   });
 </script>
-{{/content}}
-{{/extend}}
