@@ -4,10 +4,7 @@ import session from 'express-session';
 
 import errorMiddleware from './middlewares/error.middleware.js';
 
-// Core domain routers
-import menuRouter from './routes/menu.route.js';
-import orderRouter from './routes/order.route.js';
-
+// Core domain routers - only Payment & Notification
 import notificationRouter from './routes/notification.route.js';
 import paymentRouter from './routes/payment.route.js';
 import helpers from './views/helpers.js';
@@ -37,10 +34,7 @@ app.set('views', './views');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Routers (only project-related)
-app.use('/', menuRouter);
-app.use('/', orderRouter);
-
+// Routers - only payment & notification
 app.use('/payment', paymentRouter);
 app.use('/notification', notificationRouter);
 

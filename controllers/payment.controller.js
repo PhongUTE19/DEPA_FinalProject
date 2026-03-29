@@ -4,26 +4,14 @@ import OrderModel from '../models/order.model.js';
 import orderSubject from '../services/notification/OrderSubject.js';
 
 const PaymentController = {
-    // GET /payment/:orderId – Trang thanh toán
+    // GET /payment/:orderId – Show payment page
     async showPaymentPage(req, res, next) {
         try {
             const { orderId } = req.params;
             const userId = Number(req.query.userId || req.session?.authUser?.id || 1);
 
-            // Kiểm tra đã thanh toán chưa
-            const existing = await PaymentModel.findByOrderId(orderId);
-            if (existing) {
-                return res.render('payment/result', {
-                    title: 'Kết quả thanh toán',
-                    payment: existing,
-                    alreadyPaid: true,
-                });
-            }
-
-            // Lấy thông tin đơn hàng từ DB
             const dbOrder = await OrderModel.findById(orderId);
             const totalAmount = dbOrder?.total_amount || 0;
-
             const methods = PaymentAdapter.getAvailableMethods();
 
             res.render('payment/index', {
@@ -38,44 +26,36 @@ const PaymentController = {
         }
     },
 
-    // POST /payment – Xử lý thanh toán
+    // POST /payment – Process payment
     async processPayment(req, res, next) {
         try {
             const { orderId, paymentMethod, totalAmount, userId } = req.body;
 
-            // 0) Validate: tồn tại đơn + trạng thái cho phép + chưa thanh toán
+            // Check if already paid
+            const existingPayment = await PaymentModel.findByOrderId(orderId);
+            if (existingPayment) {
+                return res.render('payment/result', {
+                    title: 'Đơn hàng đã thanh toán',
+                    success: false,
+                    message: 'Đơn hàng này đã được thanh toán rồi. Không thể thanh toán lại.',
+                    payment: existingPayment
+                });
+            }
+
             const dbOrder = await OrderModel.findById(orderId);
             if (!dbOrder) {
                 return res.render('payment/result', {
                     title: 'Thanh toán thất bại', success: false, message: 'Không tìm thấy đơn hàng.'
                 });
             }
-            const status = String(dbOrder.status || '').toLowerCase();
-            const blockedStatuses = new Set(['completed', 'done', 'paid', 'cancelled', 'canceled']);
-            if (blockedStatuses.has(status)) {
-                return res.render('payment/result', {
-                    title: 'Thanh toán không hợp lệ', success: false,
-                    message: `Đơn hàng đã ở trạng thái '${dbOrder.status}', không thể thanh toán.`,
-                });
-            }
-            const existing = await PaymentModel.findByOrderId(orderId);
-            if (existing) {
-                return res.render('payment/result', {
-                    title: 'Kết quả thanh toán', payment: existing, alreadyPaid: true,
-                });
-            }
 
-            // 1) Lấy tổng tiền: nếu form không điền, đọc từ DB.orders
-            let amountToPay = Number(totalAmount || 0);
-            if (!amountToPay) amountToPay = Number(dbOrder.total_amount || 0);
-
+            const amountToPay = Number(totalAmount || dbOrder.total_amount || 0);
             if (!amountToPay) {
                 return res.render('payment/result', {
                     title: 'Thanh toán thất bại', success: false, message: 'Không xác định được tổng tiền đơn hàng.',
                 });
             }
 
-            // 2) Gọi PaymentAdapter với tổng tiền đã xác định
             const result = await PaymentAdapter.process(paymentMethod, {
                 orderId,
                 totalAmount: amountToPay,
@@ -90,7 +70,6 @@ const PaymentController = {
                 });
             }
 
-            // 3. Lưu vào DB
             const payment = await PaymentModel.create({
                 orderId,
                 userId: userId || req.session?.authUser?.id,
