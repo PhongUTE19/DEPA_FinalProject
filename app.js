@@ -14,26 +14,6 @@ import helpers from './views/helpers.js';
 import errorMiddleware from './middlewares/error.middleware.js';
 // import viewMiddleware from './middlewares/view.middleware.js';
 
-// new project
-// npm init -y
-
-// package.json with dependencies
-// npm install
-
-// package.json without dependencies
-// npm i express-handlebars express-handlebars-sections express-session dotenv knex pg bcryptjs
-
-// specific version
-// npm i <library name>@<version>
-
-// pg: node-postgres, let app connect to a PostgresSQL database
-// knex: let app work with many SQL databases
-// use CDN to use bootstrap and icon instead of these
-// npm i bootstrap@5.3.8
-// npm i bootstrap-icons
-
-// 1. Core setup: Place these at the start of the file
-// const __dirname = import.meta.dirname;
 const app = express();
 const PORT = process.env.PORT || 3000;
 

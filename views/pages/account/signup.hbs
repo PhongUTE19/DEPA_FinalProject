@@ -1,0 +1,101 @@
+<div class="container d-flex justify-content-center">
+    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+        <form id="frmSignup" action="" method="post">
+            <h1>Đăng ký</h1>
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="txtUsername" class="form-label">Tên đăng nhập</label>
+                        <input type="text" class="form-control" id="txtUsername" name="username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="txtPassword" class="form-label">Mật khẩu</label>
+                        <input type="password" class="form-control" id="txtPassword" name="password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="txtConfirmPassword" class="form-label">Xác nhận lại mật khẩu</label>
+                        <input type="password" class="form-control" id="txtConfirmPassword" name="confirmPassword">
+                    </div>
+
+                    <h5>Thông tin của bạn</h5>
+
+                    <div class="mb-3">
+                        <label for="txtName" class="form-label">Họ và tên</label>
+                        <input type="text" class="form-control" id="txtName" name="name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="txtPhone" class="form-label">Số điện thoại</label>
+                        <input type="text" class="form-control" id="txtPhone" name="phone">
+                    </div>
+                    <div class="mb-3">
+                        <label for="txtBirthdate" class="form-label">Ngày sinh</label>
+                        <input type="date" class="form-control" id="txtBirthdate" name="birthdate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="txtEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="txtEmail" aria-describedby="emailHelp"
+                            name="email">
+                        <div id="emailHelp" class="form-text">Chúng tôi sẽ không bao giờ chia sẻ email của bạn với bất
+                            kỳ ai khác.
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <button type="submit" class="btn btn-outline-success me-2">
+                            <i class="bi bi-unity"></i> Đăng ký
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{#fillSection 'js'}}
+<script>
+    function handleSubmit(e) {
+        e.preventDefault();
+        // alert("STOP form submisstion");
+
+        const username = document.querySelector("#txtUsername").value;
+        if (username.length === 0) {
+            alert("Vui lòng nhập tên đăng nhập.");
+            return;
+        }
+
+        const password = document.querySelector("#txtPassword").value;
+        const minLength = 4;
+        if (password.length < minLength) {
+            alert(`Mật khẩu phải có ít nhất ${minLength} ký tự.`);
+            return;
+        }
+
+        const confirmPassword = document.querySelector("#txtConfirmPassword").value;
+        if (confirmPassword !== password) {
+            alert("Xác nhận mật khẩu không khớp.");
+            return;
+        }
+
+        const url = `/account/is-available?username=${username}`;
+        fetch(url)
+            .then(function (res) {
+                return res.json();
+            })
+            .then(function (data) {
+                // alert(`user: ${username} - ${data}`);
+                if (data === false) {
+                    alert('Tên người dùng không khả dụng. Vui lòng chọn tên người dùng khác');
+                    return;
+                }
+                e.target.submit();
+            })
+            .catch(function (err) {
+                console.log(err);
+                alert('Đã xảy ra lỗi trong quá trình kiểm tra tên người dùng khả dụng.');
+            })
+
+    }
+
+    document.querySelector("#frmSignup")
+        .addEventListener("submit", handleSubmit);
+</script>
+{{/fillSection}}

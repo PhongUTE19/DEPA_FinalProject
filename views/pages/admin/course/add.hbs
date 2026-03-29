@@ -1,0 +1,43 @@
+<form id="frmAddCourse" action="" method="post">
+    <h1>Thêm khóa học</h1>
+    <div class="card">
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="txtCourseName" class="form-label">Tên khóa học</label>
+                <input type="text" class="form-control" id="txtCourseName" name="name" autofocus />
+            </div>
+            <div class="mb-3">
+                <label for="selCategoryId" class="form-label">Lĩnh vực</label>
+                <select class="form-select" id="selCategoryId" name="categoryId">
+                    {{#each global_categories}}
+                    <option value="{{this.category_id}}">{{this.name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="txtShortDes" class="form-label">Mô tả ngắn gọn</label>
+                <input type="text" class="form-control" id="txtShortDes" name="shortDes" />
+            </div>
+            <div class="mb-3">
+                <label for="txtLongDes" class="form-label">Mô tả đầy đủ</label>
+                <div id="editor" style="height: 200px;"></div>
+                <input type="hidden" class="form-control" id="txtLongDes" name="longDes" />
+            </div>
+            <div class="mb-3">
+                <label for="txtKeywords" class="form-label">Từ khóa trò chơi</label>
+                <input type="text" class="form-control" id="txtKeywords" name="keywords" />
+            </div>
+        </div>
+        <div class="card-footer text-muted">
+            <a class="btn btn-outline-success" href="/admin/course/list" role="button">
+                <i class="bi bi-arrow-left"></i>
+                Trở về
+            </a>
+            <button type="submit" class="btn btn-outline-success">
+                <i class="bi bi-check2"></i>
+                Lưu
+            </button>
+        </div>
+    </div>
+</form>
+{{> quill}}

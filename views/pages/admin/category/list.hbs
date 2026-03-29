@@ -1,0 +1,32 @@
+<div class="card">
+    <h1>Danh sách lĩnh vực</h1>
+    <a name="" id="" class="btn btn-outline-success" href="/admin/category/add" role="button">
+        <i class="bi bi-unity"></i>
+        Thêm lĩnh vực
+    </a>
+    <table class="my-table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Tên</th>
+                <th scope="col">Mô tả</th>
+                <th scope="col" class="text-end">Xử lý</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each categories}}
+            <tr>
+                <th scope="row">{{category_id}}</th>
+                <td>{{name}}</td>
+                <td>{{description}}</td>
+                <td class="text-end">
+                    <a name="" id="" class="btn btn-outline-success" href="/admin/category/edit?id={{category_id}}"
+                        role="button">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>

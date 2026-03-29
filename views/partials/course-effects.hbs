@@ -1,0 +1,18 @@
+{{#fillSection 'js'}}
+<script>
+	document.querySelectorAll('.course-card-title').forEach(title => {
+		const span = title.querySelector('span');
+		const overflow = span.scrollWidth - title.clientWidth;
+
+		if (overflow > 0) {
+			const SPEED = 50; // px per second
+			const duration = overflow / SPEED;
+
+			title.classList.add('is-overflow');
+			span.style.setProperty('--scroll-distance', `${overflow}px`);
+			span.style.setProperty('--scroll-duration', `${duration}s`);
+		}
+	});
+</script>
+{{> button-effects}}
+{{/fillSection}}
