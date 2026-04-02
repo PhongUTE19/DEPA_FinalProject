@@ -22,6 +22,12 @@ export const OrderModel = {
     async findById(id) {
         return baseQuery().where({ id }).first();
     },
+
+    async findAll({ limit = 80 } = {}) {
+        return baseQuery()
+            .orderBy('created_at', 'desc')
+            .limit(limit);
+    },
     
     async updateStatus(id, status) {
         const [updated] = await baseQuery()

@@ -118,10 +118,7 @@ class NoSugar extends ToppingDecorator {
         return [...this.food.getToppings(), 'Không Đường'];
     }
 }
-// --- Helper: nhận vào 1 món ăn + danh sách yêu cầu của khách ---
-// Mỗi yêu cầu true/false → true thì bọc thêm 1 lớp topping, false thì bỏ qua
-// Ví dụ khách order: "Pizza + thêm phô mai + cay, không cần thêm gì khác"
-// → options = { extraCheese: true, spicy: true } → bọc 2 lớp, giá cộng dồn
+
 function applyToppings(food, options = {}) {
     let result = food;
 

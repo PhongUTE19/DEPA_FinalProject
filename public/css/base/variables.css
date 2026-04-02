@@ -27,4 +27,14 @@
     --radius-soft: 25px;
 
     --ease-time: 0.3s;
+
+    /* Đặt món online — accent & nền tối (dùng trong pages/food-app.css) */
+    --color-accent: #ff6b35;
+    --color-accent-strong: #e85d24;
+    --color-accent-hover: #cf4e1a;
+    --food-bg: #0f0f0f;
+    --food-surface: #1a1a1a;
+    --food-border: #2a2a2a;
+    --food-text: #f1f1f1;
+    --food-muted: #888;
 }

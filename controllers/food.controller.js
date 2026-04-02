@@ -1,12 +1,12 @@
 import foodModel from '../models/food.model.js';
 import FoodFactory from '../services/food/FoodFactory.js'
-import { applyToppings } from '../services/food/FoodDecorator.js';
+import { applyToppings } from '../services/food/ToppingDecorator.js';
 
 const FoodController = {
 
     // GET /menu
     // Khách vào xem menu → trả về danh sách tất cả món ăn
-    async getMenu(req, res) {
+    async getMenuPage(req, res) {
         try {
             const rows = await foodModel.getAll();
             const foods = rows.map(row => {
@@ -24,7 +24,7 @@ const FoodController = {
 
     // GET /menu/:id?extraCheese=true&spicy=true&noOnion=true
     // Khách chọn 1 món cụ thể + chọn topping → trả về món đã tùy chỉnh
-    async getFoodWithToppings(req, res) {
+    async getFoodWithToppingsPage(req, res) {
         try {
             const row = await foodModel.getById(req.params.id);
             if (!row) return res.status(404).json({ error: 'Không tìm thấy món' });

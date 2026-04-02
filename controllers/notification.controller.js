@@ -1,26 +1,34 @@
-﻿import NotificationModel from '../models/notification.model.js';
+import { NotificationService } from '../services/notification/NotificationService.js';
 
 const NotificationController = {
   async showNotifications(req, res, next) {
     try {
       const userId = Number(req.query.userId || req.session?.authUser?.id || 1);
-      const notifications = await NotificationModel.findByUserId(userId);
-      const unread = await NotificationModel.countUnread(userId);
-      res.render('notification/index', { title: 'Thông báo', notifications, unread, userId });
+      const notifications = await NotificationService.findByUserId(userId);
+      const unread = await NotificationService.countUnread(userId);
+      res.render('pages/notification/index', {
+        title: 'Thông báo',
+        notifications: notifications.map((n) => n.toJSON()),
+        unread,
+        userId,
+      });
     } catch (err) { next(err); }
   },
 
   async showKitchenNotifications(req, res, next) {
     try {
-      const notifications = await NotificationModel.findKitchenNotifications();
-      res.render('notification/kitchen', { title: 'Bếp - Thông báo', notifications });
+      const notifications = await NotificationService.findKitchenNotifications();
+      res.render('pages/notification/kitchen', {
+        title: 'Bếp - Thông báo',
+        notifications: notifications.map((n) => n.toJSON()),
+      });
     } catch (err) { next(err); }
   },
 
   async markAllAsRead(req, res, next) {
     try {
       const userId = Number(req.body.userId || req.session?.authUser?.id || 1);
-      await NotificationModel.markAllAsRead(userId);
+      await NotificationService.markAllAsRead(userId);
       res.json({ success: true });
     } catch (err) { next(err); }
   },
@@ -28,7 +36,7 @@ const NotificationController = {
   async markAsRead(req, res, next) {
     try {
       const id = Number(req.params.id);
-      await NotificationModel.markAsRead(id);
+      await NotificationService.markAsRead(id);
       res.json({ success: true });
     } catch (err) { next(err); }
   },

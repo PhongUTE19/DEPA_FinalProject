@@ -1,4 +1,4 @@
-﻿# 🍔 Building an online food ordering website
+# 🍔 Building an online food ordering website
 (Web-based, Node.js + Express + Handlebars + Supabase)
 
 ---
@@ -50,9 +50,6 @@ Mỗi thành viên phải hiểu và giải thích được pattern mình làm:
 ### Decorator
 - Tùy chỉnh món ăn (thêm topping)
 
-### Builder
-- Tạo Order phức tạp
-
 ### State
 - Quản lý trạng thái đơn hàng (pending, cooking, delivery...)
 
@@ -90,6 +87,12 @@ helpers/ → hàm tiện ích
 config/ → cấu hình
 app.js → entry point
 
+#### Kiến trúc tầng (Order / Payment / Notification — demo)
+- **controllers/** chỉ đọc `req`, gọi **services/**, trả `res` (JSON hoặc `render`). Không import `models/` trực tiếp.
+- **Order**: `OrderService` tạo domain `Order`, lấy giá từ `FoodModel`, lưu qua `OrderModel`, phát sự kiện qua `OrderSubject` (Observer).
+- **Payment**: `PaymentService` dùng `OrderService.getOrder()` để làm việc trên **cùng một domain Order** (trạng thái + tổng tiền), rồi lưu giao dịch qua `PaymentModel` (Strategy + Adapter giữ nguyên).
+- **Notification**: `NotificationService` là điểm vào duy nhất tới `NotificationModel`. `UserNotifier` / `KitchenNotifier` cũng gọi `NotificationService` khi ghi DB — tránh lẫn “chỗ domain, chỗ model”.
+
 ---
 
 ### Database (Supabase)
@@ -105,40 +108,29 @@ Các bảng chính:
 
 ## 4. 🔗 API CONTRACT (RẤT QUAN TRỌNG)
 
-GET /menu
-Response:
-[
-  {
-    "id": 1,
-    "name": "Pizza",
-    "price": 100
-  }
-]
+### Menu / Food
+- `GET /menu` (SSR): render trang menu bằng Handlebars
+- `GET /menu/:id` (JSON): lấy 1 món + topping qua Decorator
 
-POST /order
-Request:
+### Order
+- `GET /order` (SSR): trang danh sách đơn hàng
+- `GET /order/api/:id` (JSON): lấy đơn hàng theo id (domain)
+- `POST /order` (JSON): tạo đơn hàng (State)
+- `PATCH /order/status` (JSON): chuyển trạng thái (State) và phát event (Observer)
+
+Request tạo đơn:
+```json
 {
   "items": [
-    {
-      "foodId": 1,
-      "quantity": 2,
-      "options": {
-        "extraCheese": true,
-        "noOnion": false
-      }
-    }
+    { "foodId": 1, "quantity": 2 }
   ]
-  "paymentMethod": "cash"
 }
+```
 
-Response:
-{
-  "orderId": 1,
-  "status": "pending"
-}
-
-POST /payment
-PATCH /order/status
+### Payment
+- `GET /payment/:orderId` (SSR): trang thanh toán (chọn method)
+- `POST /payment` (SSR): submit thanh toán (Strategy + Adapter)
+- `POST /payment/api` (JSON): API thanh toán
 
 ---
 
@@ -156,10 +148,10 @@ IFoodFactory
 IObserver
 - update(event): void
 
-### Builder
-IOrderBuilder
-- addItem(item)
-- build(): Order
+### State
+OrderState
+- next()
+- getStatus()
 
 ---
 
@@ -239,7 +231,7 @@ Format:
 Ví dụ:
 - feat: add create order API
 - fix: fix payment bug
-- refactor: improve order builder
+- refactor: improve order state
 
 ---
 
@@ -299,17 +291,13 @@ Chỉ cần trả:
 
 ### 👤 Person B — Order Domain
 Pattern:
-    - Builder
     - State
 
 Nhiệm vụ:
 1. Create Order
     - items (foodId, quantity)
 
-2. Builder:
-    - build order
-
-3. State:
+2. State:
     - pending → cooking → done
 
 4. API:
@@ -317,7 +305,6 @@ POST /order
 PATCH /order/status
 Deliverable:
     - Order model
-    - OrderBuilder
     - OrderState
     - API tạo order chạy được
 
@@ -377,7 +364,6 @@ Nhiệm vụ:
     - xử lý flow order
 
 4. Review + test
-
 
 - User(id, name, email, role) // CUSTOMER | STAFF | ADMIN | CHEF
 - Food(id, name, price, category, isAvailable)

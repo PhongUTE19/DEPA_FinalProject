@@ -1,13 +1,36 @@
 export class Payment {
-    constructor({ orderId, userId = null, method, amount }) {
+    constructor({
+        orderId,
+        userId = null,
+        method,
+        amount,
+        status,
+        transactionId,
+        paidAt,
+        failureReason,
+    }) {
         this.orderId = orderId;
         this.userId = userId;
         this.method = method;
         this.amount = Number(amount || 0);
 
-        this.status = 'pending';
-        this.transactionId = null;
-        this.paidAt = null;
+        this.status = status || 'pending';
+        this.transactionId = transactionId ?? null;
+        this.paidAt = paidAt ?? null;
+        this.failureReason = failureReason ?? null;
+    }
+
+    static fromRow(row) {
+        if (!row) return null;
+        return new Payment({
+            orderId: row.order_id,
+            userId: row.user_id,
+            method: row.method,
+            amount: row.amount,
+            status: row.status,
+            transactionId: row.transaction_id,
+            paidAt: row.paid_at,
+        });
     }
 
     markSuccess(transactionId) {
@@ -33,7 +56,8 @@ export class Payment {
             amount: this.amount,
             status: this.status,
             transactionId: this.transactionId,
-            paidAt: this.paidAt
+            paidAt: this.paidAt,
+            failureReason: this.failureReason,
         };
     }
 }

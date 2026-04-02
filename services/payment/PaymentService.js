@@ -1,39 +1,31 @@
 import PaymentModel from '../../models/payment.model.js';
-import OrderModel from '../../models/order.model.js';
 import { Payment } from './Payment.js';
 import { PaymentAdapter } from './PaymentAdapter.js';
 import orderSubject from '../notification/OrderSubject.js';
+import { OrderService } from '../order/OrderService.js';
 
 export const PaymentService = {
 
-    async processPayment({ orderId, paymentMethod, totalAmount, userId }) {
+    async processPayment({ orderId, paymentMethod, userId }) {
 
-        // 1. Validate order
-        const dbOrder = await OrderModel.findById(orderId);
-        if (!dbOrder) {
-            throw new Error('Order not found');
-        }
+        const order = await OrderService.getOrder(orderId);
 
-        // 2. Check already paid
         const existingPayment = await PaymentModel.findByOrderId(orderId);
         if (existingPayment) {
             throw new Error('Order already paid');
         }
 
-        // 3. Validate status
-        const status = String(dbOrder.status || '').toLowerCase();
+        const status = String(order.getStatus() || '').toLowerCase();
         const allowedStatuses = new Set(['pending', 'new', '']);
         if (!allowedStatuses.has(status)) {
-            throw new Error(`Invalid order status: ${dbOrder.status}`);
+            throw new Error(`Invalid order status: ${order.getStatus()}`);
         }
 
-        // 4. ALWAYS trust DB amount
-        const amountToPay = Number(dbOrder.total_amount || 0);
+        const amountToPay = order.calculateTotal();
         if (!amountToPay) {
             throw new Error('Invalid order amount');
         }
 
-        // 5. Create domain object
         const payment = new Payment({
             orderId,
             userId,
@@ -41,7 +33,6 @@ export const PaymentService = {
             amount: amountToPay
         });
 
-        // 6. Process via Strategy
         const result = await PaymentAdapter.process(paymentMethod, {
             orderId,
             totalAmount: amountToPay,
@@ -53,11 +44,9 @@ export const PaymentService = {
             return payment;
         }
 
-        // 7. Mark success
         payment.markSuccess(result.transactionId);
 
-        // 8. Save to DB
-        const saved = await PaymentModel.create({
+        await PaymentModel.create({
             orderId,
             userId,
             method: result.method,
@@ -66,7 +55,6 @@ export const PaymentService = {
             status: payment.status
         });
 
-        // 9. Notify observers
         orderSubject.notify('ORDER_PAID', {
             orderId,
             userId,
@@ -77,16 +65,10 @@ export const PaymentService = {
         return payment;
     },
 
-
     async getPaymentHistory(userId) {
         const rows = await PaymentModel.findByUserId(userId);
 
-        return rows.map(p => new Payment({
-            orderId: p.order_id,
-            userId: p.user_id,
-            method: p.method,
-            amount: p.amount
-        }));
+        return rows.map((row) => Payment.fromRow(row));
     },
 
     getAvailableMethods() {

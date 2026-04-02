@@ -1,26 +1,26 @@
 <div class="col-md-4 mb-3">
-    <div class="card h-100 position-relative course-card">
-        {{!-- <img class="course-card-thumbnail" src="https://picsum.photos/400/300?random={{course_id}}" alt="No image"
+    <div class="card h-100 position-relative catalog-card">
+        {{!-- <img class="catalog-card-thumbnail" src="https://picsum.photos/400/300?random={{course_id}}" alt="No image"
             onerror="this.onerror=null; this.src='/public/imgs/no_image.jpg';"> --}}
-        <img class="course-card-thumbnail" src="/public/imgs/courses/{{course_id}}.jpg" alt="No image"
+        <img class="catalog-card-thumbnail" src="/public/imgs/courses/{{course_id}}.jpg" alt="No image"
             onerror="this.onerror=null; this.src='/public/imgs/no_image.jpg';">
         <div class="card-body">
-            <div class="course-card-title">
+            <div class="catalog-card-title">
                 <span>{{name}}</span>
             </div>
-            <p class="course-card-description-text-ellipsis">{{short_des}}</p>
+            <p class="catalog-card-description-text-ellipsis">{{short_des}}</p>
             <a href="/course/detail?courseId={{course_id}}" class="stretched-link"></a>
-            <div class="course-meta">
+            <div class="catalog-meta">
                 <span><i class="bi bi-calendar"></i> {{formatDate created_at}}</span>
                 <span><i class="bi bi-arrow-repeat"></i> {{formatDate updated_at}}</span>
             </div>
             <div class="d-flex justify-content-between">
-                <div class="course-stats">
+                <div class="catalog-stats">
                     <span><i class="bi bi-star-fill"></i> {{rating}}</span>
                     <span><i class="bi bi-people-fill"></i> {{rating_count}}</span>
                     <span><i class="bi bi-eye-fill"></i> {{view_count}}</span>
                     {{#if (isNew created_at)}}
-                    <span class="course-badge">Mới</span>
+                    <span class="catalog-badge">Mới</span>
                     {{/if}}
                 </div>
                 {{#if @root.isAuthenticated}}

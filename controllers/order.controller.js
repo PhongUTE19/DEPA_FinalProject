@@ -1,6 +1,36 @@
-﻿﻿import { OrderService } from '../services/order/OrderService.js';
+import { OrderService } from '../services/order/OrderService.js';
 
 export const OrderController = {
+
+    async ordersPage(req, res) {
+        try {
+            const orders = await OrderService.listOrdersForView({ limit: 100 });
+            return res.render('pages/order/index', {
+                title: 'Đơn hàng',
+                orders,
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).render('pages/order/index', {
+                title: 'Đơn hàng',
+                orders: [],
+                loadError: true,
+            });
+        }
+    },
+
+    async getOrder(req, res) {
+        try {
+            const order = await OrderService.getOrder(req.params.id);
+            return res.json({ success: true, order: order.toJSON() });
+        } catch (error) {
+            if (error.message === 'Order not found') {
+                return res.status(404).json({ success: false, message: error.message });
+            }
+            console.error(error);
+            return res.status(500).json({ success: false, message: error.message });
+        }
+    },
 
     async createOrder(req, res) {
         try {

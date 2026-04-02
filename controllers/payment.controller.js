@@ -9,7 +9,7 @@ const PaymentController = {
 
             const methods = PaymentService.getAvailableMethods();
 
-            res.render('payment/index', {
+            res.render('pages/payment/index', {
                 title: 'Thanh toán đơn hàng',
                 orderId,
                 methods,
@@ -31,14 +31,14 @@ const PaymentController = {
             });
 
             if (!payment.isSuccess()) {
-                return res.render('payment/result', {
+                return res.render('pages/payment/result', {
                     title: 'Thanh toán thất bại',
                     success: false,
                     message: 'Thanh toán thất bại'
                 });
             }
 
-            res.render('payment/result', {
+            res.render('pages/payment/result', {
                 title: 'Thanh toán thành công',
                 success: true,
                 payment: payment.toJSON()
@@ -46,7 +46,7 @@ const PaymentController = {
 
         } catch (err) {
             if (err.message === 'Order not found') {
-                return res.render('payment/result', {
+                return res.render('pages/payment/result', {
                     title: 'Thanh toán thất bại',
                     success: false,
                     message: 'Không tìm thấy đơn hàng'
@@ -54,7 +54,7 @@ const PaymentController = {
             }
 
             if (err.message === 'Order already paid') {
-                return res.render('payment/result', {
+                return res.render('pages/payment/result', {
                     title: 'Đơn hàng đã thanh toán',
                     success: false,
                     message: 'Đơn hàng đã được thanh toán trước đó'
@@ -71,7 +71,7 @@ const PaymentController = {
             const userId = Number(req.query.userId || req.session?.authUser?.id || 1);
             const payments = await PaymentService.getPaymentHistory(userId);
 
-            res.render('payment/history', {
+            res.render('pages/payment/history', {
                 title: 'Lịch sử thanh toán',
                 payments: payments.map(p => p.toJSON())
             });
