@@ -1,47 +1,54 @@
-﻿import db from '../config/database.js';
+/**
+ * PaymentModel — tầng DB duy nhất cho bảng 'payments'
+ *
+ * Chỉ làm việc với raw rows.
+ * KHÔNG import domain class.
+ * status nhận string UPPERCASE từ PaymentService (đã markSuccess/markFailed).
+ */
+import db from '../config/database.js';
 
-const tableName = 'payments';
-
-const baseQuery = () => db(tableName);
+const TABLE = 'payments';
+const base  = () => db(TABLE);
 
 const PaymentModel = {
-  async create({ orderId, userId, method, transactionId, amount, status = 'success' }) {
-    const [payment] = await baseQuery()
-      .insert({
-        order_id: String(orderId),
-        user_id: userId == null ? null : Number(userId),
-        method: method ?? null,
-        transaction_id: transactionId ?? null,
-        amount: Number(amount || 0),
-        status,
-        paid_at: new Date(),
-        created_at: new Date(),
-      })
-      .returning('*');
-    return payment;
-  },
 
-  async findByOrderId(orderId) {
-    return baseQuery().where({ order_id: String(orderId) }).first();
-  },
+    async create({ orderId, userId, method, transactionId, amount, status, paidAt }) {
+        const [row] = await base()
+            .insert({
+                order_id:       String(orderId),
+                user_id:        userId == null ? null : Number(userId),
+                method:         method ?? null,
+                transaction_id: transactionId ?? null,
+                amount:         Number(amount) || 0,
+                status:         status ?? 'PENDING',     // UPPERCASE từ domain
+                paid_at:        paidAt ?? null,
+                created_at:     new Date(),
+            })
+            .returning('*');
+        return row;
+    },
 
-  async findById(id) {
-    return baseQuery().where({ id: Number(id) }).first();
-  },
+    async findByOrderId(orderId) {
+        return base().where({ order_id: String(orderId) }).first();
+    },
 
-  async findByUserId(userId) {
-    return baseQuery()
-      .where({ user_id: Number(userId) })
-      .orderBy('created_at', 'desc');
-  },
+    async findById(id) {
+        return base().where({ id: Number(id) }).first();
+    },
 
-  async updateStatus(id, status) {
-    const [updated] = await baseQuery()
-      .where({ id: Number(id) })
-      .update({ status })
-      .returning('*');
-    return updated;
-  },
+    async findByUserId(userId) {
+        return base()
+            .where({ user_id: Number(userId) })
+            .orderBy('created_at', 'desc');
+    },
+
+    async updateStatus(id, status) {
+        const [row] = await base()
+            .where({ id: Number(id) })
+            .update({ status })
+            .returning('*');
+        return row;
+    },
 };
 
 export default PaymentModel;

@@ -1,20 +1,15 @@
 import { IPaymentStrategy } from './IPaymentStrategy.js';
 
 export class BankPaymentStrategy extends IPaymentStrategy {
-    getName() {
-        return 'bank';
-    }
+    getName() { return 'bank'; }
 
-    async pay(order) {
-        // Simulate bank transfer (luôn success theo yêu cầu README)
-        const transactionId = `BANK-${Date.now()}-${order.orderId}`;
-
+    async pay({ orderId, totalAmount }) {
         return {
-            success: true,
-            transactionId,
-            message: 'Thanh toán chuyển khoản ngân hàng thành công',
-            method: 'bank',
-            amount: order.totalAmount,
+            success:       true,
+            transactionId: `BANK-${Date.now()}-${orderId}`,
+            message:       'Thanh toán chuyển khoản ngân hàng thành công',
+            method:        'bank',
+            amount:        totalAmount,
         };
     }
 }

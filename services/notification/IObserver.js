@@ -1,8 +1,14 @@
-
+/**
+ * IObserver — Observer Pattern (interface)
+ *
+ * Mọi observer phải implement update(event, data).
+ * event: string khớp với NOTIFICATION_EVENT.*
+ * data:  plain object { orderId, userId, status?, transactionId?, amount?, ... }
+ */
 export class IObserver {
     /**
-     * @param {string} event - tên sự kiện (ORDER_PAID, ORDER_STATUS_CHANGED, ...)
-     * @param {object} data  - dữ liệu kèm theo
+     * @param {string} event
+     * @param {object} data
      */
     update(event, data) {
         throw new Error('update() must be implemented by subclass');

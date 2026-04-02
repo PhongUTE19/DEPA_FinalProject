@@ -1,4 +1,4 @@
-﻿<div class="container py-4" style="max-width: 760px;">
+<div class="container py-4" style="max-width: 760px;">
   <h3 class="mb-3">Thông báo cho bếp</h3>
 
   {{#if (isEmpty notifications)}}
@@ -10,7 +10,7 @@
       <div class="ms-2 me-auto">
         <div class="fw-semibold">{{event}}</div>
         <div class="text-muted">{{message}}</div>
-        <small class="text-secondary">{{formatDate created_at}}</small>
+        <small class="text-secondary">{{formatDate createdAt}}</small>
       </div>
     </div>
     {{/each}}

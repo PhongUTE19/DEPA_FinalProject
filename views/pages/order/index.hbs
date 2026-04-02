@@ -1,0 +1,37 @@
+<div class="page-food-app col-12 px-0">
+  <div class="page-hero">
+    <h1><i class="bi bi-receipt-cutoff"></i> Đơn hàng</h1>
+    <p>{{#if loadError}}Không tải được dữ liệu. Thử lại sau.{{else}}Danh sách đơn gần đây (demo){{/if}}</p>
+  </div>
+
+  <div class="order-list">
+    {{#if (isEmpty orders)}}
+    <div class="empty-state text-center">
+      <i class="bi bi-inbox"></i>
+      <p class="mt-3 mb-0">Chưa có đơn hàng nào.</p>
+      <a href="/menu" class="btn btn-outline-success mt-3">Xem thực đơn</a>
+    </div>
+    {{else}}
+    {{#each orders}}
+    <div class="card mb-3 p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="fw-bold">#{{id}}</div>
+          <div class="text-muted">
+            <i class="bi bi-clock"></i> {{formatDate createdAt}}
+          </div>
+          <div class="text-muted small">
+            {{itemCount}} món • user #{{#if userId}}{{userId}}{{else}}—{{/if}}
+          </div>
+        </div>
+
+        <div class="text-end">
+          <span class="badge bg-secondary text-uppercase">{{status}}</span>
+          <div class="fw-bold mt-1">{{formatCurrency totalAmount}}</div>
+        </div>
+      </div>
+    </div>
+    {{/each}}
+    {{/if}}
+  </div>
+</div>

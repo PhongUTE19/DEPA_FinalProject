@@ -1,28 +1,41 @@
+/**
+ * UserModel — tầng DB duy nhất cho bảng 'users'
+ *
+ * Chỉ làm việc với raw rows.
+ * KHÔNG import User domain class.
+ */
 import db from '../config/database.js';
 
-const tableName = 'users';
+const TABLE = 'users';
+const base  = () => db(TABLE);
 
-const baseQuery = () => db(tableName);
+const UserModel = {
 
-const findByUsername = (username) => {
-    return baseQuery()
-        .where('username', username)
-        .first();
+    async findByUsername(username) {
+        return base().where({ username }).first();
+    },
+
+    async findById(id) {
+        return base().where({ id: Number(id) }).first();
+    },
+
+    async findAll({ role } = {}) {
+        const q = base().orderBy('created_at', 'desc');
+        if (role) q.where({ role });
+        return q;
+    },
+
+    async add({ username, password, name, email, dob = null, role = 'CUSTOMER' }) {
+        return base().insert({ username, password, name, email, dob, role });
+    },
+
+    async edit(id, fields) {
+        return base().where({ id: Number(id) }).update(fields);
+    },
+
+    async updateRole(id, role) {
+        return base().where({ id: Number(id) }).update({ role });
+    },
 };
 
-const add = (user) => {
-    return baseQuery()
-        .insert(user);
-};
-
-const edit = (id, user) => {
-    return baseQuery()
-        .where('id', id)
-        .update(user);
-};
-
-export default {
-    add,
-    findByUsername,
-    edit,
-};
+export default UserModel;

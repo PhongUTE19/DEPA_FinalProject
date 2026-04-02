@@ -1,38 +1,28 @@
-﻿
-import { IObserver } from './IObserver.js';
-import NotificationModel from '../../models/notification.model.js';
+/**
+ * UserNotifier — Observer Pattern (concrete observer)
+ *
+ * Lắng nghe sự kiện từ OrderSubject.
+ * Gửi thông báo loại 'USER' → NotificationService (không gọi Model trực tiếp).
+ */
+import { IObserver }                    from './IObserver.js';
+import { NotificationService }          from './NotificationService.js';
+import { NotificationMessageFactory }   from './NotificationMessageFactory.js';
+import { NOTIFICATION_TYPE }            from './Notification.js';
 
 export class UserNotifier extends IObserver {
     update(event, data) {
-        const message = this._buildMessage(event, data);
+        // Chỉ gửi khi có userId (khách vãng lai không nhận thông báo user)
+        if (data.userId == null) return;
+
+        const message = NotificationMessageFactory.build(event, data, NOTIFICATION_TYPE.USER);
         if (!message) return;
 
-        console.log(`[UserNotifier] ${message}`);
-
-        // Lưu notification vào DB (không chặn main flow)
-        NotificationModel.create({ user_id: data.userId || null, order_id: data.orderId || null, type: 'user', event, message }).catch(err => console.error('[UserNotifier] DB error:', err));
-    }
-
-    _buildMessage(event, data) {
-        switch (event) {
-            case 'ORDER_CREATED':
-                return `Đơn hàng #${data.orderId} của bạn đã được tạo thành công!`;
-            case 'ORDER_PAID':
-                return `Thanh toán đơn hàng #${data.orderId} thành công. Mã GD: ${data.transactionId}`;
-            case 'ORDER_STATUS_CHANGED':
-                return `Đơn hàng #${data.orderId} đã chuyển sang trạng thái: ${data.status}`;
-            case 'ORDER_DONE':
-                return `Đơn hàng #${data.orderId} đã hoàn thành. Cảm ơn bạn!`;
-            default:
-                return null;
-        }
-    }
-
-    async _save(payload) {
-        await db('notifications').insert({
-            ...payload,
-            created_at: new Date(),
-        });
+        NotificationService.createRecord({
+            userId:  data.userId,
+            orderId: data.orderId ?? null,
+            type:    NOTIFICATION_TYPE.USER,
+            event,
+            message,
+        }).catch(err => console.error('[UserNotifier] DB error:', err));
     }
 }
-

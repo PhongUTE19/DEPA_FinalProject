@@ -1,58 +1,88 @@
-import foodModel from '../models/food.model.js';
-import FoodFactory from '../services/food/FoodFactory.js'
-import { applyToppings } from '../services/food/FoodDecorator.js';
+/**
+ * FoodController
+ *
+ * Chỉ nhận req → gọi FoodService → trả res.
+ * KHÔNG import FoodModel, FoodFactory, hay ToppingDecorator trực tiếp.
+ * Mọi logic domain đều nằm trong FoodService.
+ */
+import { FoodService } from '../services/food/FoodService.js';
 
 const FoodController = {
 
     // GET /menu
-    // Khách vào xem menu → trả về danh sách tất cả món ăn
-    async getMenu(req, res) {
+    // Render trang menu với danh sách tất cả món ăn
+    async showMenuPage(req, res, next) {
         try {
-            const rows = await foodModel.getAll();
-            const foods = rows.map(row => {
-                const food = FoodFactory.create(row.type, row);
-                return food.toJSON();
+            const foods = await FoodService.getAll();
+            return res.render('pages/menu', {
+                foods: foods.map(f => f.toJSON()),
             });
-
-            return res.render('pages/menu', { foods });
-
         } catch (err) {
-            console.error(err);
-            return res.status(500).json({ error: 'Lỗi lấy menu' });
+            next(err);
         }
     },
 
-    // GET /menu/:id?extraCheese=true&spicy=true&noOnion=true
-    // Khách chọn 1 món cụ thể + chọn topping → trả về món đã tùy chỉnh
-    async getFoodWithToppings(req, res) {
+    // GET /menu/:id?extraCheese=true&spicy=true&...
+    // Trả JSON: Food domain (đã áp topping) 
+    async showAddToppingPage(req, res, next) {
         try {
-            const row = await foodModel.getById(req.params.id);
-            if (!row) return res.status(404).json({ error: 'Không tìm thấy món' });
-
-            const food = FoodFactory.create(row.type, row);
-
             const options = {
-                extraCheese: req.query.extraCheese === 'true',
-                extraSauce: req.query.extraSauce === 'true',
-                noOnion: req.query.noOnion === 'true',
-                extraMeat: req.query.extraMeat === 'true',
-                spicy: req.query.spicy === 'true',
+                extraCheese:  req.query.extraCheese  === 'true',
+                extraSauce:   req.query.extraSauce   === 'true',
+                noOnion:      req.query.noOnion      === 'true',
+                extraMeat:    req.query.extraMeat    === 'true',
+                spicy:        req.query.spicy        === 'true',
                 extraVeggies: req.query.extraVeggies === 'true',
-                noDressing: req.query.noDressing === 'true',
-                extraIce: req.query.extraIce === 'true',
-                noSugar: req.query.noSugar === 'true',
+                noDressing:   req.query.noDressing   === 'true',
+                extraIce:     req.query.extraIce     === 'true',
+                noSugar:      req.query.noSugar      === 'true',
             };
 
-            const decorated = applyToppings(food, options);
+            const food = await FoodService.getWithToppings(req.params.id, options);
+            if (!food) {
+                return res.status(404).json({ success: false, message: 'Không tìm thấy món' });
+            }
 
-            return res.json(decorated.toJSON());
-
+            return res.json({ success: true, food: food.toJSON() });
         } catch (err) {
-            console.error(err);
-            return res.status(500).json({ error: 'Lỗi lấy món ăn' });
+            next(err);
         }
     },
 
+    // POST /menu — Manager tạo món mới
+    async createFood(req, res, next) {
+        try {
+            const { name, basePrice, type, category, isAvailable, imageUrl, description } = req.body;
+            if (!name || basePrice == null) {
+                return res.status(400).json({ success: false, message: 'name và basePrice là bắt buộc' });
+            }
+            const food = await FoodService.create({ name, basePrice, type, category, isAvailable, imageUrl, description });
+            return res.status(201).json({ success: true, food: food.toJSON() });
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    // PATCH /menu/:id — Manager sửa món
+    async updateFood(req, res, next) {
+        try {
+            const food = await FoodService.update(req.params.id, req.body);
+            if (!food) return res.status(404).json({ success: false, message: 'Không tìm thấy món' });
+            return res.json({ success: true, food: food.toJSON() });
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    // DELETE /menu/:id — Manager xoá món
+    async deleteFood(req, res, next) {
+        try {
+            await FoodService.remove(req.params.id);
+            return res.json({ success: true });
+        } catch (err) {
+            next(err);
+        }
+    },
 };
 
 export default FoodController;

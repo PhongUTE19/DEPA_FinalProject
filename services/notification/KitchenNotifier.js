@@ -1,41 +1,25 @@
-﻿
-import { IObserver } from './IObserver.js';
-import NotificationModel from '../../models/notification.model.js';
+/**
+ * KitchenNotifier — Observer Pattern (concrete observer)
+ *
+ * Lắng nghe sự kiện từ OrderSubject.
+ * Gửi thông báo loại 'KITCHEN' → NotificationService (không gọi Model trực tiếp).
+ */
+import { IObserver }                    from './IObserver.js';
+import { NotificationService }          from './NotificationService.js';
+import { NotificationMessageFactory }   from './NotificationMessageFactory.js';
+import { NOTIFICATION_TYPE }            from './Notification.js';
 
 export class KitchenNotifier extends IObserver {
     update(event, data) {
-        const message = this._buildMessage(event, data);
+        const message = NotificationMessageFactory.build(event, data, NOTIFICATION_TYPE.KITCHEN);
         if (!message) return;
 
-        console.log(`[KitchenNotifier] ðŸ³ ${message}`);
-
-        NotificationModel.create({ user_id: null, order_id: data.orderId || null, type: 'kitchen', event, message }).catch(err => console.error('[KitchenNotifier] DB error:', err));
-    }
-
-    _buildMessage(event, data) {
-        switch (event) {
-            case 'ORDER_PAID':
-                return `Đơn hàng #${data.orderId} đã thanh toán – BẢT ĐẦU CHỉ BIẾN!`;
-            case 'ORDER_STATUS_CHANGED':
-                if (data.status === 'cooking') {
-                    return `Đơn hàng #${data.orderId} đang chỉ biến`;
-                }
-                if (data.status === 'done') {
-                    return `Đơn hàng #${data.orderId} đã xong, sẵn sàng giao`;
-                }
-                return null;
-            case 'ORDER_CANCELLED':
-                return `Đơn hàng #${data.orderId} đã bị hủy – dừng chỉ biến`;
-            default:
-                return null;
-        }
-    }
-
-    async _save(payload) {
-        await db('notifications').insert({
-            ...payload,
-            created_at: new Date(),
-        });
+        NotificationService.createRecord({
+            userId:  null,                      // Thông báo bếp không gắn userId
+            orderId: data.orderId ?? null,
+            type:    NOTIFICATION_TYPE.KITCHEN,
+            event,
+            message,
+        }).catch(err => console.error('[KitchenNotifier] DB error:', err));
     }
 }
-

@@ -1,95 +1,115 @@
-import PaymentModel from '../../models/payment.model.js';
-import OrderModel from '../../models/order.model.js';
-import { Payment } from './Payment.js';
+/**
+ * PaymentService
+ *
+ * Điểm vào duy nhất cho mọi thao tác Payment.
+ * Controller KHÔNG được gọi PaymentModel / PaymentAdapter trực tiếp.
+ *
+ * Luồng xử lý thanh toán:
+ *   1. Lấy Order domain qua OrderService (đảm bảo domain flow)
+ *   2. Kiểm tra đơn chưa thanh toán
+ *   3. Kiểm tra trạng thái đơn hợp lệ
+ *   4. Tạo Payment domain (status = PENDING)
+ *   5. Gọi PaymentAdapter.process() → kết quả từ Strategy
+ *   6. Cập nhật Payment domain (markSuccess / markFailed)
+ *   7. Lưu Payment qua PaymentModel (truyền plain data)
+ *   8. Phát sự kiện ORDER_PAID qua Observer
+ *   9. Trả Payment domain về Controller
+ */
+import PaymentModel      from '../../models/payment.model.js';
+import { Payment, PAYMENT_STATUS } from './Payment.js';
 import { PaymentAdapter } from './PaymentAdapter.js';
-import orderSubject from '../notification/OrderSubject.js';
+import { OrderService }   from '../order/OrderService.js';
+import orderSubject       from '../notification/OrderSubject.js';
+import { ORDER_STATUS }   from '../order/OrderState.js';
+
+// Trạng thái đơn được phép thanh toán
+const PAYABLE_STATUSES = new Set([ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED]);
 
 export const PaymentService = {
 
-    async processPayment({ orderId, paymentMethod, totalAmount, userId }) {
+    /**
+     * Xử lý thanh toán cho một đơn hàng
+     * @param {{ orderId, paymentMethod, userId }} params
+     * @returns {Promise<Payment>} Payment domain object
+     */
+    async processPayment({ orderId, paymentMethod, userId }) {
+        // 1. Lấy Order domain — đảm bảo đi qua domain layer
+        const order = await OrderService.getOrder(orderId);
 
-        // 1. Validate order
-        const dbOrder = await OrderModel.findById(orderId);
-        if (!dbOrder) {
-            throw new Error('Order not found');
+        // 2. Kiểm tra đã thanh toán chưa
+        const existingRow = await PaymentModel.findByOrderId(orderId);
+        if (existingRow) {
+            const existing = Payment.fromRow(existingRow);
+            if (existing.isSuccess()) throw new Error('Order already paid');
         }
 
-        // 2. Check already paid
-        const existingPayment = await PaymentModel.findByOrderId(orderId);
-        if (existingPayment) {
-            throw new Error('Order already paid');
+        // 3. Kiểm tra trạng thái đơn
+        if (!PAYABLE_STATUSES.has(order.getStatus())) {
+            throw new Error(`Đơn hàng ở trạng thái ${order.getStatus()}, không thể thanh toán`);
         }
 
-        // 3. Validate status
-        const status = String(dbOrder.status || '').toLowerCase();
-        const allowedStatuses = new Set(['pending', 'new', '']);
-        if (!allowedStatuses.has(status)) {
-            throw new Error(`Invalid order status: ${dbOrder.status}`);
-        }
-
-        // 4. ALWAYS trust DB amount
-        const amountToPay = Number(dbOrder.total_amount || 0);
-        if (!amountToPay) {
-            throw new Error('Invalid order amount');
-        }
-
-        // 5. Create domain object
+        // 4. Tạo Payment domain (status = PENDING)
         const payment = new Payment({
             orderId,
             userId,
             method: paymentMethod,
-            amount: amountToPay
+            amount: order.calculateTotal(),
+            status: PAYMENT_STATUS.PENDING,
         });
 
-        // 6. Process via Strategy
-        const result = await PaymentAdapter.process(paymentMethod, {
-            orderId,
-            totalAmount: amountToPay,
-            userId
-        });
+        // 5. Gọi PaymentAdapter → Strategy → kết quả
+        const result = await PaymentAdapter.process(paymentMethod, payment, order);
 
-        if (!result.success) {
+        // 6. Cập nhật Payment domain theo kết quả
+        if (result.success) {
+            payment.markSuccess(result.transactionId);
+        } else {
             payment.markFailed(result.message);
-            return payment;
+            return payment; // Không lưu DB nếu thất bại (tuỳ yêu cầu dự án)
         }
 
-        // 7. Mark success
-        payment.markSuccess(result.transactionId);
-
-        // 8. Save to DB
-        const saved = await PaymentModel.create({
-            orderId,
-            userId,
-            method: result.method,
-            transactionId: result.transactionId,
-            amount: result.amount,
-            status: payment.status
+        // 7. Lưu qua Model — truyền plain data, không truyền domain object
+        const savedRow = await PaymentModel.create({
+            orderId:       payment.orderId,
+            userId:        payment.userId,
+            method:        payment.method,
+            transactionId: payment.transactionId,
+            amount:        payment.amount,
+            status:        payment.status,         // 'SUCCESS' (UPPERCASE)
+            paidAt:        payment.paidAt,
         });
+        // Gán id từ DB vào domain object
+        payment.id = savedRow.id;
 
-        // 9. Notify observers
+        // 8. Observer: thông báo ORDER_PAID
         orderSubject.notify('ORDER_PAID', {
             orderId,
             userId,
-            transactionId: result.transactionId,
-            amount: result.amount
+            transactionId: payment.transactionId,
+            amount:        payment.amount,
         });
 
+        // 9. Trả Payment domain
         return payment;
     },
 
-
+    /**
+     * Lịch sử thanh toán của user → mảng Payment domain
+     */
     async getPaymentHistory(userId) {
         const rows = await PaymentModel.findByUserId(userId);
+        return rows.map(row => Payment.fromRow(row));
+    },
 
-        return rows.map(p => new Payment({
-            orderId: p.order_id,
-            userId: p.user_id,
-            method: p.method,
-            amount: p.amount
-        }));
+    /**
+     * Lấy thông tin thanh toán của một đơn → Payment domain | null
+     */
+    async getByOrderId(orderId) {
+        const row = await PaymentModel.findByOrderId(orderId);
+        return Payment.fromRow(row);
     },
 
     getAvailableMethods() {
         return PaymentAdapter.getAvailableMethods();
-    }
+    },
 };

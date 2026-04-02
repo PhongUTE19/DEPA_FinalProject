@@ -1,4 +1,4 @@
-﻿<div class="container py-4" style="max-width: 760px;">
+<div class="container py-4" style="max-width: 760px;">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">Thông báo (User #{{userId}})</h3>
     <button id="btnReadAll" class="btn btn-outline-secondary btn-sm">Đánh dấu đã đọc tất cả</button>
@@ -13,9 +13,9 @@
       <div class="ms-2 me-auto">
         <div class="fw-semibold">{{event}}</div>
         <div class="text-muted">{{message}}</div>
-        <small class="text-secondary">{{formatDate created_at}}</small>
+        <small class="text-secondary">{{formatDate createdAt}}</small>
       </div>
-      {{#unless is_read}}
+      {{#unless isRead}}
       <button class="btn btn-sm btn-outline-primary mark-read" data-id="{{id}}">Đánh dấu đã đọc</button>
       {{/unless}}
     </div>

@@ -1,12 +1,20 @@
-﻿import express from 'express';
-import NotificationController from '../controllers/notification.controller.js';
+import express                 from 'express';
+import NotificationController  from '../controllers/notification.controller.js';
+import authMiddleware          from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-router.get('/', NotificationController.showNotifications);
+// User xem thông báo của mình
+router.get('/', NotificationController.showNotificationsPage);
+
+// Staff / Chef / Manager xem thông báo bếp
 router.get('/kitchen', NotificationController.showKitchenNotifications);
-router.patch('/read-all', NotificationController.markAllAsRead);
-router.patch('/:id/read', NotificationController.markAsRead);
+
+// Đánh dấu đã đọc
+router.patch('/read-all', authMiddleware.requireAuth, NotificationController.markAllAsRead);
+router.patch('/:id/read', authMiddleware.requireAuth, NotificationController.markAsRead);
+
+// Dev-only test hook
 router.post('/trigger', NotificationController.triggerEvent);
 
 export default router;

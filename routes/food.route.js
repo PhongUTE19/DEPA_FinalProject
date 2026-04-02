@@ -1,15 +1,16 @@
-import express from 'express';
-import foodController from '../controllers/food.controller.js';
+import express        from 'express';
+import FoodController from '../controllers/food.controller.js';
+import authMiddleware from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-// GET /menu
-// Khách vào trang menu → lấy toàn bộ danh sách món ăn
-router.get('/', foodController.getMenu);
+// Public
+router.get('/', FoodController.showMenuPage);
+router.get('/:id', FoodController.showAddToppingPage);
 
-// GET /menu/:id
-// Khách chọn 1 món cụ thể → có thể thêm topping qua query string
-// Ví dụ: /menu/1?extraCheese=true&spicy=true
-router.get('/:id', foodController.getFoodWithToppings);
+// Manager only — quản lý món ăn
+router.post('/',       authMiddleware.requireManager, FoodController.createFood);
+router.patch('/:id',   authMiddleware.requireManager, FoodController.updateFood);
+router.delete('/:id',  authMiddleware.requireManager, FoodController.deleteFood);
 
 export default router;

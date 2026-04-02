@@ -1,20 +1,15 @@
 import { IPaymentStrategy } from './IPaymentStrategy.js';
 
 export class CashPaymentStrategy extends IPaymentStrategy {
-    getName() {
-        return 'cash';
-    }
+    getName() { return 'cash'; }
 
-    async pay(order) {
-        // Tiền mặt luôn thành công (thu tiền khi giao hàng)
-        const transactionId = `CASH-${Date.now()}-${order.orderId}`;
-
+    async pay({ orderId, totalAmount }) {
         return {
-            success: true,
-            transactionId,
-            message: 'Thanh toán tiền mặt khi nhận hàng',
-            method: 'cash',
-            amount: order.totalAmount,
+            success:       true,
+            transactionId: `CASH-${Date.now()}-${orderId}`,
+            message:       'Thanh toán tiền mặt khi nhận hàng',
+            method:        'cash',
+            amount:        totalAmount,
         };
     }
 }
