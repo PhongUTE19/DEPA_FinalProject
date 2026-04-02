@@ -2,80 +2,129 @@ class ToppingDecorator {
     constructor(food) {
         this.food = food;
     }
-    getInfo() {
-        return this.food.getInfo();
+
+    getId() {
+        return this.food.getId();
+    }
+
+    getName() {
+        return this.food.getName();
+    }
+
+    getPrice() {
+        return this.food.getPrice();
+    }
+
+    getToppings() {
+        return this.food.getToppings();
+    }
+
+    toJSON() {
+        return {
+            id: this.getId(),
+            name: this.getName(),
+            price: this.getPrice(),
+            toppings: this.getToppings(),
+        };
     }
 }
 
 class ExtraCheese extends ToppingDecorator {
-    getInfo() {
-        const base = this.food.getInfo();
-        return { ...base, name: `${base.name} + Thêm Phô Mai`, price: base.price + 10, toppings: [...(base.toppings || []), 'Thêm Phô Mai'] };
+    getName() {
+        return this.food.getName() + ' + Thêm Phô Mai';
+    }
+
+    getPrice() {
+        return this.food.getPrice() + 10;
+    }
+
+    getToppings() {
+        return [...this.food.getToppings(), 'Thêm Phô Mai'];
     }
 }
 
 class ExtraSauce extends ToppingDecorator {
-    getInfo() {
-        const base = this.food.getInfo();
-        return { ...base, name: `${base.name} + Thêm Sốt`, price: base.price + 5, toppings: [...(base.toppings || []), 'Thêm Sốt'] };
+    getName() {
+        return this.food.getName() + ' + Thêm Sốt';
+    }
+
+    getPrice() {
+        return this.food.getPrice() + 5;
+    }
+
+    getToppings() {
+        return [...this.food.getToppings(), 'Thêm Sốt'];
     }
 }
 
 class NoOnion extends ToppingDecorator {
-    getInfo() {
-        const base = this.food.getInfo();
-        return { ...base, toppings: [...(base.toppings || []), 'Không Hành'] };
+    getToppings() {
+        return [...this.food.getToppings(), 'Không Hành'];
     }
 }
 
 class ExtraMeat extends ToppingDecorator {
-    getInfo() {
-        const base = this.food.getInfo();
-        return { ...base, name: `${base.name} + Thêm Thịt`, price: base.price + 20, toppings: [...(base.toppings || []), 'Thêm Thịt'] };
+    getName() {
+        return this.food.getName() + ' + Thêm Thịt';
+    }
+
+    getPrice() {
+        return this.food.getPrice() + 20;
+    }
+
+    getToppings() {
+        return [...this.food.getToppings(), 'Thêm Thịt'];
     }
 }
 
 class Spicy extends ToppingDecorator {
-    getInfo() {
-        const base = this.food.getInfo();
-        return { ...base, name: `${base.name} + Cay`, toppings: [...(base.toppings || []), 'Cay'] };
+    getName() {
+        return this.food.getName() + ' + Cay';
+    }
+
+    getToppings() {
+        return [...this.food.getToppings(), 'Cay'];
     }
 }
 
 class ExtraVeggies extends ToppingDecorator {
-    getInfo() {
-        const base = this.food.getInfo();
-        return { ...base, name: `${base.name} + Thêm Rau`, price: base.price + 8, toppings: [...(base.toppings || []), 'Thêm Rau'] };
+    getName() {
+        return this.food.getName() + ' + Thêm Rau';
+    }
+
+    getPrice() {
+        return this.food.getPrice() + 8;
+    }
+
+    getToppings() {
+        return [...this.food.getToppings(), 'Thêm Rau'];
     }
 }
 
 class NoDressing extends ToppingDecorator {
-    getInfo() {
-        const base = this.food.getInfo();
-        return { ...base, toppings: [...(base.toppings || []), 'Không Sốt'] };
+    getToppings() {
+        return [...this.food.getToppings(), 'Không Sốt'];
     }
 }
 
 class ExtraIce extends ToppingDecorator {
-    getInfo() {
-        const base = this.food.getInfo();
-        return { ...base, toppings: [...(base.toppings || []), 'Thêm Đá'] };
+    getToppings() {
+        return [...this.food.getToppings(), 'Thêm Đá'];
     }
 }
 
 class NoSugar extends ToppingDecorator {
-    getInfo() {
-        const base = this.food.getInfo();
-        return { ...base, toppings: [...(base.toppings || []), 'Không Đường'] };
+    getToppings() {
+        return [...this.food.getToppings(), 'Không Đường'];
     }
 }
-
 // --- Helper: nhận vào 1 món ăn + danh sách yêu cầu của khách ---
 // Mỗi yêu cầu true/false → true thì bọc thêm 1 lớp topping, false thì bỏ qua
 // Ví dụ khách order: "Pizza + thêm phô mai + cay, không cần thêm gì khác"
 // → options = { extraCheese: true, spicy: true } → bọc 2 lớp, giá cộng dồn
 function applyToppings(food, options = {}) {
     let result = food;
+
     if (options.extraCheese) result = new ExtraCheese(result);
     if (options.extraSauce) result = new ExtraSauce(result);
     if (options.noOnion) result = new NoOnion(result);
@@ -85,8 +134,20 @@ function applyToppings(food, options = {}) {
     if (options.noDressing) result = new NoDressing(result);
     if (options.extraIce) result = new ExtraIce(result);
     if (options.noSugar) result = new NoSugar(result);
+
     return result;
 }
 
-export { ExtraCheese, ExtraSauce, NoOnion, ExtraMeat, Spicy, ExtraVeggies, NoDressing, ExtraIce, NoSugar, applyToppings };
-export default ToppingDecorator;
+export {
+    ToppingDecorator,
+    ExtraCheese,
+    ExtraSauce,
+    NoOnion,
+    ExtraMeat,
+    Spicy,
+    ExtraVeggies,
+    NoDressing,
+    ExtraIce,
+    NoSugar,
+    applyToppings,
+};

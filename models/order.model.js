@@ -1,8 +1,12 @@
 import db from '../config/database.js';
 
+const tableName = 'orders';
+
+const baseQuery = () => db(tableName);
+
 export const OrderModel = {
     async create(order) {
-        const [newOrder] = await db('orders')
+        const [newOrder] = await baseQuery()
             .insert({
                 id: order.id,
                 user_id: order.userId || null,
@@ -16,11 +20,11 @@ export const OrderModel = {
     },
     
     async findById(id) {
-        return db('orders').where({ id }).first();
+        return baseQuery().where({ id }).first();
     },
     
     async updateStatus(id, status) {
-        const [updated] = await db('orders')
+        const [updated] = await baseQuery()
             .where({ id })
             .update({ status })
             .returning('*');

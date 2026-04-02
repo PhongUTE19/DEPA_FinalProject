@@ -1,8 +1,12 @@
 ﻿import db from '../config/database.js';
 
+const tableName = 'payments';
+
+const baseQuery = () => db(tableName);
+
 const PaymentModel = {
   async create({ orderId, userId, method, transactionId, amount, status = 'success' }) {
-    const [payment] = await db('payments')
+    const [payment] = await baseQuery()
       .insert({
         order_id: String(orderId),
         user_id: userId == null ? null : Number(userId),
@@ -18,21 +22,21 @@ const PaymentModel = {
   },
 
   async findByOrderId(orderId) {
-    return db('payments').where({ order_id: String(orderId) }).first();
+    return baseQuery().where({ order_id: String(orderId) }).first();
   },
 
   async findById(id) {
-    return db('payments').where({ id: Number(id) }).first();
+    return baseQuery().where({ id: Number(id) }).first();
   },
 
   async findByUserId(userId) {
-    return db('payments')
+    return baseQuery()
       .where({ user_id: Number(userId) })
       .orderBy('created_at', 'desc');
   },
 
   async updateStatus(id, status) {
-    const [updated] = await db('payments')
+    const [updated] = await baseQuery()
       .where({ id: Number(id) })
       .update({ status })
       .returning('*');

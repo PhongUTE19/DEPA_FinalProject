@@ -1,8 +1,3 @@
-// ===================================================
-// STRATEGY PATTERN — Concrete Strategy: Cash
-// Mục đích: Xử lý thanh toán tiền mặt
-// ===================================================
-
 import { IPaymentStrategy } from './IPaymentStrategy.js';
 
 export class CashPaymentStrategy extends IPaymentStrategy {

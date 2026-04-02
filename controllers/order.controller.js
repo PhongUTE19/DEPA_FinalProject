@@ -1,23 +1,21 @@
 ﻿﻿import { OrderService } from '../services/order/OrderService.js';
 
 export const OrderController = {
-    // POST /order
+
     async createOrder(req, res) {
         try {
             const { items } = req.body;
             const userId = req.session?.authUser?.id || null;
-            
+
             if (!items || !Array.isArray(items)) {
-                return res.status(400).json({ message: 'Items array is required (e.g., [{ foodId: 1, quantity: 2 }])' });
+                return res.status(400).json({ message: 'Items array is required' });
             }
 
             const newOrder = await OrderService.createOrder(items, userId);
 
             return res.status(201).json({
                 message: 'Order created successfully',
-                orderId: newOrder.id,
-                status: newOrder.getStatus(),
-                items: newOrder.items
+                order: newOrder.toJSON()
             });
         } catch (error) {
             console.error(error);
@@ -25,11 +23,10 @@ export const OrderController = {
         }
     },
 
-    // PATCH /order/status
     async updateStatus(req, res) {
         try {
             const { orderId } = req.body;
-            
+
             if (!orderId) {
                 return res.status(400).json({ message: 'orderId is required' });
             }

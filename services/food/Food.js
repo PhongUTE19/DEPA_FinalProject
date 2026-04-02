@@ -1,11 +1,35 @@
 export class Food {
-  constructor({ id, name, price, type }) {
-    this.id = id;
-    this.name = name;
-    this.price = price;
-    this.type = type || 'food';
-  }
-  getInfo() {
-    return { id: this.id, name: this.name, price: this.price, type: this.type }
-  }
+    constructor({ id, name, basePrice, type, isAvailable }) {
+        this.id = id;
+        this.name = name;
+        this.basePrice = basePrice;
+        this.type = type || 'food';
+        this.isAvailable = isAvailable;
+    }
+
+    getId() {
+        return this.id;
+    }
+
+    getName() {
+        return this.name;
+    }
+
+    getPrice() {
+        return this.basePrice;
+    }
+
+    getToppings() {
+        return [];
+    }
+
+    toJSON() {
+        return {
+            id: this.getId(),
+            name: this.getName(),
+            price: this.getPrice(),
+            toppings: this.getToppings(),
+            type: this.type,
+        };
+    }
 }

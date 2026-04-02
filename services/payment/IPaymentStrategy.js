@@ -1,10 +1,3 @@
-// ===================================================
-// STRATEGY PATTERN — Interface (Abstract base class)
-// Mục đích: Định nghĩa interface chung cho tất cả
-//           các phương thức thanh toán
-// Lợi ích:  Dễ thêm phương thức mới mà không sửa code cũ
-// ===================================================
-
 export class IPaymentStrategy {
     /**
      * @param {object} order - { orderId, totalAmount, userId }

@@ -1,11 +1,3 @@
-// ===================================================
-// ADAPTER PATTERN — PaymentAdapter
-// Mục đích: Chuẩn hóa input/output của các strategy
-//           khác nhau về một format thống nhất
-// Lợi ích:  Controller chỉ cần gọi adapter, không cần
-//           biết strategy nào đang chạy bên dưới
-// ===================================================
-
 import { CashPaymentStrategy } from './CashPaymentStrategy.js';
 import { BankPaymentStrategy } from './BankPaymentStrategy.js';
 import { MomoPaymentStrategy } from './MomoPaymentStrategy.js';
@@ -18,9 +10,6 @@ const STRATEGY_MAP = {
 };
 
 export class PaymentAdapter {
-    // -----------------------------------------------
-    // Chọn strategy dựa vào paymentMethod string
-    // -----------------------------------------------
     static getStrategy(paymentMethod) {
         const strategy = STRATEGY_MAP[paymentMethod?.toLowerCase()];
         if (!strategy) {
@@ -29,9 +18,6 @@ export class PaymentAdapter {
         return strategy;
     }
 
-    // -----------------------------------------------
-    // Chuẩn hóa order input trước khi truyền vào strategy
-    // -----------------------------------------------
     static normalizeOrder(rawOrder) {
         return {
             orderId: rawOrder.orderId || rawOrder.order_id,
@@ -40,9 +26,6 @@ export class PaymentAdapter {
         };
     }
 
-    // -----------------------------------------------
-    // Chuẩn hóa result output từ strategy
-    // -----------------------------------------------
     static normalizeResult(rawResult, paymentMethod) {
         return {
             success: Boolean(rawResult.success),
@@ -54,9 +37,6 @@ export class PaymentAdapter {
         };
     }
 
-    // -----------------------------------------------
-    // Main method: Xử lý thanh toán end-to-end
-    // -----------------------------------------------
     static async process(paymentMethod, rawOrder) {
         const strategy = this.getStrategy(paymentMethod);
         const order = this.normalizeOrder(rawOrder);
@@ -64,9 +44,6 @@ export class PaymentAdapter {
         return this.normalizeResult(rawResult, paymentMethod);
     }
 
-    // -----------------------------------------------
-    // Lấy danh sách phương thức hợp lệ
-    // -----------------------------------------------
     static getAvailableMethods() {
         return Object.keys(STRATEGY_MAP);
     }

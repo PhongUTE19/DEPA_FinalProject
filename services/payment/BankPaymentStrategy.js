@@ -1,8 +1,3 @@
-// ===================================================
-// STRATEGY PATTERN — Concrete Strategy: Bank Transfer
-// Mục đích: Xử lý thanh toán chuyển khoản ngân hàng
-// ===================================================
-
 import { IPaymentStrategy } from './IPaymentStrategy.js';
 
 export class BankPaymentStrategy extends IPaymentStrategy {

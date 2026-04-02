@@ -30,7 +30,6 @@ export class CookingState extends OrderState {
 
 export class DoneState extends OrderState {
     next() {
-        // Terminal state: Already done, do nothing or throw Error based on needs
         console.log('Order is already done.');
     }
     getStatus() {

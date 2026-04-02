@@ -1,5 +1,9 @@
 ﻿import db from '../config/database.js';
 
+const tableName = 'notifications';
+
+const baseQuery = () => db(tableName);
+
 const NotificationModel = {
   async create(payload) {
     // Chuẩn hoá dữ liệu theo schema bảng notifications:
@@ -21,38 +25,38 @@ const NotificationModel = {
       created_at: new Date()
     };
 
-    const [row] = await db('notifications')
+    const [row] = await baseQuery()
       .insert(normalized)
       .returning('*');
     return row;
   },
 
   async findByUserId(userId) {
-    return db('notifications')
+    return baseQuery()
       .where({ type: 'user', user_id: Number(userId) })
       .orderBy('created_at', 'desc');
   },
 
   async findKitchenNotifications() {
-    return db('notifications')
+    return baseQuery()
       .where({ type: 'kitchen' })
       .orderBy('created_at', 'desc');
   },
 
   async markAllAsRead(userId) {
-    return db('notifications')
+    return baseQuery()
       .where({ user_id: Number(userId), type: 'user' })
       .update({ is_read: true });
   },
 
   async markAsRead(id) {
-    return db('notifications')
+    return baseQuery()
       .where({ id: Number(id) })
       .update({ is_read: true });
   },
 
   async countUnread(userId) {
-    const row = await db('notifications')
+    const row = await baseQuery()
       .where({ user_id: Number(userId), type: 'user', is_read: false })
       .count({ cnt: '*' })
       .first();
