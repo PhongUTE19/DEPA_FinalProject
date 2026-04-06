@@ -1,13 +1,9 @@
 /**
  * User Domain Object
  *
- * Source of truth cho mọi tầng trong hệ thống.
- * KHÔNG dùng raw DB row ra ngoài tầng Model.
- *
- * Role enum:
- *   CUSTOMER | STAFF | CHEF | MANAGER
+ * Role enum: CUSTOMER | STAFF | CHEF | MANAGER
+ * Cột 'permission' đã bị xoá, chỉ còn 'role' (text) trên DB.
  */
-
 export const ROLES = Object.freeze({
     CUSTOMER: 'CUSTOMER',
     STAFF:    'STAFF',
@@ -15,25 +11,7 @@ export const ROLES = Object.freeze({
     MANAGER:  'MANAGER',
 });
 
-// Map từ giá trị số (cột cũ permission) sang Role string
-const PERMISSION_TO_ROLE = {
-    0: ROLES.CUSTOMER,
-    1: ROLES.STAFF,
-    2: ROLES.CHEF,
-    3: ROLES.MANAGER,
-};
-
 export class User {
-    /**
-     * @param {object} params
-     * @param {number}      params.id
-     * @param {string}      params.username
-     * @param {string}      params.name
-     * @param {string}      params.email
-     * @param {string}      [params.dob]
-     * @param {string}      params.role   - một trong ROLES.*
-     * @param {Date}        [params.createdAt]
-     */
     constructor({ id, username, name, email, dob = null, role = ROLES.CUSTOMER, createdAt = null }) {
         this.id        = id;
         this.username  = username;
@@ -44,27 +22,19 @@ export class User {
         this.createdAt = createdAt;
     }
 
-    isCustomer() { return this.role === ROLES.CUSTOMER; }
-    isStaff()    { return this.role === ROLES.STAFF; }
-    isChef()     { return this.role === ROLES.CHEF; }
-    isManager()  { return this.role === ROLES.MANAGER; }
+    isCustomer()    { return this.role === ROLES.CUSTOMER; }
+    isStaff()       { return this.role === ROLES.STAFF; }
+    isChef()        { return this.role === ROLES.CHEF; }
+    isManager()     { return this.role === ROLES.MANAGER; }
+    isStaffOrAbove(){ return [ROLES.STAFF, ROLES.CHEF, ROLES.MANAGER].includes(this.role); }
 
-    /** Có quyền Staff-level trở lên (Staff / Chef / Manager) */
-    isStaffOrAbove() {
-        return [ROLES.STAFF, ROLES.CHEF, ROLES.MANAGER].includes(this.role);
-    }
-
-    /** Chuyển DB row → User domain */
     static fromRow(row) {
         if (!row) return null;
 
-        // Hỗ trợ cả cột 'role' (mới) lẫn 'permission' (số cũ)
-        let role = ROLES.CUSTOMER;
-        if (row.role && Object.values(ROLES).includes(row.role)) {
-            role = row.role;
-        } else if (row.permission !== undefined && row.permission !== null) {
-            role = PERMISSION_TO_ROLE[Number(row.permission)] ?? ROLES.CUSTOMER;
-        }
+        // Đọc cột role từ DB (text). Nếu giá trị không hợp lệ → mặc định CUSTOMER.
+        const role = Object.values(ROLES).includes(row.role)
+            ? row.role
+            : ROLES.CUSTOMER;
 
         return new User({
             id:        row.id,
@@ -77,7 +47,6 @@ export class User {
         });
     }
 
-    /** Trả về plain object an toàn để render view / JSON response (bỏ password) */
     toJSON() {
         return {
             id:        this.id,

@@ -13,9 +13,7 @@ const base  = () => db(TABLE);
 const FoodModel = {
 
     async getAll() {
-        return base()
-        // .where({ is_available: true })
-        .orderBy('type').orderBy('name');
+        return base().where({ is_available: true }).orderBy('type').orderBy('name');
     },
 
     async getById(id) {
@@ -29,13 +27,12 @@ const FoodModel = {
     },
 
     /** Manager: thêm món */
-    async create({ name, basePrice, type = 'food', category = 'Khác', isAvailable = true, imageUrl = null, description = null }) {
+    async create({ name, basePrice, type = 'food', isAvailable = true, imageUrl = null, description = null }) {
         const [row] = await base()
             .insert({
                 name,
                 base_price:   Number(basePrice),
                 type,
-                category,
                 is_available: Boolean(isAvailable),
                 image_url:    imageUrl,
                 description,
@@ -46,12 +43,11 @@ const FoodModel = {
     },
 
     /** Manager: sửa món */
-    async update(id, { name, basePrice, type, category, isAvailable, imageUrl, description }) {
+    async update(id, { name, basePrice, type, isAvailable, imageUrl, description }) {
         const fields = {};
         if (name        !== undefined) fields.name         = name;
         if (basePrice   !== undefined) fields.base_price   = Number(basePrice);
         if (type        !== undefined) fields.type         = type;
-        if (category    !== undefined) fields.category     = category;
         if (isAvailable !== undefined) fields.is_available = Boolean(isAvailable);
         if (imageUrl    !== undefined) fields.image_url    = imageUrl;
         if (description !== undefined) fields.description  = description;

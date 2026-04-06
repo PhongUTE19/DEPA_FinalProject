@@ -20,8 +20,6 @@ export class FoodFactory {
      * Nhận Food domain object (đã qua fromRow) → trả subclass đúng type.
      * Không nhận raw DB row.
      *
-     * @param {Food} food - domain object
-     * @returns {Food}
      */
     static create(food) {
         const type = (food.type || 'food').toLowerCase();
@@ -30,7 +28,6 @@ export class FoodFactory {
             name:        food.name,
             basePrice:   food.basePrice,
             type:        food.type,
-            category:    food.category,
             isAvailable: food.isAvailable,
             imageUrl:    food.imageUrl,
             description: food.description,

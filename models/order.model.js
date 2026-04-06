@@ -1,9 +1,7 @@
 /**
- * OrderModel — tầng DB duy nhất cho bảng 'orders'
- *
- * Chỉ làm việc với raw DB rows (knex).
- * KHÔNG import domain class nào.
- * Mọi input nhận dưới dạng plain data (không nhận Order domain object).
+ * OrderModel
+ * Schema: orders(id SERIAL int4, user_id, items, status, total_amount, created_at)
+ * id là integer — do DB tự sinh (SERIAL), không cần truyền vào khi INSERT.
  */
 import db from '../config/database.js';
 
@@ -12,13 +10,13 @@ const base  = () => db(TABLE);
 
 const OrderModel = {
 
-    async create({ id, userId, items, status, totalAmount }) {
+    // id KHÔNG truyền vào — để DB tự sinh SERIAL
+    async create({ userId, items, status, totalAmount }) {
         const [row] = await base()
             .insert({
-                id,
                 user_id:      userId ?? null,
                 items:        JSON.stringify(items),
-                status,
+                status:       (status || 'PENDING').toUpperCase(),
                 total_amount: Number(totalAmount) || 0,
                 created_at:   new Date(),
             })
@@ -27,7 +25,8 @@ const OrderModel = {
     },
 
     async findById(id) {
-        return base().where({ id }).first();
+        // id là integer
+        return base().where({ id: Number(id) }).first();
     },
 
     async findAll({ limit = 80, userId } = {}) {
@@ -38,8 +37,8 @@ const OrderModel = {
 
     async updateStatus(id, status) {
         const [row] = await base()
-            .where({ id })
-            .update({ status })
+            .where({ id: Number(id) })
+            .update({ status: status.toUpperCase() })
             .returning('*');
         return row;
     },

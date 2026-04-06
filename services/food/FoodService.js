@@ -39,9 +39,6 @@ export const FoodService = {
 
     /**
      * Lấy 1 món + áp dụng topping options
-     * @param {number|string} id
-     * @param {object} options - { extraCheese, spicy, ... }
-     * @returns {Food|ToppingDecorator|null}
      */
     async getWithToppings(id, options = {}) {
         const food = await this.getById(id);
@@ -50,14 +47,14 @@ export const FoodService = {
     },
 
     /** Tạo món mới (Manager) */
-    async create({ name, basePrice, type, category, isAvailable, imageUrl, description }) {
-        const row = await FoodModel.create({ name, basePrice, type, category, isAvailable, imageUrl, description });
+    async create({ name, basePrice, type, isAvailable, imageUrl, description }) {
+        const row = await FoodModel.create({ name, basePrice, type, isAvailable, imageUrl, description });
         return FoodFactory.create(Food.fromRow(row));
     },
 
     /** Cập nhật món (Manager) */
-    async update(id, { name, basePrice, type, category, isAvailable, imageUrl, description }) {
-        const row = await FoodModel.update(id, { name, basePrice, type, category, isAvailable, imageUrl, description });
+    async update(id, { name, basePrice, type, isAvailable, imageUrl, description }) {
+        const row = await FoodModel.update(id, { name, basePrice, type, isAvailable, imageUrl, description });
         if (!row) return null;
         return FoodFactory.create(Food.fromRow(row));
     },

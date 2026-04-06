@@ -22,7 +22,6 @@ class ToppingDecorator {
 
     // Giữ nguyên các field gốc không liên quan đến topping
     get type()        { return this._food.type; }
-    get category()    { return this._food.category; }
     get isAvailable() { return this._food.isAvailable; }
     get imageUrl()    { return this._food.imageUrl; }
     get description() { return this._food.description; }
@@ -36,7 +35,6 @@ class ToppingDecorator {
             basePrice:   this.basePrice,
             toppings:    this.getToppings(),
             type:        this.type,
-            category:    this.category,
             isAvailable: this.isAvailable,
             imageUrl:    this.imageUrl,
             description: this.description,
@@ -94,10 +92,7 @@ class NoSugar extends ToppingDecorator {
 // ===== Helper áp dụng nhiều topping liên tiếp =====
 
 /**
- * @param {Food} food - Food domain object
- * @param {object} options - { extraCheese, extraSauce, noOnion, extraMeat, spicy,
  *                             extraVeggies, noDressing, extraIce, noSugar }
- * @returns {ToppingDecorator|Food}
  */
 export function applyToppings(food, options = {}) {
     let result = food;

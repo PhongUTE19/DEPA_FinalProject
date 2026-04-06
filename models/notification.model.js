@@ -1,9 +1,9 @@
 /**
- * NotificationModel — tầng DB duy nhất cho bảng 'notifications'
- *
- * Chỉ làm việc với raw rows.
- * KHÔNG import domain class.
- * type nhận UPPERCASE từ NotificationService ('USER' | 'KITCHEN').
+ * NotificationModel
+ * Schema: notifications(id SERIAL, user_id int4, order_id int4, type, event,
+ *                        message, is_read, created_at)
+ * order_id là integer (khớp với orders.id SERIAL int4).
+ * type: 'USER' | 'KITCHEN' (CHECK constraint trên DB).
  */
 import db from '../config/database.js';
 
@@ -13,15 +13,12 @@ const base  = () => db(TABLE);
 const NotificationModel = {
 
     async create({ userId, orderId, type, event, message, isRead = false }) {
-        const parsedUserId  = userId  == null ? null : Number(userId);
-        const parsedOrderId = orderId == null ? null : orderId;
-
         const [row] = await base()
             .insert({
-                user_id:    Number.isFinite(parsedUserId) ? parsedUserId : null,
-                order_id:   parsedOrderId,
-                type:       (type  || '').toUpperCase(),   // 'USER' | 'KITCHEN'
-                event:      event  || null,
+                user_id:    userId  == null ? null : Number(userId),
+                order_id:   orderId == null ? null : Number(orderId),  // integer
+                type:       (type || '').toUpperCase(),
+                event:      event   ?? null,
                 message:    message ?? null,
                 is_read:    Boolean(isRead),
                 created_at: new Date(),
@@ -30,14 +27,12 @@ const NotificationModel = {
         return row;
     },
 
-    /** Thông báo của một user cụ thể */
     async findByUserId(userId) {
         return base()
             .where({ type: 'USER', user_id: Number(userId) })
             .orderBy('created_at', 'desc');
     },
 
-    /** Thông báo dành cho bếp */
     async findKitchenNotifications() {
         return base()
             .where({ type: 'KITCHEN' })

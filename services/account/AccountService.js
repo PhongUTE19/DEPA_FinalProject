@@ -17,7 +17,6 @@ const AccountService = {
 
     /**
      * Đăng ký tài khoản mới
-     * @returns {User} domain object của user vừa tạo
      */
     async signup({ username, password, name, email, dob }) {
         const hashPassword = bcrypt.hashSync(password, 10);
@@ -35,7 +34,6 @@ const AccountService = {
 
     /**
      * Đăng nhập
-     * @returns {{ success: boolean, user?: User }}
      */
     async signin({ username, password }) {
         const row = await UserModel.findByUsername(username);
@@ -49,7 +47,6 @@ const AccountService = {
 
     /**
      * Cập nhật hồ sơ
-     * @returns {User} domain object đã cập nhật
      */
     async updateProfile({ id, name, email }) {
         await UserModel.edit(id, { name, email });
@@ -59,8 +56,6 @@ const AccountService = {
 
     /**
      * Đổi mật khẩu
-     * @param {User} sessionUser - User domain từ session
-     * @returns {{ success: boolean, user?: User }}
      */
     async updatePassword({ id, currentPassword, newPassword }, sessionUser) {
         // Cần raw password để verify — lấy từ DB

@@ -9,12 +9,11 @@
  *   - getPrice(): giá cuối — Decorator override để cộng topping
  */
 export class Food {
-    constructor({ id, name, basePrice, type = 'food', category = 'Khác', isAvailable = true, imageUrl = null, description = null }) {
+    constructor({ id, name, basePrice, type = 'food', isAvailable = true, imageUrl = null, description = null }) {
         this.id          = id;
         this.name        = name;
         this.basePrice   = Number(basePrice) || 0;
         this.type        = type;
-        this.category    = category;
         this.isAvailable = Boolean(isAvailable);
         this.imageUrl    = imageUrl;
         this.description = description;
@@ -33,7 +32,6 @@ export class Food {
             name:        row.name,
             basePrice:   row.base_price ?? row.basePrice ?? row.price ?? 0,
             type:        row.type ?? 'food',
-            category:    row.category ?? 'Khác',
             isAvailable: row.is_available ?? row.isAvailable ?? true,
             imageUrl:    row.image_url ?? row.imageUrl ?? null,
             description: row.description ?? null,
@@ -48,7 +46,6 @@ export class Food {
             basePrice:   this.basePrice,
             toppings:    this.getToppings(),
             type:        this.type,
-            category:    this.category,
             isAvailable: this.isAvailable,
             imageUrl:    this.imageUrl,
             description: this.description,

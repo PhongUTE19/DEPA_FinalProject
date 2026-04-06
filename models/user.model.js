@@ -1,8 +1,7 @@
 /**
- * UserModel — tầng DB duy nhất cho bảng 'users'
- *
- * Chỉ làm việc với raw rows.
- * KHÔNG import User domain class.
+ * UserModel
+ * Schema: users(id SERIAL, username, name, email, password, role, dob, created_at)
+ * Cột 'permission' đã bị xoá — chỉ còn cột 'role' text.
  */
 import db from '../config/database.js';
 
@@ -26,11 +25,14 @@ const UserModel = {
     },
 
     async add({ username, password, name, email, dob = null, role = 'CUSTOMER' }) {
+        // Không có cột permission nữa
         return base().insert({ username, password, name, email, dob, role });
     },
 
     async edit(id, fields) {
-        return base().where({ id: Number(id) }).update(fields);
+        // Lọc bỏ 'permission' nếu ai đó vô tình truyền vào — cột đã xoá
+        const { permission: _drop, ...safeFields } = fields;
+        return base().where({ id: Number(id) }).update(safeFields);
     },
 
     async updateRole(id, role) {
