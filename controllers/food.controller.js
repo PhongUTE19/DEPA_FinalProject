@@ -52,11 +52,11 @@ const FoodController = {
     // POST /menu — Manager tạo món mới
     async createFood(req, res, next) {
         try {
-            const { name, basePrice, type, category, isAvailable, imageUrl, description } = req.body;
+            const { name, basePrice, type, isAvailable, imageUrl, description } = req.body;
             if (!name || basePrice == null) {
                 return res.status(400).json({ success: false, message: 'name và basePrice là bắt buộc' });
             }
-            const food = await FoodService.create({ name, basePrice, type, category, isAvailable, imageUrl, description });
+            const food = await FoodService.create({ name, basePrice, type, isAvailable, imageUrl, description });
             return res.status(201).json({ success: true, food: food.toJSON() });
         } catch (err) {
             next(err);

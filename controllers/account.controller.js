@@ -72,7 +72,9 @@ const AccountController = {
             // Cập nhật lại session với domain object mới
             req.session.authUser = user.toJSON();
 
-            res.render('pages/account/profile', { user: req.session.authUser, success: true });
+            res.render('pages/account/profile', {
+                user: req.session.authUser,
+                success: true });
         } catch (err) {
             next(err);
         }

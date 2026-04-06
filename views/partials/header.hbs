@@ -48,7 +48,7 @@
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        {{#if (eq authUser.permission 1)}}
+                        {{#if (eq authUser.role "MANAGER")}}
                         {{!-- <li>
                             <a class="dropdown-item" href="/admin/category/list">
                                 <i class="bi bi-key"></i>

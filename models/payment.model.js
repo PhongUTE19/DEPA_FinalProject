@@ -1,9 +1,8 @@
 /**
- * PaymentModel — tầng DB duy nhất cho bảng 'payments'
- *
- * Chỉ làm việc với raw rows.
- * KHÔNG import domain class.
- * status nhận string UPPERCASE từ PaymentService (đã markSuccess/markFailed).
+ * PaymentModel
+ * Schema: payments(id SERIAL, order_id int4, user_id int4, method, transaction_id,
+ *                  amount, status, paid_at, failure_reason, created_at)
+ * order_id là integer (khớp với orders.id SERIAL int4).
  */
 import db from '../config/database.js';
 
@@ -12,16 +11,17 @@ const base  = () => db(TABLE);
 
 const PaymentModel = {
 
-    async create({ orderId, userId, method, transactionId, amount, status, paidAt }) {
+    async create({ orderId, userId, method, transactionId, amount, status, paidAt, failureReason }) {
         const [row] = await base()
             .insert({
-                order_id:       String(orderId),
+                order_id:       Number(orderId),        // integer
                 user_id:        userId == null ? null : Number(userId),
                 method:         method ?? null,
                 transaction_id: transactionId ?? null,
                 amount:         Number(amount) || 0,
-                status:         status ?? 'PENDING',     // UPPERCASE từ domain
+                status:         (status || 'PENDING').toUpperCase(),
                 paid_at:        paidAt ?? null,
+                failure_reason: failureReason ?? null,
                 created_at:     new Date(),
             })
             .returning('*');
@@ -29,7 +29,7 @@ const PaymentModel = {
     },
 
     async findByOrderId(orderId) {
-        return base().where({ order_id: String(orderId) }).first();
+        return base().where({ order_id: Number(orderId) }).first();
     },
 
     async findById(id) {
@@ -45,7 +45,7 @@ const PaymentModel = {
     async updateStatus(id, status) {
         const [row] = await base()
             .where({ id: Number(id) })
-            .update({ status })
+            .update({ status: status.toUpperCase() })
             .returning('*');
         return row;
     },

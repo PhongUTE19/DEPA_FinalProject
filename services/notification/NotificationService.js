@@ -14,7 +14,6 @@ export const NotificationService = {
 
     /**
      * Tạo bản ghi thông báo mới → Notification domain
-     * @param {{ userId, orderId, type, event, message }} payload
      */
     async createRecord({ userId, orderId, type, event, message }) {
         const row = await NotificationModel.create({ userId, orderId, type, event, message });

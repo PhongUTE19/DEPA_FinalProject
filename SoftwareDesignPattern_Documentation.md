@@ -22,7 +22,6 @@ class User {
   createdAt: Date
 }
 ```
-- `role` thay thế `permission` (số nguyên cũ). Map: `0 → CUSTOMER`, `1 → STAFF`, `2 → CHEF`, `3 → MANAGER`.
 - `fromRow(row)` + `toJSON()` bắt buộc.
 
 ### 1.2 Food
@@ -32,7 +31,6 @@ class Food {
   name: string
   basePrice: number   // Giá gốc, KHÔNG bao gồm topping
   type: 'pizza'|'burger'|'pasta'|'salad'|'drink'|'soup'|'dessert'|'food'
-  category: string    // Nhóm hiển thị (Khai vị, Món chính, Tráng miệng, Đồ uống)
   isAvailable: boolean
   imageUrl: string | null
   description: string | null
@@ -142,8 +140,6 @@ class Notification {
 | role | VARCHAR(10) | NOT NULL, DEFAULT 'CUSTOMER', CHECK IN ('CUSTOMER','STAFF','CHEF','MANAGER') |
 | created_at | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() |
 
-> ⚠️ Cột `permission` (integer cũ) → đổi thành `role` (varchar enum).
-
 ### 2.2 Bảng `foods`
 | Cột | Kiểu | Ràng buộc |
 |-----|------|-----------|
@@ -151,7 +147,6 @@ class Notification {
 | name | VARCHAR(150) | NOT NULL |
 | base_price | NUMERIC(10,2) | NOT NULL, CHECK >= 0 |
 | type | VARCHAR(20) | NOT NULL, DEFAULT 'food' |
-| category | VARCHAR(50) | NOT NULL, DEFAULT 'Khác' |
 | is_available | BOOLEAN | NOT NULL, DEFAULT TRUE |
 | image_url | TEXT | NULL |
 | description | TEXT | NULL |

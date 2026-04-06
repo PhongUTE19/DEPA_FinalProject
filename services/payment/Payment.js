@@ -1,14 +1,14 @@
 /**
  * Payment Domain Object
  *
- * Đại diện cho một giao dịch thanh toán trong hệ thống.
- * PaymentService tạo và thao tác trên object này.
- * PaymentModel chỉ nhận plain data để INSERT / SELECT.
+ * Status: PENDING → SUCCESS | FAILED → REFUNDED
+ * Method: 'cash' | 'bank' | 'momo'
  *
- * Status enum (thống nhất UPPERCASE):
- *   PENDING → SUCCESS | FAILED → REFUNDED
+ * Luồng:
+ *   new Payment({ orderId, userId, method, amount })   → status = PENDING
+ *   payment.markSuccess(transactionId)                 → status = SUCCESS
+ *   payment.markFailed(reason)                         → status = FAILED
  */
-
 export const PAYMENT_STATUS = Object.freeze({
     PENDING:  'PENDING',
     SUCCESS:  'SUCCESS',
@@ -23,19 +23,6 @@ export const PAYMENT_METHOD = Object.freeze({
 });
 
 export class Payment {
-    /**
-     * @param {object} params
-     * @param {number|null}  [params.id]
-     * @param {string}       params.orderId
-     * @param {number|null}  [params.userId]
-     * @param {string}       params.method       - 'cash' | 'bank' | 'momo'
-     * @param {number}       params.amount
-     * @param {string}       [params.status]     - PAYMENT_STATUS.*
-     * @param {string|null}  [params.transactionId]
-     * @param {Date|null}    [params.paidAt]
-     * @param {string|null}  [params.failureReason]
-     * @param {Date|null}    [params.createdAt]
-     */
     constructor({
         id            = null,
         orderId,
@@ -60,8 +47,6 @@ export class Payment {
         this.createdAt     = createdAt;
     }
 
-    // ── State transitions ──────────────────────────────────────────────────
-
     markSuccess(transactionId) {
         this.status        = PAYMENT_STATUS.SUCCESS;
         this.transactionId = transactionId;
@@ -80,15 +65,10 @@ export class Payment {
         this.status = PAYMENT_STATUS.REFUNDED;
     }
 
-    // ── Queries ────────────────────────────────────────────────────────────
+    isSuccess() { return this.status === PAYMENT_STATUS.SUCCESS; }
+    isPending() { return this.status === PAYMENT_STATUS.PENDING; }
+    isFailed()  { return this.status === PAYMENT_STATUS.FAILED; }
 
-    isSuccess()  { return this.status === PAYMENT_STATUS.SUCCESS; }
-    isPending()  { return this.status === PAYMENT_STATUS.PENDING; }
-    isFailed()   { return this.status === PAYMENT_STATUS.FAILED; }
-
-    // ── Serialization ──────────────────────────────────────────────────────
-
-    /** Chuyển DB row → Payment domain */
     static fromRow(row) {
         if (!row) return null;
         return new Payment({
