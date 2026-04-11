@@ -1,0 +1,176 @@
+{{#fillSection "css"}}
+<style>
+    .notif-detail-card {
+        max-width: 640px;
+        margin: 0 auto;
+        border-radius: 16px;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+    }
+
+    .notif-detail-header {
+        padding: 28px 32px 20px;
+        background: linear-gradient(135deg, #ff6b35, #f7931e);
+        color: #fff;
+    }
+
+    .notif-detail-header h2 {
+        font-weight: 800;
+        margin: 0 0 4px;
+        font-size: 1.4rem;
+    }
+
+    .notif-detail-body {
+        padding: 28px 32px;
+    }
+
+    .notif-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .notif-meta .badge-pill {
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    .notif-message-box {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px 24px;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: #333;
+        border-left: 4px solid #ff6b35;
+    }
+
+    .notif-info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.92rem;
+    }
+
+    .notif-info-row:last-child {
+        border-bottom: none;
+    }
+
+    .notif-info-row .label {
+        color: #6c757d;
+    }
+
+    .notif-info-row .value {
+        font-weight: 600;
+        color: #1f2933;
+    }
+
+    .notif-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 24px;
+    }
+
+    .event-icon {
+        font-size: 2.2rem;
+    }
+</style>
+{{/fillSection}}
+
+<div class="col-12">
+    <div class="container py-5">
+        <div class="notif-detail-card">
+            <div class="notif-detail-header d-flex align-items-center gap-3">
+                <span class="event-icon">
+                    {{#if (eq notification.event "ORDER_CREATED")}}📦
+                    {{else if (eq notification.event "ORDER_CONFIRMED")}}✅
+                    {{else if (eq notification.event "ORDER_PREPARING")}}🍳
+                    {{else if (eq notification.event "ORDER_READY")}}🔔
+                    {{else if (eq notification.event "ORDER_COMPLETED")}}🎉
+                    {{else if (eq notification.event "ORDER_CANCELLED")}}🚫
+                    {{else if (eq notification.event "ORDER_PAID")}}💰
+                    {{else if (eq notification.event "PAYMENT_FAILED")}}❌
+                    {{else}}📢{{/if}}
+                </span>
+                <div>
+                    <h2>{{notification.event}}</h2>
+                    <span class="opacity-75" style="font-size:0.88rem">
+                        <i class="bi bi-clock me-1"></i>{{formatDate notification.createdAt}}
+                    </span>
+                </div>
+            </div>
+
+            <div class="notif-detail-body">
+                <div class="notif-meta">
+                    <span class="badge-pill
+                        {{#if (eq notification.type 'USER')}}bg-primary text-white
+                        {{else}}bg-warning text-dark{{/if}}">
+                        {{#if (eq notification.type "USER")}}👤 Người dùng{{else}}🍳 Bếp{{/if}}
+                    </span>
+
+                    {{#if notification.isRead}}
+                    <span class="badge-pill bg-success-subtle text-success">✓ Đã đọc</span>
+                    {{else}}
+                    <span class="badge-pill bg-danger text-white">Chưa đọc</span>
+                    {{/if}}
+
+                    {{#if notification.orderId}}
+                    <a href="/order" class="badge-pill bg-light text-dark text-decoration-none">
+                        🧾 Đơn #{{notification.orderId}}
+                    </a>
+                    {{/if}}
+                </div>
+
+                <div class="notif-message-box mb-4">
+                    {{notification.message}}
+                </div>
+
+                <div>
+                    <div class="notif-info-row">
+                        <span class="label">Mã thông báo</span>
+                        <span class="value">#{{notification.id}}</span>
+                    </div>
+                    <div class="notif-info-row">
+                        <span class="label">Loại</span>
+                        <span class="value">{{notification.type}}</span>
+                    </div>
+                    <div class="notif-info-row">
+                        <span class="label">Sự kiện</span>
+                        <span class="value">{{notification.event}}</span>
+                    </div>
+                    {{#if notification.orderId}}
+                    <div class="notif-info-row">
+                        <span class="label">Đơn hàng</span>
+                        <span class="value">#{{notification.orderId}}</span>
+                    </div>
+                    {{/if}}
+                    <div class="notif-info-row">
+                        <span class="label">Thời gian</span>
+                        <span class="value">{{formatDate notification.createdAt}}</span>
+                    </div>
+                </div>
+
+                <div class="notif-actions">
+                    {{#if (eq notification.type "USER")}}
+                    <a href="/notification" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-arrow-left me-1"></i>Quay lại
+                    </a>
+                    {{else}}
+                    <a href="/notification/kitchen" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-arrow-left me-1"></i>Quay lại bếp
+                    </a>
+                    {{/if}}
+                    {{#if notification.orderId}}
+                    <a href="/order" class="btn btn-outline-primary rounded-pill px-4">
+                        <i class="bi bi-receipt me-1"></i>Xem đơn hàng
+                    </a>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

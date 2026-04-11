@@ -4,26 +4,56 @@
         border-radius: 20px;
         padding: 48px 40px;
         text-align: center;
-        max-width: 500px;
+        max-width: 520px;
         margin: 0 auto;
     }
+
     .result-icon {
         font-size: 5rem;
         margin-bottom: 16px;
     }
-    .result-success { background: #f0fff4; border: 2px solid #b7ebce; }
-    .result-fail { background: #fff5f5; border: 2px solid #ffc9c9; }
+
+    .result-success {
+        background: #f0fff4;
+        border: 2px solid #b7ebce;
+    }
+
+    .result-fail {
+        background: #fff5f5;
+        border: 2px solid #ffc9c9;
+    }
+
     .info-row {
         display: flex;
         justify-content: space-between;
         padding: 10px 0;
         border-bottom: 1px solid #e9ecef;
+        font-size: 0.92rem;
     }
-    .info-row:last-child { border-bottom: none; }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-row .label {
+        color: #6c757d;
+    }
+
+    .info-row .value {
+        font-weight: 600;
+    }
+
     .amount-big {
         font-size: 2rem;
         font-weight: 700;
-        color: #2f9e44;
+        color: #ff6b35;
+    }
+
+    .btn-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 </style>
 {{/fillSection}}
@@ -38,33 +68,43 @@
 
             <div class="text-start mb-4">
                 <div class="info-row">
-                    <span class="text-muted">Mã đơn hàng</span>
-                    <span class="fw-semibold">#{{payment.order_id}}</span>
+                    <span class="label">Mã đơn hàng</span>
+                    <span class="value">#{{payment.orderId}}</span>
                 </div>
                 <div class="info-row">
-                    <span class="text-muted">Mã giao dịch</span>
-                    <span class="fw-semibold" style="font-size:0.85rem">{{payment.transaction_id}}</span>
+                    <span class="label">Mã giao dịch</span>
+                    <span class="value" style="font-size:0.85rem">{{payment.transactionId}}</span>
                 </div>
                 <div class="info-row">
-                    <span class="text-muted">Phương thức</span>
-                    <span class="fw-semibold text-capitalize">{{payment.method}}</span>
+                    <span class="label">Phương thức</span>
+                    <span class="value text-capitalize">
+                        {{#if (eq payment.method "cash")}}💵 Tiền mặt
+                        {{else if (eq payment.method "bank")}}🏦 Ngân hàng
+                        {{else if (eq payment.method "momo")}}📱 MoMo
+                        {{else}}{{payment.method}}{{/if}}
+                    </span>
                 </div>
                 <div class="info-row">
-                    <span class="text-muted">Số tiền</span>
+                    <span class="label">Số tiền</span>
                     <span class="amount-big">{{formatCurrency payment.amount}}</span>
                 </div>
                 <div class="info-row">
-                    <span class="text-muted">Thời gian</span>
-                    <span>{{formatDate payment.paid_at}}</span>
+                    <span class="label">Thời gian</span>
+                    <span class="value">{{formatDate payment.paidAt}}</span>
                 </div>
             </div>
 
-            <a href="/" class="btn btn-success rounded-pill px-4 me-2">
-                <i class="bi bi-house-fill me-1"></i>Về trang chủ
-            </a>
-            <a href="/notification" class="btn btn-outline-secondary rounded-pill px-4">
-                <i class="bi bi-bell me-1"></i>Thông báo
-            </a>
+            <div class="btn-actions">
+                <a href="/" class="btn btn-success rounded-pill px-4">
+                    <i class="bi bi-house-fill me-1"></i>Về trang chủ
+                </a>
+                <a href="/notification" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-bell me-1"></i>Thông báo
+                </a>
+                <a href="/payment/history" class="btn btn-outline-primary rounded-pill px-4">
+                    <i class="bi bi-clock-history me-1"></i>Lịch sử
+                </a>
+            </div>
         </div>
 
         {{else if alreadyPaid}}

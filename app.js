@@ -8,6 +8,7 @@ import foodRouter from './routes/food.route.js';
 import orderRouter from './routes/order.route.js';
 import notificationRouter from './routes/notification.route.js';
 import paymentRouter from './routes/payment.route.js';
+import couponRouter from './routes/coupon.route.js';
 import helpers from './views/helpers.js';
 
 import viewMiddleware from './middlewares/view.middleware.js';
@@ -54,6 +55,7 @@ app.use('/menu', foodRouter);
 app.use('/order', orderRouter);
 app.use('/payment', paymentRouter);
 app.use('/notification', notificationRouter);
+app.use('/coupon', couponRouter);
 
 // Error handlers
 app.use(errorMiddleware.notFound);

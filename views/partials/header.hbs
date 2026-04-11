@@ -3,7 +3,7 @@
         <a class="navbar-brand" href="/">G1 RESTAURANT</a>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                
+
             </ul>
             <form class="d-flex me-5" role="search" method="get" action="/course/search">
                 <input class="form-control me-2" type="search" placeholder="Feeling hungry?" name="q" />
@@ -24,44 +24,61 @@
                         <li>
                             <a class="dropdown-item" href="/account/profile">
                                 <i class="bi bi-person"></i>
-                                Profile
+                                Hồ sơ
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="/order">
-                                <i class="bi bi-person"></i>
-                                My order
+                                <i class="bi bi-receipt"></i>
+                                Đơn hàng
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="/payment/history">
-                                <i class="bi bi-person"></i>
-                                Payment history
+                                <i class="bi bi-clock-history"></i>
+                                Lịch sử thanh toán
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/notification">
+                                <i class="bi bi-bell"></i>
+                                Thông báo
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/coupon/available">
+                                <i class="bi bi-ticket-perforated"></i>
+                                Mã giảm giá
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="/account/change-password">
                                 <i class="bi bi-key"></i>
-                                Change password
+                                Đổi mật khẩu
                             </a>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
                         {{#if (eq authUser.role "MANAGER")}}
-                        {{!-- <li>
-                            <a class="dropdown-item" href="/admin/category/list">
-                                <i class="bi bi-key"></i>
-                                History
+                        <li>
+                            <a class="dropdown-item" href="/coupon/create">
+                                <i class="bi bi-plus-circle"></i>
+                                Tạo mã giảm giá
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="/admin/category/list">
-                                <i class="bi bi-key"></i>
-                                History
+                            <a class="dropdown-item" href="/coupon/manage">
+                                <i class="bi bi-gear"></i>
+                                Quản lý coupon
                             </a>
-                        </li> --}}
-                        
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/notification/kitchen">
+                                <i class="bi bi-fire"></i>
+                                Thông báo bếp
+                            </a>
+                        </li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>

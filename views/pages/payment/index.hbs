@@ -55,19 +55,109 @@
         font-weight: 700;
         color: #ff6b35;
     }
+
+    .coupon-section {
+        background: #fff8f4;
+        border: 2px dashed #ffd4c0;
+        border-radius: 14px;
+        padding: 20px 24px;
+    }
+
+    .coupon-input-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .coupon-input-group input {
+        flex: 1;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        padding: 10px 16px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .coupon-input-group input:focus {
+        border-color: #ff6b35;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+    }
+
+    .btn-coupon {
+        background: #ff6b35;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: background 0.2s;
+    }
+
+    .btn-coupon:hover {
+        background: #e85a24;
+    }
+
+    .coupon-result {
+        margin-top: 12px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        display: none;
+    }
+
+    .coupon-result.success {
+        background: #d3f9d8;
+        color: #2b8a3e;
+        display: block;
+    }
+
+    .coupon-result.error {
+        background: #ffe3e3;
+        color: #c92a2a;
+        display: block;
+    }
+
+    .discount-row {
+        color: #2b8a3e;
+        font-weight: 600;
+        display: none;
+    }
+
+    .discount-row.show {
+        display: flex;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #ff6b35, #f7931e);
+        border-radius: 16px;
+        padding: 24px 32px;
+        color: white;
+        margin-bottom: 28px;
+    }
+
+    .page-header h2 {
+        font-weight: 800;
+        margin: 0;
+        font-size: 1.6rem;
+    }
 </style>
 {{/fillSection}}
 
 <div class="col-12">
     <div class="container py-5" style="max-width: 680px;">
-        <h2 class="fw-bold mb-1">🧾 Thanh toán đơn hàng</h2>
-        <p class="text-muted mb-4">Mã đơn: <strong>#{{orderId}}</strong></p>
+        <div class="page-header">
+            <h2>🧾 Thanh toán đơn hàng</h2>
+            <p class="mb-0 opacity-75">Mã đơn: <strong>#{{orderId}}</strong></p>
+        </div>
 
         <form action="/payment" method="POST" id="paymentForm">
             <input type="hidden" name="orderId" value="{{orderId}}">
             <input type="hidden" name="userId" value="{{userId}}">
             <input type="hidden" name="totalAmount" id="totalAmountInput" value="{{totalAmount}}">
             <input type="hidden" id="totalAmountData" value="{{totalAmount}}">
+            <input type="hidden" name="couponCode" id="couponCodeInput" value="">
 
             {{!-- Order Summary --}}
             <div class="order-summary mb-4">
@@ -76,11 +166,35 @@
                     <span class="text-muted">Mã đơn hàng</span>
                     <span class="fw-medium">#{{orderId}}</span>
                 </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Tạm tính</span>
+                    <span class="fw-medium" id="subtotalDisplay">Đang tải...</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2 discount-row" id="discountRow">
+                    <span><i class="bi bi-tag-fill me-1"></i>Giảm giá</span>
+                    <span id="discountDisplay">-0₫</span>
+                </div>
                 <hr>
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold">Tổng cộng</span>
+                    <span class="fw-semibold">Tổng thanh toán</span>
                     <span class="total-amount" id="displayAmount">Đang tải...</span>
                 </div>
+            </div>
+
+            {{!-- Coupon Section --}}
+            <div class="coupon-section mb-4">
+                <h6 class="fw-semibold mb-2"><i class="bi bi-ticket-perforated me-1"></i>Mã giảm giá</h6>
+                <div class="coupon-input-group">
+                    <input type="text" id="couponInput" placeholder="Nhập mã giảm giá...">
+                    <button type="button" class="btn-coupon" id="btnApplyCoupon">
+                        Áp dụng
+                    </button>
+                </div>
+                <div class="coupon-result" id="couponResult"></div>
+                <a href="/coupon/available" class="d-inline-block mt-2 text-decoration-none"
+                    style="font-size:0.82rem; color:#ff6b35;">
+                    <i class="bi bi-collection me-1"></i>Xem mã giảm giá khả dụng
+                </a>
             </div>
 
             {{!-- Payment Methods --}}
@@ -123,18 +237,58 @@
 
 {{#fillSection "js"}}
 <script>
+    const fmt = v => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v);
+    let originalAmount = parseInt(document.getElementById('totalAmountData').value) || 0;
+    let discountAmount = 0;
+
     function selectMethod(el) {
         document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('selected'));
         el.classList.add('selected');
         el.querySelector('input[type="radio"]').checked = true;
     }
 
-    function displayOrderAmount() {
-        const amount = parseInt(document.getElementById('totalAmountData').value) || 0;
-        document.getElementById('totalAmountInput').value = amount;
-        document.getElementById('displayAmount').textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    function updateDisplay() {
+        const finalAmount = originalAmount - discountAmount;
+        document.getElementById('subtotalDisplay').textContent = fmt(originalAmount);
+        document.getElementById('displayAmount').textContent = fmt(finalAmount);
+        document.getElementById('totalAmountInput').value = finalAmount;
     }
 
-    displayOrderAmount();
+    document.getElementById('btnApplyCoupon')?.addEventListener('click', async () => {
+        const code = document.getElementById('couponInput').value.trim();
+        const resultEl = document.getElementById('couponResult');
+        if (!code) {
+            resultEl.className = 'coupon-result error';
+            resultEl.textContent = 'Vui lòng nhập mã giảm giá';
+            return;
+        }
+
+        try {
+            const res = await fetch('/coupon/apply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, orderAmount: originalAmount }),
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                discountAmount = data.discount;
+                document.getElementById('couponCodeInput').value = code;
+                document.getElementById('discountRow').classList.add('show');
+                document.getElementById('discountDisplay').textContent = '-' + fmt(data.discount);
+                resultEl.className = 'coupon-result success';
+                resultEl.innerHTML = '<i class="bi bi-check-circle me-1"></i>Đã áp dụng mã <strong>' + code.toUpperCase() + '</strong>: giảm ' + fmt(data.discount);
+                updateDisplay();
+            } else {
+                resultEl.className = 'coupon-result error';
+                resultEl.innerHTML = '<i class="bi bi-x-circle me-1"></i>' + data.message;
+            }
+        } catch {
+            resultEl.className = 'coupon-result error';
+            resultEl.textContent = 'Lỗi kết nối. Vui lòng thử lại.';
+        }
+    });
+
+    updateDisplay();
 </script>
 {{/fillSection}}

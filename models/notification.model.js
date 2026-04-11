@@ -8,19 +8,19 @@
 import db from '../config/database.js';
 
 const TABLE = 'notifications';
-const base  = () => db(TABLE);
+const base = () => db(TABLE);
 
 const NotificationModel = {
 
     async create({ userId, orderId, type, event, message, isRead = false }) {
         const [row] = await base()
             .insert({
-                user_id:    userId  == null ? null : Number(userId),
-                order_id:   orderId == null ? null : Number(orderId),  // integer
-                type:       (type || '').toUpperCase(),
-                event:      event   ?? null,
-                message:    message ?? null,
-                is_read:    Boolean(isRead),
+                user_id: userId == null ? null : Number(userId),
+                order_id: orderId == null ? null : Number(orderId),  // integer
+                type: (type || '').toUpperCase(),
+                event: event ?? null,
+                message: message ?? null,
+                is_read: Boolean(isRead),
                 created_at: new Date(),
             })
             .returning('*');
@@ -49,6 +49,10 @@ const NotificationModel = {
         return base()
             .where({ id: Number(id) })
             .update({ is_read: true });
+    },
+
+    async findById(id) {
+        return base().where({ id: Number(id) }).first();
     },
 
     async countUnread(userId) {

@@ -1,0 +1,159 @@
+{{#fillSection "css"}}
+<style>
+    .create-form-card {
+        max-width: 600px;
+        margin: 0 auto;
+        border-radius: 16px;
+        border: 1px solid #e9ecef;
+        padding: 36px 40px;
+        background: #fff;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .form-header h2 {
+        font-weight: 800;
+    }
+
+    .form-header .icon {
+        font-size: 3rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+        padding: 10px 16px;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #ff6b35;
+        box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+    }
+
+    .btn-create {
+        background: #ff6b35;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 40px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: white;
+        width: 100%;
+        transition: background 0.2s;
+    }
+
+    .btn-create:hover {
+        background: #e85a24;
+        color: white;
+    }
+
+    .success-preview {
+        background: #f0fff4;
+        border: 2px solid #b7ebce;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .success-preview .code {
+        font-family: 'Courier New', monospace;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #ff6b35;
+        letter-spacing: 2px;
+    }
+</style>
+{{/fillSection}}
+
+<div class="col-12">
+    <div class="container py-5">
+        <div class="create-form-card">
+            <div class="form-header">
+                <div class="icon">🎫</div>
+                <h2>Tạo mã giảm giá</h2>
+                <p class="text-muted">Tạo coupon mới cho khách hàng</p>
+            </div>
+
+            {{#if error}}
+            <div class="alert alert-danger rounded-3">
+                <i class="bi bi-exclamation-triangle me-2"></i>{{error}}
+            </div>
+            {{/if}}
+
+            {{#if success}}
+            <div class="success-preview mb-4">
+                <div class="mb-2"><i class="bi bi-check-circle-fill text-success fs-1"></i></div>
+                <p class="fw-bold text-success mb-1">{{success}}</p>
+                {{#if coupon}}
+                <div class="code">{{coupon.code}}</div>
+                {{/if}}
+            </div>
+            {{/if}}
+
+            <form action="/coupon/create" method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Mã giảm giá <span class="text-danger">*</span></label>
+                    <input type="text" name="code" class="form-control" placeholder="VD: SALE20, WELCOME50..."
+                        value="{{formData.code}}" required
+                        style="text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Loại giảm giá</label>
+                        <select name="discountType" class="form-select">
+                            <option value="PERCENT" {{#if (eq formData.discountType "PERCENT" )}}selected{{/if}}>Phần
+                                trăm (%)</option>
+                            <option value="FIXED" {{#if (eq formData.discountType "FIXED" )}}selected{{/if}}>Số tiền cố
+                                định (₫)</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Giá trị giảm <span class="text-danger">*</span></label>
+                        <input type="number" name="discountValue" class="form-control" placeholder="VD: 20"
+                            value="{{formData.discountValue}}" required min="1">
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Đơn tối thiểu (₫)</label>
+                        <input type="number" name="minOrderAmount" class="form-control" placeholder="0 = không giới hạn"
+                            value="{{formData.minOrderAmount}}" min="0">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Số lượt dùng tối đa</label>
+                        <input type="number" name="maxUses" class="form-control" placeholder="Trống = không giới hạn"
+                            value="{{formData.maxUses}}" min="1">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Ngày hết hạn</label>
+                    <input type="datetime-local" name="expiresAt" class="form-control" value="{{formData.expiresAt}}">
+                    <small class="text-muted">Để trống nếu không giới hạn thời gian</small>
+                </div>
+
+                <button type="submit" class="btn-create">
+                    <i class="bi bi-plus-circle me-2"></i>Tạo mã giảm giá
+                </button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="/coupon/manage" class="text-muted text-decoration-none">
+                    <i class="bi bi-gear me-1"></i>Quản lý mã giảm giá
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
