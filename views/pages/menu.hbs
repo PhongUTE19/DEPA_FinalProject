@@ -1,97 +1,85 @@
 <style>
   body { background: #0f0f0f; color: #f1f1f1; font-family: 'Segoe UI', sans-serif; }
 
-  .menu-hero {
-    text-align: center;
-    padding: 48px 20px 24px;
-  }
+  .menu-hero { text-align: center; padding: 48px 20px 24px; }
   .menu-hero h1 { font-size: 2.2rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
   .menu-hero p  { color: #888; font-size: 1rem; }
 
-  .filter-bar {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
-    padding: 16px 20px;
-  }
-  .filter-btn {
-    padding: 8px 20px;
-    border-radius: 999px;
-    border: 1px solid #333;
-    background: #1a1a1a;
-    color: #aaa;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-  }
-  .filter-btn:hover, .filter-btn.active {
-    background: #e85d24;
-    border-color: #e85d24;
-    color: #fff;
-  }
+  .filter-bar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 16px 20px; }
+  .filter-btn { padding: 8px 20px; border-radius: 999px; border: 1px solid #333; background: #1a1a1a; color: #aaa; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+  .filter-btn:hover, .filter-btn.active { background: #e85d24; border-color: #e85d24; color: #fff; }
 
-  .menu-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
-    padding: 20px 40px 60px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
+  .search-bar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 20px 16px; max-width: 900px; margin: 0 auto; }
+  .search-bar input, .search-bar select { padding: 8px 16px; border-radius: 999px; border: 1px solid #333; background: #1a1a1a; color: #fff; font-size: 0.9rem; outline: none; }
+  .search-bar input::placeholder { color: #666; }
+  .search-bar select option { background: #1a1a1a; }
+  .search-bar input:focus, .search-bar select:focus { border-color: #e85d24; }
+  .btn-search { padding: 8px 20px; border-radius: 999px; background: #e85d24; border: none; color: #fff; cursor: pointer; font-size: 0.9rem; }
+  .btn-search:hover { background: #cf4e1a; }
+  .btn-clear { padding: 8px 20px; border-radius: 999px; background: #333; border: none; color: #fff; cursor: pointer; font-size: 0.9rem; }
+  .btn-clear:hover { background: #444; }
 
-  .food-card {
-    background: #1a1a1a;
-    border: 1px solid #2a2a2a;
-    border-radius: 16px;
-    overflow: hidden;
-    transition: transform 0.2s, border-color 0.2s;
-    cursor: pointer;
-  }
-  .food-card:hover {
-    transform: translateY(-4px);
-    border-color: #e85d24;
-  }
-  .food-card-img {
-    width: 100%;
-    height: 150px;
-    background: #2a2a2a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3.5rem;
-  }
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 20px 40px 60px; max-width: 1200px; margin: 0 auto; }
+
+  .food-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; overflow: hidden; transition: transform 0.2s, border-color 0.2s; cursor: pointer; }
+  .food-card:hover { transform: translateY(-4px); border-color: #e85d24; }
+  .food-card-img { width: 100%; height: 150px; background: #2a2a2a; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; }
   .food-card-body { padding: 14px; }
-  .food-card-type {
-    font-size: 0.75rem;
-    color: #e85d24;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-  }
-  .food-card-name {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #fff;
-    margin-bottom: 8px;
-  }
-  .food-card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  .food-card-type { font-size: 0.75rem; color: #e85d24; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .food-card-name { font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 8px; }
+  .food-card-footer { display: flex; justify-content: space-between; align-items: center; }
   .food-card-price { color: #e85d24; font-weight: 700; font-size: 1rem; }
-  .btn-add {
-    background: #e85d24;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-size: 0.85rem;
-    cursor: pointer;
-  }
+  .btn-add { background: #e85d24; color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 0.85rem; cursor: pointer; }
   .btn-add:hover { background: #cf4e1a; }
   .no-result { text-align: center; color: #555; padding: 40px; display: none; }
+
+  .food-card-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .btn-review-open { background: transparent; border: 1px solid #e85d24; color: #e85d24; border-radius: 8px; padding: 5px 12px; font-size: 0.8rem; cursor: pointer; flex: 1; }
+  .btn-review-open:hover { background: #e85d24; color: #fff; }
+  .btn-fav { background: transparent; border: 1px solid #e84393; color: #e84393; border-radius: 8px; padding: 5px 12px; font-size: 0.8rem; cursor: pointer; }
+  .btn-fav:hover, .btn-fav.active { background: #e84393; color: #fff; }
+
+  #reviewModal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.8);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+  }
+  #reviewModal.open { display: flex !important; }
+  #reviewModal .rbox {
+    background: #1a1a1a;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 520px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 28px;
+    border: 1px solid #2a2a2a;
+    color: #fff;
+    position: relative;
+  }
+  #reviewModal .rbox-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  #reviewModal .rbox-title { font-size: 1.3rem; font-weight: 700; color: #fff; }
+  #reviewModal .rbox-close { background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer; }
+  #reviewModal .rbox-close:hover { color: #fff; }
+  .review-item { background: #252525; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+  .review-meta { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .review-user { font-size: 0.85rem; color: #aaa; }
+  .review-stars { color: #f59e0b; }
+  .review-comment { font-size: 0.9rem; color: #ddd; }
+  .review-empty { color: #555; text-align: center; padding: 16px 0; }
+  .rform { border-top: 1px solid #2a2a2a; padding-top: 20px; }
+  .rform h4 { color: #fff; margin-bottom: 14px; }
+  .star-select { display: flex; gap: 8px; margin-bottom: 12px; }
+  .star-select span { font-size: 1.6rem; cursor: pointer; color: #444; transition: color 0.15s; user-select: none; }
+  .star-select span.active { color: #f59e0b; }
+  .review-textarea { width: 100%; background: #252525; border: 1px solid #333; border-radius: 8px; color: #fff; padding: 10px; font-size: 0.9rem; resize: vertical; min-height: 80px; box-sizing: border-box; margin-bottom: 12px; }
+  .btn-submit-review { background: #e85d24; color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-size: 0.95rem; cursor: pointer; width: 100%; }
+  .btn-submit-review:hover { background: #cf4e1a; }
 </style>
 
 <div class="menu-hero">
@@ -110,6 +98,24 @@
   <button class="filter-btn" onclick="filterMenu(this, 'drink')">🥤 Đồ uống</button>
 </div>
 
+<div class="search-bar">
+  <input id="searchQ" type="text" placeholder="🔍 Tìm tên món..." style="flex:1;min-width:180px;">
+  <select id="searchCategory">
+    <option value="">Tất cả loại</option>
+    <option value="pizza">Pizza</option>
+    <option value="burger">Burger</option>
+    <option value="pasta">Pasta</option>
+    <option value="salad">Salad</option>
+    <option value="soup">Súp</option>
+    <option value="dessert">Tráng miệng</option>
+    <option value="drink">Đồ uống</option>
+  </select>
+  <input id="searchMin" type="number" placeholder="Giá min" style="width:90px;">
+  <input id="searchMax" type="number" placeholder="Giá max" style="width:90px;">
+  <button class="btn-search" onclick="doSearch()">🔍 Tìm</button>
+  <button class="btn-clear" onclick="clearSearch()">✕ Xoá</button>
+</div>
+
 <div class="menu-grid" id="menuGrid">
   {{#each foods}}
   <div class="food-card" data-type="{{type}}">
@@ -121,6 +127,10 @@
         <span class="food-card-price">{{price}}k</span>
         <button class="btn-add">+ Thêm</button>
       </div>
+      <div class="food-card-actions">
+        <button class="btn-review-open" data-food-id="{{id}}" data-food-name="{{name}}">⭐ Đánh giá</button>
+        <button class="btn-fav" data-food-id="{{id}}" title="Yêu thích">❤️</button>
+      </div>
     </div>
   </div>
   {{/each}}
@@ -128,17 +138,213 @@
 
 <p class="no-result" id="noResult">Không có món nào 😕</p>
 
+<!-- MODAL REVIEW -->
+<div id="reviewModal">
+  <div class="rbox">
+    <div class="rbox-header">
+      <span class="rbox-title" id="modalFoodName"></span>
+      <button class="rbox-close" id="btnCloseReview">✕</button>
+    </div>
+    <div id="reviewList">
+      <p class="review-empty">Đang tải...</p>
+    </div>
+    <div class="rform">
+      <h4>Viết đánh giá</h4>
+      <div class="star-select" id="starSelect">
+        <span data-star="1">★</span>
+        <span data-star="2">★</span>
+        <span data-star="3">★</span>
+        <span data-star="4">★</span>
+        <span data-star="5">★</span>
+      </div>
+      <textarea class="review-textarea" id="reviewComment" placeholder="Nhận xét của bạn..."></textarea>
+      <button class="btn-submit-review" id="btnSubmitReview">Gửi đánh giá</button>
+    </div>
+  </div>
+</div>
+
 <script>
+  let currentFoodId = null;
+  let selectedRating = 0;
+  const isLoggedIn = {{#if authUser}}true{{else}}false{{/if}};
+
+  const typeEmojiMap = {
+    pizza:'🍕', burger:'🍔', pasta:'🍝', salad:'🥗',
+    soup:'🍲', dessert:'🍰', drink:'🥤'
+  };
+
+  // Filter menu (client-side)
   function filterMenu(btn, type) {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const cards = document.querySelectorAll('.food-card');
     let count = 0;
-    cards.forEach(card => {
+    document.querySelectorAll('.food-card').forEach(card => {
       const show = type === 'all' || card.dataset.type === type;
       card.style.display = show ? 'block' : 'none';
       if (show) count++;
     });
     document.getElementById('noResult').style.display = count === 0 ? 'block' : 'none';
   }
+
+  // Search (server-side)
+  async function doSearch() {
+    const q        = document.getElementById('searchQ').value.trim();
+    const category = document.getElementById('searchCategory').value;
+    const priceMin = document.getElementById('searchMin').value;
+    const priceMax = document.getElementById('searchMax').value;
+
+    const params = new URLSearchParams();
+    if (q)        params.append('q', q);
+    if (category) params.append('category', category);
+    if (priceMin) params.append('priceMin', priceMin);
+    if (priceMax) params.append('priceMax', priceMax);
+
+    try {
+      const res  = await fetch('/menu/search?' + params.toString());
+      const data = await res.json();
+      const grid = document.getElementById('menuGrid');
+
+      if (!data.success || data.foods.length === 0) {
+        grid.innerHTML = '';
+        document.getElementById('noResult').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('noResult').style.display = 'none';
+      grid.innerHTML = data.foods.map(f => `
+        <div class="food-card" data-type="${f.type}">
+          <div class="food-card-img">${typeEmojiMap[f.type] || '🍽️'}</div>
+          <div class="food-card-body">
+            <div class="food-card-type">${f.type}</div>
+            <div class="food-card-name">${f.name}</div>
+            <div class="food-card-footer">
+              <span class="food-card-price">${f.basePrice}k</span>
+              <button class="btn-add">+ Thêm</button>
+            </div>
+            <div class="food-card-actions">
+              <button class="btn-review-open" data-food-id="${f.id}" data-food-name="${f.name}">⭐ Đánh giá</button>
+              <button class="btn-fav" data-food-id="${f.id}" title="Yêu thích">❤️</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    } catch(err) {
+      alert('Lỗi tìm kiếm!');
+    }
+  }
+
+  document.getElementById('searchQ').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doSearch();
+  });
+
+  function clearSearch() {
+    document.getElementById('searchQ').value = '';
+    document.getElementById('searchCategory').value = '';
+    document.getElementById('searchMin').value = '';
+    document.getElementById('searchMax').value = '';
+    location.reload();
+  }
+
+  // Favorite
+  document.addEventListener('click', async function(e) {
+    const btn = e.target.closest('.btn-fav');
+    if (!btn) return;
+    e.stopPropagation();
+    if (!isLoggedIn) return alert('Vui lòng đăng nhập để lưu yêu thích!');
+    const foodId = btn.dataset.foodId;
+    const isActive = btn.classList.contains('active');
+    const method = isActive ? 'DELETE' : 'POST';
+    try {
+      const res = await fetch('/favorite/' + foodId, { method });
+      const data = await res.json();
+      if (data.success) {
+        btn.classList.toggle('active');
+        btn.textContent = btn.classList.contains('active') ? '💖' : '❤️';
+      } else {
+        alert(data.message || 'Lỗi!');
+      }
+    } catch(err) {
+      alert('Lỗi kết nối!');
+    }
+  });
+
+  // Mở modal review
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.btn-review-open');
+    if (!btn) return;
+    e.stopPropagation();
+    currentFoodId = btn.dataset.foodId;
+    document.getElementById('modalFoodName').textContent = '⭐ ' + btn.dataset.foodName;
+    document.getElementById('reviewModal').classList.add('open');
+    loadReviews(currentFoodId);
+  });
+
+  document.getElementById('btnCloseReview').addEventListener('click', closeReview);
+  document.getElementById('reviewModal').addEventListener('click', function(e) {
+    if (e.target === this) closeReview();
+  });
+
+  function closeReview() {
+    document.getElementById('reviewModal').classList.remove('open');
+    selectedRating = 0;
+    document.getElementById('reviewComment').value = '';
+    document.querySelectorAll('#starSelect span').forEach(s => s.classList.remove('active'));
+  }
+
+  async function loadReviews(foodId) {
+    const list = document.getElementById('reviewList');
+    list.innerHTML = '<p class="review-empty">Đang tải...</p>';
+    try {
+      const res = await fetch('/review/food/' + foodId);
+      const data = await res.json();
+      if (!data.reviews || data.reviews.length === 0) {
+        list.innerHTML = '<p class="review-empty">Chưa có đánh giá nào.</p>';
+        return;
+      }
+      list.innerHTML = data.reviews.map(r => `
+        <div class="review-item">
+          <div class="review-meta">
+            <span class="review-user">Người dùng #${r.user_id}</span>
+            <span class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+          </div>
+          <div class="review-comment">${r.comment || ''}</div>
+        </div>
+      `).join('');
+    } catch(err) {
+      list.innerHTML = '<p class="review-empty">Lỗi tải đánh giá.</p>';
+    }
+  }
+
+  document.querySelectorAll('#starSelect span').forEach(function(s) {
+    s.addEventListener('click', function() {
+      selectedRating = parseInt(this.dataset.star);
+      document.querySelectorAll('#starSelect span').forEach(function(x, i) {
+        x.classList.toggle('active', i < selectedRating);
+      });
+    });
+  });
+
+  document.getElementById('btnSubmitReview').addEventListener('click', async function() {
+    if (!isLoggedIn) return alert('Vui lòng đăng nhập để đánh giá!');
+    if (!selectedRating) return alert('Vui lòng chọn số sao!');
+    const comment = document.getElementById('reviewComment').value.trim();
+    try {
+      const res = await fetch('/review/food/' + currentFoodId, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating: selectedRating, comment }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('reviewComment').value = '';
+        selectedRating = 0;
+        document.querySelectorAll('#starSelect span').forEach(s => s.classList.remove('active'));
+        await loadReviews(currentFoodId);
+      } else {
+        alert(data.message || 'Lỗi gửi đánh giá');
+      }
+    } catch(err) {
+      alert('Lỗi kết nối!');
+    }
+  });
 </script>

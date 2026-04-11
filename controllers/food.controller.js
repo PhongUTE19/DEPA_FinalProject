@@ -83,6 +83,17 @@ const FoodController = {
             next(err);
         }
     },
+    // GET /menu/search?q=burger
+// GET /menu?category=drink&priceMin=10&priceMax=50
+async searchMenu(req, res, next) {
+    try {
+        const { q, category, priceMin, priceMax } = req.query;
+        const foods = await FoodService.search({ q, category, priceMin, priceMax });
+        return res.json({ success: true, foods: foods.map(f => f.toJSON()) });
+    } catch (err) {
+        next(err);
+    }
+},
 };
 
 export default FoodController;

@@ -6,6 +6,7 @@ const router = express.Router();
 
 // Public
 router.get('/', FoodController.showMenuPage);
+router.get('/search', FoodController.searchMenu);
 router.get('/:id', FoodController.showAddToppingPage);
 
 // Manager only — quản lý món ăn

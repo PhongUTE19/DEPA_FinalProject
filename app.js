@@ -12,6 +12,11 @@ import helpers from './views/helpers.js';
 
 import viewMiddleware from './middlewares/view.middleware.js';
 import errorMiddleware from './middlewares/error.middleware.js';
+import reviewRouter from './routes/review.route.js';
+import favoriteRouter from './routes/favorite.route.js';
+
+
+
 // import viewMiddleware from './middlewares/view.middleware.js';
 
 const app = express();
@@ -37,6 +42,7 @@ app.engine('hbs', engine({
     partialsDir: 'views/partials',
     helpers
 }));
+
 app.set('view engine', 'hbs');
 app.set('views', './views');
 
@@ -54,6 +60,8 @@ app.use('/menu', foodRouter);
 app.use('/order', orderRouter);
 app.use('/payment', paymentRouter);
 app.use('/notification', notificationRouter);
+app.use('/review', reviewRouter);
+app.use('/favorite', favoriteRouter);
 
 // Error handlers
 app.use(errorMiddleware.notFound);
