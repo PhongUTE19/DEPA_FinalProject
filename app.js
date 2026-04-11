@@ -6,6 +6,7 @@ import homeRouter from './routes/home.route.js';
 import accountRouter from './routes/account.route.js';
 import foodRouter from './routes/food.route.js';
 import orderRouter from './routes/order.route.js';
+import cartRouter from './routes/cart.route.js';
 import notificationRouter from './routes/notification.route.js';
 import paymentRouter from './routes/payment.route.js';
 import helpers from './views/helpers.js';
@@ -47,10 +48,17 @@ app.use(express.json());
 // Inject auth state vào res.locals cho mọi view
 app.use(viewMiddleware.injectAuthState);
 
+app.use((req, res, next) => {
+    const items = req.session?.cart?.items ?? [];
+    res.locals.cartCount = items.reduce((s, i) => s + i.quantity, 0);
+    next();
+});
+
 // Routers
 app.use('/', homeRouter);
 app.use('/account', accountRouter);
 app.use('/menu', foodRouter);
+app.use('/cart', cartRouter);
 app.use('/order', orderRouter);
 app.use('/payment', paymentRouter);
 app.use('/notification', notificationRouter);

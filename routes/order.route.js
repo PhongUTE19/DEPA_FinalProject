@@ -4,19 +4,17 @@ import authMiddleware      from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-// Xem danh sách đơn (Customer xem của mình, Staff/Chef/Manager xem tất cả)
-router.get('/', authMiddleware.requireAuth, OrderController.showOrdersPage);
+// List & tracking pages
+router.get('/',                  authMiddleware.requireAuth,   OrderController.showOrdersPage);
+router.get('/:id/tracking',      authMiddleware.requireAuth,   OrderController.showTrackingPage);
+router.get('/:id/status',        authMiddleware.requireAuth,   OrderController.getOrderStatus);
 
-// Lấy chi tiết 1 đơn (JSON)
-router.get('/:id', authMiddleware.requireAuth, OrderController.showOrderPage);
+// JSON detail
+router.get('/:id',               authMiddleware.requireAuth,   OrderController.showOrderPage);
 
-// Customer tạo đơn
-router.post('/', authMiddleware.requireAuth, OrderController.createOrder);
-
-// Staff / Chef / Manager chuyển trạng thái kế tiếp
-router.patch('/status', authMiddleware.requireStaff, OrderController.updateStatus);
-
-// Customer / Staff / Manager huỷ đơn
-router.patch('/cancel', authMiddleware.requireAuth, OrderController.cancelOrder);
+// Mutations — NOTE: /status and /cancel must come before /:id to avoid route conflict
+router.post('/',                 authMiddleware.requireAuth,   OrderController.createOrder);
+router.patch('/status',          authMiddleware.requireStaff,  OrderController.updateStatus);
+router.patch('/cancel',          authMiddleware.requireAuth,   OrderController.cancelOrder);
 
 export default router;

@@ -12,7 +12,6 @@ export const OrderController = {
     async showOrdersPage(req, res, next) {
         try {
             const userId = req.session?.authUser?.id ?? null;
-            // Staff/Chef/Manager xem tất cả; Customer xem đơn của mình
             const opts = req.session?.authUser?.role === 'CUSTOMER'
                 ? { limit: 50, userId }
                 : { limit: 100 };
@@ -35,6 +34,44 @@ export const OrderController = {
         } catch (err) {
             if (err.message === 'Order not found') {
                 return res.status(404).json({ success: false, message: err.message });
+            }
+            next(err);
+        }
+    },
+
+    // GET /order/:id/tracking — SSR tracking page
+    async showTrackingPage(req, res, next) {
+        try {
+            const order = await OrderService.getOrder(req.params.id);
+            return res.render('pages/order/tracking', {
+                title:   `Theo dõi đơn #${order.id}`,
+                orderId: order.id,
+                order:   order.toJSON(),
+            });
+        } catch (err) {
+            if (err.message === 'Order not found') {
+                return res.status(404).render('pages/error/404');
+            }
+            next(err);
+        }
+    },
+
+    // GET /order/:id/status — JSON polling endpoint
+    async getOrderStatus(req, res, next) {
+        try {
+            const order = await OrderService.getOrder(req.params.id);
+            const data  = order.toJSON();
+            return res.json({
+                success:     true,
+                id:          data.id,
+                status:      data.status,
+                totalAmount: data.totalAmount,
+                items:       data.items,
+                createdAt:   data.createdAt,
+            });
+        } catch (err) {
+            if (err.message === 'Order not found') {
+                return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' });
             }
             next(err);
         }
@@ -64,7 +101,7 @@ export const OrderController = {
         }
     },
 
-    // PATCH /order/status — chuyển trạng thái kế tiếp (Staff / Chef / Manager)
+    // PATCH /order/status — chuyển trạng thái kế tiếp
     async updateStatus(req, res, next) {
         try {
             const { orderId } = req.body;
@@ -87,7 +124,7 @@ export const OrderController = {
         }
     },
 
-    // PATCH /order/cancel — huỷ đơn (Customer / Staff / Manager)
+    // PATCH /order/cancel — huỷ đơn
     async cancelOrder(req, res, next) {
         try {
             const { orderId } = req.body;

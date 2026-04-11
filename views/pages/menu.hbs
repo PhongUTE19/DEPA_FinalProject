@@ -1,144 +1,506 @@
+{{#fillSection "css"}}
 <style>
-  body { background: #0f0f0f; color: #f1f1f1; font-family: 'Segoe UI', sans-serif; }
-
+  /* ── Page shell ───────────────────────────────────────── */
   .menu-hero {
     text-align: center;
-    padding: 48px 20px 24px;
+    padding: 36px 20px 20px;
   }
-  .menu-hero h1 { font-size: 2.2rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
-  .menu-hero p  { color: #888; font-size: 1rem; }
+  .menu-hero h1 { font-size: 2rem; font-weight: 800; color: var(--text-dark); }
+  .menu-hero p  { color: var(--text-muted); }
 
+  /* ── Filter bar ───────────────────────────────────────── */
   .filter-bar {
     display: flex;
     gap: 10px;
     justify-content: center;
     flex-wrap: wrap;
-    padding: 16px 20px;
+    padding: 12px 20px 20px;
   }
   .filter-btn {
-    padding: 8px 20px;
+    padding: 7px 18px;
     border-radius: 999px;
-    border: 1px solid #333;
-    background: #1a1a1a;
-    color: #aaa;
+    border: 2px solid var(--green-soft);
+    background: transparent;
+    color: var(--green-soft);
     cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s;
+    font-size: 0.88rem;
+    font-weight: 700;
+    transition: all .2s;
   }
-  .filter-btn:hover, .filter-btn.active {
-    background: #e85d24;
-    border-color: #e85d24;
+  .filter-btn:hover,
+  .filter-btn.active {
+    background: var(--green-soft);
     color: #fff;
   }
 
-  .menu-grid {
+  /* ── Food grid ────────────────────────────────────────── */
+  .food-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
     gap: 20px;
-    padding: 20px 40px 60px;
+    padding: 0 40px 60px;
     max-width: 1200px;
     margin: 0 auto;
   }
+  @media (max-width: 600px) { .food-grid { padding: 0 16px 40px; } }
 
-  .food-card {
-    background: #1a1a1a;
-    border: 1px solid #2a2a2a;
-    border-radius: 16px;
+  .food-tile {
+    background: #fff;
+    border: 2px solid #f0f0f0;
+    border-radius: 18px;
     overflow: hidden;
-    transition: transform 0.2s, border-color 0.2s;
+    transition: transform .2s, border-color .2s, box-shadow .2s;
     cursor: pointer;
   }
-  .food-card:hover {
-    transform: translateY(-4px);
-    border-color: #e85d24;
+  .food-tile:hover {
+    transform: translateY(-5px);
+    border-color: var(--green-soft);
+    box-shadow: 0 10px 0 rgba(76,175,80,.12);
   }
-  .food-card-img {
+  .food-tile-img {
     width: 100%;
-    height: 150px;
-    background: #2a2a2a;
+    height: 140px;
+    background: var(--green-light);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 3.5rem;
   }
-  .food-card-body { padding: 14px; }
-  .food-card-type {
-    font-size: 0.75rem;
-    color: #e85d24;
+  .food-tile-body { padding: 14px; }
+  .food-tile-type {
+    font-size: 0.72rem;
+    color: var(--green-soft);
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 4px;
+    font-weight: 700;
+    margin-bottom: 3px;
   }
-  .food-card-name {
+  .food-tile-name {
     font-size: 1rem;
-    font-weight: 600;
-    color: #fff;
-    margin-bottom: 8px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 10px;
   }
-  .food-card-footer {
+  .food-tile-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  .food-card-price { color: #e85d24; font-weight: 700; font-size: 1rem; }
-  .btn-add {
-    background: #e85d24;
+  .food-tile-price {
+    color: var(--green-soft);
+    font-weight: 800;
+    font-size: 1.05rem;
+  }
+  .btn-add-tile {
+    background: var(--green-soft);
     color: #fff;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 6px 14px;
     font-size: 0.85rem;
+    font-weight: 700;
     cursor: pointer;
+    transition: background .15s;
   }
-  .btn-add:hover { background: #cf4e1a; }
-  .no-result { text-align: center; color: #555; padding: 40px; display: none; }
+  .btn-add-tile:hover { background: #388e3c; }
+
+  /* ── Modal ────────────────────────────────────────────── */
+  .modal-backdrop-custom {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 1050;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-backdrop-custom.open { display: flex; }
+
+  .modal-box {
+    background: #fff;
+    border-radius: 20px;
+    padding: 28px;
+    width: 100%;
+    max-width: 460px;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,.18);
+    animation: slideUp .2s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .modal-header-custom {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .modal-emoji { font-size: 2.8rem; }
+  .modal-food-name { font-size: 1.2rem; font-weight: 800; color: var(--text-dark); }
+  .modal-base-price { color: var(--green-soft); font-weight: 700; }
+
+  /* Topping options */
+  .topping-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .topping-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border: 2px solid #e8e8e8;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: border-color .15s, background .15s;
+    user-select: none;
+  }
+  .topping-label:hover { border-color: var(--green-soft); }
+  .topping-label input:checked ~ * { /* handled via JS class toggle */ }
+  .topping-label.checked {
+    border-color: var(--green-soft);
+    background: var(--green-light);
+  }
+  .topping-label input { display: none; }
+  .topping-meta { display: flex; flex-direction: column; }
+  .topping-name { color: var(--text-dark); }
+  .topping-price { font-size: 0.75rem; color: var(--green-soft); }
+
+  /* Quantity selector */
+  .qty-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 2px solid #e8e8e8;
+    border-radius: 12px;
+    overflow: hidden;
+    width: fit-content;
+    margin-bottom: 18px;
+  }
+  .qty-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: #f5f5f5;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .qty-btn:hover { background: var(--green-light); }
+  .qty-val {
+    width: 48px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--text-dark);
+    border: none;
+    outline: none;
+  }
+
+  /* Price preview strip */
+  .price-strip {
+    background: var(--green-light);
+    border: 2px solid var(--green-soft);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .price-strip-label { font-size: 0.88rem; color: var(--text-muted); font-weight: 600; }
+  .price-strip-total { font-size: 1.3rem; font-weight: 800; color: var(--green-soft); }
+
+  /* Modal footer */
+  .modal-footer-custom {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  /* ── Toast ────────────────────────────────────────────── */
+  #cart-toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: #1f2933;
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    z-index: 2000;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all .25s ease;
+    pointer-events: none;
+  }
+  #cart-toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── Empty state ──────────────────────────────────────── */
+  .no-result {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 48px;
+    display: none;
+  }
+  .no-result i { font-size: 2.5rem; display: block; margin-bottom: 10px; }
 </style>
+{{/fillSection}}
 
 <div class="menu-hero">
   <h1>🍔 Thực Đơn</h1>
-  <p>Chọn món yêu thích của bạn</p>
+  <p>Chọn món yêu thích, tuỳ chỉnh topping, thêm vào giỏ rồi thanh toán</p>
 </div>
 
+<!-- Filter bar -->
 <div class="filter-bar">
-  <button class="filter-btn active" onclick="filterMenu(this, 'all')">Tất cả</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'pizza')">🍕 Pizza</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'burger')">🍔 Burger</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'pasta')">🍝 Pasta</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'salad')">🥗 Salad</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'soup')">🍲 Súp</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'dessert')">🍰 Tráng miệng</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'drink')">🥤 Đồ uống</button>
+  <button class="filter-btn active" onclick="filterMenu(this,'all')">Tất cả</button>
+  <button class="filter-btn" onclick="filterMenu(this,'pizza')">🍕 Pizza</button>
+  <button class="filter-btn" onclick="filterMenu(this,'burger')">🍔 Burger</button>
+  <button class="filter-btn" onclick="filterMenu(this,'pasta')">🍝 Pasta</button>
+  <button class="filter-btn" onclick="filterMenu(this,'salad')">🥗 Salad</button>
+  <button class="filter-btn" onclick="filterMenu(this,'soup')">🍲 Súp</button>
+  <button class="filter-btn" onclick="filterMenu(this,'dessert')">🍰 Tráng miệng</button>
+  <button class="filter-btn" onclick="filterMenu(this,'drink')">🥤 Đồ uống</button>
 </div>
 
-<div class="menu-grid" id="menuGrid">
+<!-- Food grid -->
+<div class="food-grid" id="foodGrid">
   {{#each foods}}
-  <div class="food-card" data-type="{{type}}">
-    <div class="food-card-img">{{typeEmoji type}}</div>
-    <div class="food-card-body">
-      <div class="food-card-type">{{type}}</div>
-      <div class="food-card-name">{{name}}</div>
-      <div class="food-card-footer">
-        <span class="food-card-price">{{price}}k</span>
-        <button class="btn-add">+ Thêm</button>
+  <div class="food-tile" data-type="{{type}}"
+       data-id="{{id}}"
+       data-name="{{name}}"
+       data-price="{{price}}"
+       data-type-label="{{type}}"
+       onclick="openModal(this)">
+    <div class="food-tile-img">{{typeEmoji type}}</div>
+    <div class="food-tile-body">
+      <div class="food-tile-type">{{type}}</div>
+      <div class="food-tile-name">{{name}}</div>
+      <div class="food-tile-footer">
+        <span class="food-tile-price">{{formatNumber price}}đ</span>
+        <button class="btn-add-tile" onclick="event.stopPropagation();openModal(this.closest('.food-tile'))">
+          <i class="bi bi-plus-lg"></i> Thêm
+        </button>
       </div>
     </div>
   </div>
   {{/each}}
 </div>
 
-<p class="no-result" id="noResult">Không có món nào 😕</p>
+<div class="no-result" id="noResult">
+  <i class="bi bi-emoji-neutral"></i>
+  Không có món nào trong danh mục này
+</div>
 
+<!-- Add-to-cart modal -->
+<div class="modal-backdrop-custom" id="modalBackdrop" onclick="handleBackdropClick(event)">
+  <div class="modal-box">
+    <div class="modal-header-custom">
+      <span class="modal-emoji" id="modalEmoji">🍽</span>
+      <div>
+        <div class="modal-food-name" id="modalFoodName">—</div>
+        <div class="modal-base-price" id="modalBasePrice">0đ</div>
+      </div>
+    </div>
+
+    <!-- Toppings -->
+    <div style="font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">
+      Tuỳ chỉnh topping
+    </div>
+    <div class="topping-grid" id="toppingGrid">
+      <!-- injected by JS based on food type -->
+    </div>
+
+    <!-- Quantity -->
+    <div style="font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">
+      Số lượng
+    </div>
+    <div class="qty-row">
+      <button class="qty-btn" onclick="changeQty(-1)">−</button>
+      <span class="qty-val" id="qtyVal">1</span>
+      <button class="qty-btn" onclick="changeQty(1)">+</button>
+    </div>
+
+    <!-- Price preview -->
+    <div class="price-strip">
+      <span class="price-strip-label">Tổng cộng</span>
+      <span class="price-strip-total" id="pricePreview">0đ</span>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer-custom">
+      <button class="btn btn-outline-secondary" onclick="closeModal()">Huỷ</button>
+      <button class="btn btn-success" id="btnAddToCart" onclick="addToCart()">
+        <i class="bi bi-cart-plus me-1"></i>Thêm vào giỏ
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="cart-toast"></div>
+
+{{#fillSection "js"}}
 <script>
-  function filterMenu(btn, type) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const cards = document.querySelectorAll('.food-card');
-    let count = 0;
-    cards.forEach(card => {
-      const show = type === 'all' || card.dataset.type === type;
-      card.style.display = show ? 'block' : 'none';
-      if (show) count++;
-    });
-    document.getElementById('noResult').style.display = count === 0 ? 'block' : 'none';
+// ── Topping definitions ───────────────────────────────────────────────────────
+const ALL_TOPPINGS = [
+  { key: 'extraCheese',  label: 'Thêm Phô Mai',    price: 10000, types: ['pizza','burger','pasta','salad'] },
+  { key: 'extraSauce',   label: 'Thêm Sốt',         price:  5000, types: ['pizza','burger','pasta'] },
+  { key: 'noOnion',      label: 'Không Hành',        price:     0, types: ['pizza','burger','salad','soup'] },
+  { key: 'extraMeat',    label: 'Thêm Thịt',         price: 20000, types: ['pizza','burger','pasta','soup'] },
+  { key: 'spicy',        label: 'Cay',               price:     0, types: ['pizza','burger','pasta','soup'] },
+  { key: 'extraVeggies', label: 'Thêm Rau',          price:  8000, types: ['burger','salad','soup'] },
+  { key: 'noDressing',   label: 'Không Sốt',         price:     0, types: ['salad'] },
+  { key: 'extraIce',     label: 'Thêm Đá',           price:     0, types: ['drink'] },
+  { key: 'noSugar',      label: 'Không Đường',       price:     0, types: ['drink','dessert'] },
+];
+
+const EMOJI_MAP = {
+  pizza:'🍕', burger:'🍔', pasta:'🍝',
+  salad:'🥗', soup:'🍲', dessert:'🍰', drink:'🥤',
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentFood  = null;   // { id, name, basePrice, type }
+let currentQty   = 1;
+
+// ── Filter ────────────────────────────────────────────────────────────────────
+function filterMenu(btn, type) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  let count = 0;
+  document.querySelectorAll('.food-tile').forEach(tile => {
+    const show = type === 'all' || tile.dataset.type === type;
+    tile.style.display = show ? '' : 'none';
+    if (show) count++;
+  });
+  document.getElementById('noResult').style.display = count ? 'none' : 'block';
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function openModal(tile) {
+  currentFood = {
+    id:        Number(tile.dataset.id),
+    name:      tile.dataset.name,
+    basePrice: Number(tile.dataset.price),
+    type:      tile.dataset.type,
+  };
+  currentQty = 1;
+
+  document.getElementById('modalEmoji').textContent    = EMOJI_MAP[currentFood.type] || '🍽';
+  document.getElementById('modalFoodName').textContent  = currentFood.name;
+  document.getElementById('modalBasePrice').textContent = fmt(currentFood.basePrice) + 'đ / món';
+  document.getElementById('qtyVal').textContent         = '1';
+
+  buildToppings(currentFood.type);
+  updatePrice();
+  document.getElementById('modalBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalBackdrop').classList.remove('open');
+  document.body.style.overflow = '';
+  currentFood = null;
+}
+
+function handleBackdropClick(e) {
+  if (e.target === document.getElementById('modalBackdrop')) closeModal();
+}
+
+function buildToppings(type) {
+  const grid     = document.getElementById('toppingGrid');
+  const relevant = ALL_TOPPINGS.filter(t => t.types.includes(type));
+  if (!relevant.length) {
+    grid.innerHTML = '<span style="color:var(--text-muted);font-size:.85rem;">Không có topping cho món này</span>';
+    return;
   }
+  grid.innerHTML = relevant.map(t => `
+    <label class="topping-label" id="top-${t.key}" onclick="toggleTopping(this,'${t.key}')">
+      <input type="checkbox" value="${t.key}">
+      <span class="topping-meta">
+        <span class="topping-name">${t.label}</span>
+        <span class="topping-price">${t.price ? '+' + fmt(t.price) + 'đ' : 'Miễn phí'}</span>
+      </span>
+    </label>
+  `).join('');
+}
+
+function toggleTopping(label, key) {
+  label.classList.toggle('checked');
+  const cb = label.querySelector('input');
+  cb.checked = label.classList.contains('checked');
+  updatePrice();
+}
+
+function changeQty(delta) {
+  currentQty = Math.max(1, Math.min(20, currentQty + delta));
+  document.getElementById('qtyVal').textContent = currentQty;
+  updatePrice();
+}
+
+function updatePrice() {
+  if (!currentFood) return;
+  const checked = [...document.querySelectorAll('#toppingGrid input:checked')].map(i => i.value);
+  const extra   = checked.reduce((s, k) => {
+    const t = ALL_TOPPINGS.find(t => t.key === k);
+    return s + (t ? t.price : 0);
+  }, 0);
+  const total   = (currentFood.basePrice + extra) * currentQty;
+  document.getElementById('pricePreview').textContent = fmt(total) + 'đ';
+}
+
+// ── Add to cart ───────────────────────────────────────────────────────────────
+async function addToCart() {
+  if (!currentFood) return;
+  const btn       = document.getElementById('btnAddToCart');
+  btn.disabled    = true;
+  btn.textContent = 'Đang thêm…';
+
+  const toppingKeys = [...document.querySelectorAll('#toppingGrid input:checked')].map(i => i.value);
+
+  try {
+    const res  = await fetch('/cart/add', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ foodId: currentFood.id, quantity: currentQty, toppingKeys }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Lỗi');
+
+    closeModal();
+    // Update cart badge in header
+    const badge = document.getElementById('cartCountBadge');
+    if (badge) badge.textContent = data.cart.totalQty;
+
+    showToast(`✅ Đã thêm ${currentFood.name} vào giỏ hàng!`);
+  } catch (err) {
+    showToast('❌ ' + err.message, true);
+  } finally {
+    btn.disabled    = false;
+    btn.innerHTML   = '<i class="bi bi-cart-plus me-1"></i>Thêm vào giỏ';
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function fmt(n) {
+  return new Intl.NumberFormat('vi-VN').format(n);
+}
+
+function showToast(msg, isErr = false) {
+  const t      = document.getElementById('cart-toast');
+  t.textContent = msg;
+  t.style.background = isErr ? '#c62828' : '#1f2933';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
 </script>
+{{/fillSection}}
