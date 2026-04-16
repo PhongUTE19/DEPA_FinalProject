@@ -1,0 +1,156 @@
+{{#fillSection "css"}}
+<style>
+    .coupon-card {
+        border: 2px dashed #ff6b35;
+        border-radius: 14px;
+        padding: 20px 24px;
+        background: #fff8f4;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .coupon-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.15);
+    }
+
+    .coupon-code {
+        font-family: 'Courier New', monospace;
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #ff6b35;
+        letter-spacing: 2px;
+        background: #fff;
+        border: 1px solid #ffd4c0;
+        border-radius: 8px;
+        padding: 6px 16px;
+        display: inline-block;
+    }
+
+    .coupon-discount {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #e85d24;
+    }
+
+    .coupon-meta {
+        font-size: 0.82rem;
+        color: #6c757d;
+    }
+
+    .coupon-badge {
+        border-radius: 20px;
+        padding: 3px 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .copy-btn {
+        border: 1px solid #ff6b35;
+        color: #ff6b35;
+        background: #fff;
+        border-radius: 8px;
+        padding: 5px 14px;
+        font-size: 0.82rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+        background: #ff6b35;
+        color: #fff;
+    }
+
+    .section-header {
+        border-bottom: 3px solid #ff6b35;
+        padding-bottom: 12px;
+        margin-bottom: 28px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 0;
+        color: #adb5bd;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+    }
+</style>
+{{/fillSection}}
+
+<div class="col-12">
+    <div class="container py-5" style="max-width: 800px;">
+        <div class="section-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-1">🎫 Mã giảm giá</h2>
+                <p class="text-muted mb-0">Áp dụng khi thanh toán để được giảm giá</p>
+            </div>
+        </div>
+
+        {{#if (isEmpty coupons)}}
+        <div class="empty-state">
+            <i class="bi bi-ticket-perforated"></i>
+            <p class="mt-3 fs-5">Hiện chưa có mã giảm giá nào</p>
+        </div>
+        {{else}}
+        <div class="d-flex flex-column gap-3">
+            {{#each coupons}}
+            <div class="coupon-card d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <span class="coupon-code">{{code}}</span>
+                    <div>
+                        <div class="coupon-discount">
+                            {{#if (eq discountType "PERCENT")}}
+                            Giảm {{discountValue}}%
+                            {{else}}
+                            Giảm {{formatCurrency discountValue}}
+                            {{/if}}
+                        </div>
+                        <div class="coupon-meta">
+                            {{#if minOrderAmount}}
+                            Đơn tối thiểu {{formatCurrency minOrderAmount}}
+                            {{else}}
+                            Không giới hạn đơn tối thiểu
+                            {{/if}}
+                            {{#if maxUses}}
+                            &bull; Còn {{math maxUses "-" usedCount}} lượt
+                            {{/if}}
+                        </div>
+                        {{#if expiresAt}}
+                        <div class="coupon-meta">
+                            <i class="bi bi-clock me-1"></i>HSD: {{formatDate expiresAt}}
+                        </div>
+                        {{/if}}
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyCoupon('{{code}}', this)">
+                    <i class="bi bi-clipboard me-1"></i>Sao chép
+                </button>
+            </div>
+            {{/each}}
+        </div>
+        {{/if}}
+    </div>
+</div>
+
+{{#fillSection "js"}}
+<script>
+    function copyCoupon(code, btn) {
+        navigator.clipboard.writeText(code).then(() => {
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check2 me-1"></i>Đã sao chép!';
+            btn.style.background = '#28a745';
+            btn.style.color = '#fff';
+            btn.style.borderColor = '#28a745';
+            setTimeout(() => {
+                btn.innerHTML = orig;
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            }, 2000);
+        });
+    }
+</script>
+{{/fillSection}}

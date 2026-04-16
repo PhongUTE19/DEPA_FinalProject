@@ -1,0 +1,36 @@
+{{#fillSection "css"}}
+<link href="css/pages/menu.css" rel="stylesheet" />
+{{/fillSection}}
+
+<div class="fav-hero">
+  <h1>❤️ Món yêu thích</h1>
+  <p>Danh sách món bạn đã lưu</p>
+</div>
+
+{{#if foods.length}}
+<div class="food-grid">
+  {{#each foods}}
+  <div class="food-tile">
+    <div class="food-tile-img">{{typeEmoji type}}</div>
+    <div class="food-tile-body">
+      <div class="food-tile-type">{{type}}</div>
+      <div class="food-tile-name">{{name}}</div>
+      <div class="food-tile-footer">
+       <span class="food-tile-price">{{base_price}}k</span>
+      </div>
+      <button class="btn-remove-tile" onclick="removeFav({{id}}, this)">🗑️ Xoá khỏi yêu thích</button>
+    </div>
+  </div>
+  {{/each}}
+</div>
+{{else}}
+<p class="empty">Chưa có món yêu thích nào.</p>
+{{/if}}
+
+<script>
+  async function removeFav(foodId, btn) {
+    const res = await fetch('/favorite/' + foodId, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) btn.closest('.food-card').remove();
+  }
+</script>

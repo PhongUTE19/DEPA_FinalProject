@@ -7,7 +7,7 @@
  *
  * Mọi method trả về Notification domain object (hoặc mảng).
  */
-import NotificationModel                  from '../../models/notification.model.js';
+import NotificationModel from '../../models/notification.model.js';
 import { Notification, NOTIFICATION_TYPE } from './Notification.js';
 
 export const NotificationService = {
@@ -30,6 +30,12 @@ export const NotificationService = {
     async findKitchenNotifications() {
         const rows = await NotificationModel.findKitchenNotifications();
         return rows.map(Notification.fromRow);
+    },
+
+    /** Lấy một thông báo theo id → Notification domain */
+    async findById(id) {
+        const row = await NotificationModel.findById(id);
+        return row ? Notification.fromRow(row) : null;
     },
 
     /** Đếm thông báo chưa đọc của user */

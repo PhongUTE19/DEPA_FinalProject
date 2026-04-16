@@ -8,6 +8,12 @@ import foodRouter from './routes/food.route.js';
 import orderRouter from './routes/order.route.js';
 import notificationRouter from './routes/notification.route.js';
 import paymentRouter from './routes/payment.route.js';
+
+import reviewRouter from './routes/review.route.js';
+import favoriteRouter from './routes/favorite.route.js';
+import cartRouter from './routes/cart.route.js';
+import couponRouter from './routes/coupon.route.js';
+
 import helpers from './views/helpers.js';
 
 import viewMiddleware from './middlewares/view.middleware.js';
@@ -37,6 +43,7 @@ app.engine('hbs', engine({
     partialsDir: 'views/partials',
     helpers
 }));
+
 app.set('view engine', 'hbs');
 app.set('views', './views');
 
@@ -47,6 +54,12 @@ app.use(express.json());
 // Inject auth state vào res.locals cho mọi view
 app.use(viewMiddleware.injectAuthState);
 
+app.use((req, res, next) => {
+    const items = req.session?.cart?.items ?? [];
+    res.locals.cartCount = items.reduce((s, i) => s + i.quantity, 0);
+    next();
+});
+
 // Routers
 app.use('/', homeRouter);
 app.use('/account', accountRouter);
@@ -54,6 +67,11 @@ app.use('/menu', foodRouter);
 app.use('/order', orderRouter);
 app.use('/payment', paymentRouter);
 app.use('/notification', notificationRouter);
+app.use('/coupon', couponRouter);
+
+app.use('/review', reviewRouter);
+app.use('/favorite', favoriteRouter);
+app.use('/cart', cartRouter);
 
 // Error handlers
 app.use(errorMiddleware.notFound);

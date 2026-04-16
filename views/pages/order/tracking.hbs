@@ -1,0 +1,429 @@
+{{#fillSection "css"}}
+<style>
+  .tracking-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+
+  /* ── Top bar ──────────────────────────────────────────── */
+  .tracking-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .tracking-topbar h1 { font-size: 1.5rem; font-weight: 800; }
+  .order-id-chip {
+    background: var(--green-light);
+    color: var(--green-soft);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-weight: 700;
+    font-size: .85rem;
+  }
+
+  /* ── Stepper ──────────────────────────────────────────── */
+  .stepper {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  /* connector line */
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    right: -50%;
+    height: 3px;
+    background: #e0e0e0;
+    z-index: 0;
+    transition: background .4s;
+  }
+  .step.done:not(:last-child)::after,
+  .step.active:not(:last-child)::after { background: var(--green-soft); }
+  .step.cancelled:not(:last-child)::after { background: #e53935; }
+
+  .step-dot {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 3px solid #e0e0e0;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    position: relative;
+    z-index: 2;
+    transition: all .35s;
+    font-weight: 700;
+  }
+  .step.done   .step-dot { border-color: var(--green-soft); background: var(--green-soft); color: #fff; }
+  .step.active .step-dot { border-color: var(--green-soft); box-shadow: 0 0 0 5px rgba(76,175,80,.18); }
+  .step.cancelled .step-dot { border-color: #e53935; background: #e53935; color: #fff; }
+
+  .step-label {
+    font-size: .72rem;
+    font-weight: 700;
+    color: #bbb;
+    margin-top: 7px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    transition: color .3s;
+  }
+  .step.done .step-label,
+  .step.active .step-label { color: var(--green-soft); }
+  .step.cancelled .step-label { color: #e53935; }
+
+  /* ── Status message ───────────────────────────────────── */
+  .status-banner {
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-weight: 600;
+    font-size: .95rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    transition: all .3s;
+  }
+  .status-banner.pending   { background: #fff8e1; border: 2px solid #ffc107; color: #6d4c41; }
+  .status-banner.confirmed { background: #e3f2fd; border: 2px solid #42a5f5; color: #1a237e; }
+  .status-banner.preparing { background: #e8f5e9; border: 2px solid var(--green-soft); color: #1b5e20; }
+  .status-banner.ready     { background: #e8f5e9; border: 2px solid var(--green-soft); color: #1b5e20; }
+  .status-banner.completed { background: #e8f5e9; border: 2px solid #388e3c; color: #1b5e20; }
+  .status-banner.cancelled { background: #ffebee; border: 2px solid #e53935; color: #b71c1c; }
+  .status-icon { font-size: 1.4rem; }
+
+  /* ── Poll indicator ───────────────────────────────────── */
+  .poll-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green-soft);
+    display: inline-block;
+    margin-right: 6px;
+    animation: blink 1.6s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+  .poll-label { font-size: .78rem; color: var(--text-muted); }
+
+  /* ── Cards ────────────────────────────────────────────── */
+  .info-card {
+    background: #fff;
+    border: 2px solid #f0f0f0;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .info-card h4 { font-size: 1rem; font-weight: 800; margin-bottom: 14px; color: var(--text-dark); }
+
+  .order-item-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+    font-size: .9rem;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .order-item-row:last-child { border-bottom: none; }
+  .order-item-left  { display: flex; align-items: center; gap: 8px; }
+  .order-item-emoji { font-size: 1.3rem; }
+  .order-item-name  { font-weight: 600; color: var(--text-dark); }
+  .order-item-toppings { font-size: .75rem; color: var(--text-muted); }
+  .order-item-price { font-weight: 700; color: var(--green-soft); white-space: nowrap; }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 800;
+    font-size: 1.05rem;
+    padding-top: 12px;
+    margin-top: 8px;
+    border-top: 2px solid var(--green-soft);
+  }
+  .total-row .amt { color: var(--green-soft); }
+
+  /* ── Action buttons ───────────────────────────────────── */
+  .action-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  /* ── Last updated ─────────────────────────────────────── */
+  .last-updated {
+    font-size: .75rem;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 6px;
+  }
+</style>
+{{/fillSection}}
+
+<div class="tracking-wrap">
+
+  <!-- Top bar -->
+  <div class="tracking-topbar">
+    <div>
+      <h1>📦 Theo dõi đơn hàng</h1>
+      <span class="order-id-chip">#{{orderId}}</span>
+    </div>
+    <a href="/order" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-list-ul me-1"></i>Tất cả đơn
+    </a>
+  </div>
+
+  <!-- Stepper -->
+  <div class="stepper" id="stepper">
+    <div class="step" data-s="PENDING">
+      <div class="step-dot">📋</div>
+      <div class="step-label">Chờ</div>
+    </div>
+    <div class="step" data-s="CONFIRMED">
+      <div class="step-dot">✅</div>
+      <div class="step-label">Xác nhận</div>
+    </div>
+    <div class="step" data-s="PREPARING">
+      <div class="step-dot">🍳</div>
+      <div class="step-label">Chế biến</div>
+    </div>
+    <div class="step" data-s="READY">
+      <div class="step-dot">🔔</div>
+      <div class="step-label">Sẵn sàng</div>
+    </div>
+    <div class="step" data-s="COMPLETED">
+      <div class="step-dot">🎉</div>
+      <div class="step-label">Hoàn thành</div>
+    </div>
+  </div>
+
+  <!-- Status banner -->
+  <div class="status-banner" id="statusBanner">
+    <span class="status-icon" id="statusIcon">⏳</span>
+    <span id="statusText">Đang tải trạng thái…</span>
+  </div>
+
+  <!-- Poll indicator -->
+  <div style="display:flex;align-items:center;margin-bottom:20px;" id="pollRow">
+    <span class="poll-dot" id="pollDot"></span>
+    <span class="poll-label" id="pollLabel">Đang theo dõi theo thời gian thực…</span>
+  </div>
+
+  <!-- Order items -->
+  <div class="info-card" id="itemsCard">
+    <h4>🛒 Các món đã đặt</h4>
+    <div id="itemsList">
+      {{#each order.items}}
+      <div class="order-item-row">
+        <div class="order-item-left">
+          <span class="order-item-emoji">{{typeEmoji ../order.type}}</span>
+          <div>
+            <div class="order-item-name">Món #{{foodId}} × {{quantity}}</div>
+            {{#if toppings.length}}
+            <div class="order-item-toppings">{{#each toppings}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</div>
+            {{/if}}
+          </div>
+        </div>
+        <span class="order-item-price">{{formatNumber subtotal}}đ</span>
+      </div>
+      {{/each}}
+    </div>
+    <div class="total-row">
+      <span>Tổng cộng</span>
+      <span class="amt" id="totalAmt">{{formatNumber order.totalAmount}}đ</span>
+    </div>
+  </div>
+
+  <!-- Order info -->
+  <div class="info-card">
+    <h4>ℹ️ Thông tin đơn hàng</h4>
+    <table style="width:100%;font-size:.9rem;">
+      <tr>
+        <td style="color:var(--text-muted);padding:5px 0;width:40%">Mã đơn</td>
+        <td style="font-weight:700">#{{orderId}}</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text-muted);padding:5px 0">Thời gian đặt</td>
+        <td id="createdAt">{{formatDateTime order.createdAt}}</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text-muted);padding:5px 0">Trạng thái</td>
+        <td><span class="badge" id="statusBadge" style="font-size:.85rem">{{order.status}}</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Actions -->
+  <div class="action-row" id="actionRow">
+    <!-- Injected by JS based on status -->
+  </div>
+
+  <div class="last-updated">Cập nhật lần cuối: <span id="lastUpdatedTime">—</span></div>
+</div>
+
+{{#fillSection "js"}}
+<script>
+const orderId    = '{{orderId}}';
+const fmt        = n => new Intl.NumberFormat('vi-VN').format(n);
+const STATUSES   = ['PENDING','CONFIRMED','PREPARING','READY','COMPLETED'];
+
+const STATUS_CONFIG = {
+  PENDING:   { cls:'pending',   icon:'⏳', msg:'Đơn hàng đang chờ nhà hàng xác nhận…' },
+  CONFIRMED: { cls:'confirmed', icon:'✅', msg:'Đơn đã được xác nhận, đang chờ chế biến.' },
+  PREPARING: { cls:'preparing', icon:'🍳', msg:'Bếp đang chế biến món cho bạn, vui lòng chờ!' },
+  READY:     { cls:'ready',     icon:'🔔', msg:'Món đã sẵn sàng! Nhân viên sẽ mang đến ngay.' },
+  COMPLETED: { cls:'completed', icon:'🎉', msg:'Đơn hàng hoàn thành. Cảm ơn bạn đã sử dụng dịch vụ!' },
+  CANCELLED: { cls:'cancelled', icon:'❌', msg:'Đơn hàng đã bị huỷ.' },
+};
+
+let lastStatus = '{{order.status}}';
+let pollTimer  = null;
+let pollActive = true;
+
+// ── Initial render ────────────────────────────────────────────────────────────
+applyStatus('{{order.status}}');
+
+// ── Polling ───────────────────────────────────────────────────────────────────
+function scheduleNext() {
+  pollTimer = setTimeout(poll, 5000); // every 5 s
+}
+
+async function poll() {
+  if (!pollActive) return;
+  try {
+    const res  = await fetch(`/order/${orderId}/status`);
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+
+    document.getElementById('lastUpdatedTime').textContent =
+      new Intl.DateTimeFormat('vi-VN',{ hour:'2-digit', minute:'2-digit', second:'2-digit' }).format(new Date());
+
+    if (data.status !== lastStatus) {
+      applyStatus(data.status);
+      lastStatus = data.status;
+    }
+
+    // Stop polling on terminal states
+    if (['COMPLETED','CANCELLED'].includes(data.status)) {
+      stopPolling('Đơn hàng kết thúc — không còn theo dõi.');
+      return;
+    }
+  } catch (e) {
+    console.warn('Poll error:', e);
+  }
+  scheduleNext();
+}
+
+function stopPolling(msg) {
+  pollActive = false;
+  clearTimeout(pollTimer);
+  const dot  = document.getElementById('pollDot');
+  const lbl  = document.getElementById('pollLabel');
+  if (dot) { dot.style.animation = 'none'; dot.style.background = '#ccc'; }
+  if (lbl) lbl.textContent = msg || 'Đã ngừng theo dõi.';
+}
+
+scheduleNext();
+
+// ── Apply status to UI ────────────────────────────────────────────────────────
+function applyStatus(status) {
+  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.PENDING;
+
+  // Banner
+  const banner = document.getElementById('statusBanner');
+  banner.className = 'status-banner ' + cfg.cls;
+  document.getElementById('statusIcon').textContent = cfg.icon;
+  document.getElementById('statusText').textContent = cfg.msg;
+
+  // Badge
+  const badge = document.getElementById('statusBadge');
+  if (badge) {
+    const colors = { PENDING:'warning', CONFIRMED:'info', PREPARING:'primary', READY:'success', COMPLETED:'success', CANCELLED:'danger' };
+    badge.className = 'badge bg-' + (colors[status] || 'secondary');
+    badge.textContent = status;
+  }
+
+  // Stepper
+  const steps  = document.querySelectorAll('.stepper .step');
+  const idx    = STATUSES.indexOf(status);
+  steps.forEach(step => {
+    const s = step.dataset.s;
+    step.classList.remove('done', 'active', 'cancelled');
+    if (status === 'CANCELLED') {
+      if (s === 'PENDING') step.classList.add('cancelled');
+      return;
+    }
+    const si = STATUSES.indexOf(s);
+    if (si < idx)  step.classList.add('done');
+    if (si === idx) step.classList.add('done', 'active');
+  });
+
+  // Action buttons
+  renderActions(status);
+}
+
+function renderActions(status) {
+  const row = document.getElementById('actionRow');
+  let html  = '';
+
+  if (status === 'PENDING') {
+    html += `<a href="/payment/${orderId}" class="btn btn-success">
+               <i class="bi bi-credit-card me-1"></i>Thanh toán ngay
+             </a>`;
+    html += `<button class="btn btn-outline-danger" onclick="cancelOrder()">
+               <i class="bi bi-x-circle me-1"></i>Huỷ đơn
+             </button>`;
+  }
+  if (status === 'CONFIRMED') {
+    html += `<a href="/payment/${orderId}" class="btn btn-success">
+               <i class="bi bi-credit-card me-1"></i>Thanh toán
+             </a>`;
+    html += `<button class="btn btn-outline-danger" onclick="cancelOrder()">
+               <i class="bi bi-x-circle me-1"></i>Huỷ đơn
+             </button>`;
+  }
+  if (['COMPLETED', 'CANCELLED'].includes(status)) {
+    html += `<a href="/menu" class="btn btn-success">
+               <i class="bi bi-bag me-1"></i>Đặt lại
+             </a>`;
+  }
+  html += `<a href="/order" class="btn btn-outline-secondary">
+             <i class="bi bi-list-ul me-1"></i>Tất cả đơn hàng
+           </a>`;
+
+  row.innerHTML = html;
+}
+
+// ── Cancel order ──────────────────────────────────────────────────────────────
+async function cancelOrder() {
+  if (!confirm('Bạn có chắc muốn huỷ đơn hàng này không?')) return;
+  try {
+    const res  = await fetch('/order/cancel', {
+      method:  'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ orderId }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.message || 'Không thể huỷ đơn ở trạng thái này.');
+      return;
+    }
+    applyStatus('CANCELLED');
+    stopPolling('Đơn hàng đã bị huỷ.');
+  } catch (e) {
+    alert('Lỗi mạng. Vui lòng thử lại.');
+  }
+}
+</script>
+{{/fillSection}}

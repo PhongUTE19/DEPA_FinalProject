@@ -1,144 +1,473 @@
-<style>
-  body { background: #0f0f0f; color: #f1f1f1; font-family: 'Segoe UI', sans-serif; }
-
-  .menu-hero {
-    text-align: center;
-    padding: 48px 20px 24px;
-  }
-  .menu-hero h1 { font-size: 2.2rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
-  .menu-hero p  { color: #888; font-size: 1rem; }
-
-  .filter-bar {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
-    padding: 16px 20px;
-  }
-  .filter-btn {
-    padding: 8px 20px;
-    border-radius: 999px;
-    border: 1px solid #333;
-    background: #1a1a1a;
-    color: #aaa;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-  }
-  .filter-btn:hover, .filter-btn.active {
-    background: #e85d24;
-    border-color: #e85d24;
-    color: #fff;
-  }
-
-  .menu-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
-    padding: 20px 40px 60px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .food-card {
-    background: #1a1a1a;
-    border: 1px solid #2a2a2a;
-    border-radius: 16px;
-    overflow: hidden;
-    transition: transform 0.2s, border-color 0.2s;
-    cursor: pointer;
-  }
-  .food-card:hover {
-    transform: translateY(-4px);
-    border-color: #e85d24;
-  }
-  .food-card-img {
-    width: 100%;
-    height: 150px;
-    background: #2a2a2a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3.5rem;
-  }
-  .food-card-body { padding: 14px; }
-  .food-card-type {
-    font-size: 0.75rem;
-    color: #e85d24;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-  }
-  .food-card-name {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #fff;
-    margin-bottom: 8px;
-  }
-  .food-card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .food-card-price { color: #e85d24; font-weight: 700; font-size: 1rem; }
-  .btn-add {
-    background: #e85d24;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-size: 0.85rem;
-    cursor: pointer;
-  }
-  .btn-add:hover { background: #cf4e1a; }
-  .no-result { text-align: center; color: #555; padding: 40px; display: none; }
-</style>
+{{#fillSection "css"}}
+<link href="css/pages/menu.css" rel="stylesheet" />
+{{/fillSection}}
 
 <div class="menu-hero">
   <h1>🍔 Thực Đơn</h1>
-  <p>Chọn món yêu thích của bạn</p>
+  <p>Chọn món yêu thích, tuỳ chỉnh topping, thêm vào giỏ rồi thanh toán</p>
 </div>
 
+<!-- Filter bar -->
 <div class="filter-bar">
-  <button class="filter-btn active" onclick="filterMenu(this, 'all')">Tất cả</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'pizza')">🍕 Pizza</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'burger')">🍔 Burger</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'pasta')">🍝 Pasta</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'salad')">🥗 Salad</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'soup')">🍲 Súp</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'dessert')">🍰 Tráng miệng</button>
-  <button class="filter-btn" onclick="filterMenu(this, 'drink')">🥤 Đồ uống</button>
+  <button class="filter-btn active" onclick="filterMenu(this,'all')">Tất cả</button>
+  <button class="filter-btn" onclick="filterMenu(this,'pizza')">🍕 Pizza</button>
+  <button class="filter-btn" onclick="filterMenu(this,'burger')">🍔 Burger</button>
+  <button class="filter-btn" onclick="filterMenu(this,'pasta')">🍝 Pasta</button>
+  <button class="filter-btn" onclick="filterMenu(this,'salad')">🥗 Salad</button>
+  <button class="filter-btn" onclick="filterMenu(this,'soup')">🍲 Súp</button>
+  <button class="filter-btn" onclick="filterMenu(this,'dessert')">🍰 Tráng miệng</button>
+  <button class="filter-btn" onclick="filterMenu(this,'drink')">🥤 Đồ uống</button>
 </div>
 
-<div class="menu-grid" id="menuGrid">
+<div class="search-bar">
+  <input id="searchQ" type="text" placeholder="🔍 Tìm tên món..." style="flex:1;min-width:180px;">
+  <select id="searchCategory">
+    <option value="">Tất cả loại</option>
+    <option value="pizza">Pizza</option>
+    <option value="burger">Burger</option>
+    <option value="pasta">Pasta</option>
+    <option value="salad">Salad</option>
+    <option value="soup">Súp</option>
+    <option value="dessert">Tráng miệng</option>
+    <option value="drink">Đồ uống</option>
+  </select>
+  <input id="searchMin" type="number" placeholder="Giá min" style="width:90px;">
+  <input id="searchMax" type="number" placeholder="Giá max" style="width:90px;">
+  <button class="btn-search" onclick="doSearch()">🔍 Tìm</button>
+  <button class="btn-clear" onclick="clearSearch()">✕ Xoá</button>
+</div>
+
+<!-- Food grid -->
+<div class="food-grid" id="foodGrid">
   {{#each foods}}
-  <div class="food-card" data-type="{{type}}">
-    <div class="food-card-img">{{typeEmoji type}}</div>
-    <div class="food-card-body">
-      <div class="food-card-type">{{type}}</div>
-      <div class="food-card-name">{{name}}</div>
-      <div class="food-card-footer">
-        <span class="food-card-price">{{price}}k</span>
-        <button class="btn-add">+ Thêm</button>
+  <div class="food-tile" data-type="{{type}}"
+       data-id="{{id}}"
+       data-name="{{name}}"
+       data-price="{{price}}"
+       data-type-label="{{type}}">
+    <div class="food-tile-img">{{typeEmoji type}}</div>
+    <div class="food-tile-body">
+      <div class="food-tile-type">{{type}}</div>
+      <div class="food-tile-name">{{name}}</div>
+      <div class="food-tile-footer">
+        <span class="food-tile-price">{{formatNumber price}}đ</span>
+        <button class="btn-add-tile" onclick="event.stopPropagation();openModal(this.closest('.food-tile'))">
+          <i class="bi bi-plus-lg"></i> Thêm
+        </button>
+      </div>
+      <div class="food-card-actions">
+        <button class="btn-review-open" data-food-id="{{id}}" data-food-name="{{name}}">⭐ Đánh giá</button>
+        <button class="btn-fav" data-food-id="{{id}}" title="Yêu thích">❤️</button>
       </div>
     </div>
   </div>
   {{/each}}
 </div>
 
-<p class="no-result" id="noResult">Không có món nào 😕</p>
+<div class="no-result" id="noResult">
+  <i class="bi bi-emoji-neutral"></i>
+  Không có món nào trong danh mục này
+</div>
+
+<!-- Add-to-cart modal -->
+<div class="modal-backdrop-custom" id="modalBackdrop" onclick="handleBackdropClick(event)">
+  <div class="modal-box">
+    <div class="modal-header-custom">
+      <span class="modal-emoji" id="modalEmoji">🍽</span>
+      <div>
+        <div class="modal-food-name" id="modalFoodName">—</div>
+        <div class="modal-base-price" id="modalBasePrice">0đ</div>
+      </div>
+    </div>
+
+    <!-- Toppings -->
+    <div style="font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">
+      Tuỳ chỉnh topping
+    </div>
+    <div class="topping-grid" id="toppingGrid">
+      <!-- injected by JS based on food type -->
+    </div>
+
+    <!-- Quantity -->
+    <div style="font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">
+      Số lượng
+    </div>
+    <div class="qty-row">
+      <button class="qty-btn" onclick="changeQty(-1)">−</button>
+      <span class="qty-val" id="qtyVal">1</span>
+      <button class="qty-btn" onclick="changeQty(1)">+</button>
+    </div>
+
+    <!-- Price preview -->
+    <div class="price-strip">
+      <span class="price-strip-label">Tổng cộng</span>
+      <span class="price-strip-total" id="pricePreview">0đ</span>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer-custom">
+      <button class="btn btn-outline-secondary" onclick="closeModal()">Huỷ</button>
+      <button class="btn btn-success" id="btnAddToCart" onclick="addToCart()">
+        <i class="bi bi-cart-plus me-1"></i>Thêm vào giỏ
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REVIEW -->
+<div id="reviewModal">
+  <div class="rbox">
+    <div class="rbox-header">
+      <span class="rbox-title" id="modalFoodName"></span>
+      <button class="rbox-close" id="btnCloseReview">✕</button>
+    </div>
+    <div id="reviewList">
+      <p class="review-empty">Đang tải...</p>
+    </div>
+    <div class="rform">
+      <h4>Viết đánh giá</h4>
+      <div class="star-select" id="starSelect">
+        <span data-star="1">★</span>
+        <span data-star="2">★</span>
+        <span data-star="3">★</span>
+        <span data-star="4">★</span>
+        <span data-star="5">★</span>
+      </div>
+      <textarea class="review-textarea" id="reviewComment" placeholder="Nhận xét của bạn..."></textarea>
+      <button class="btn-submit-review" id="btnSubmitReview">Gửi đánh giá</button>
+    </div>
+  </div>
+</div>
+
+<div id="cart-toast"></div>
+
+{{#fillSection "js"}}
+<script>
+// ── Topping definitions ───────────────────────────────────────────────────────
+const ALL_TOPPINGS = [
+  { key: 'extraCheese',  label: 'Thêm Phô Mai',    price: 10000, types: ['pizza','burger','pasta','salad'] },
+  { key: 'extraSauce',   label: 'Thêm Sốt',         price:  5000, types: ['pizza','burger','pasta'] },
+  { key: 'noOnion',      label: 'Không Hành',        price:     0, types: ['pizza','burger','salad','soup'] },
+  { key: 'extraMeat',    label: 'Thêm Thịt',         price: 20000, types: ['pizza','burger','pasta','soup'] },
+  { key: 'spicy',        label: 'Cay',               price:     0, types: ['pizza','burger','pasta','soup'] },
+  { key: 'extraVeggies', label: 'Thêm Rau',          price:  8000, types: ['burger','salad','soup'] },
+  { key: 'noDressing',   label: 'Không Sốt',         price:     0, types: ['salad'] },
+  { key: 'extraIce',     label: 'Thêm Đá',           price:     0, types: ['drink'] },
+  { key: 'noSugar',      label: 'Không Đường',       price:     0, types: ['drink','dessert'] },
+];
+
+const EMOJI_MAP = {
+  pizza:'🍕', burger:'🍔', pasta:'🍝',
+  salad:'🥗', soup:'🍲', dessert:'🍰', drink:'🥤',
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentFood  = null;   // { id, name, basePrice, type }
+let currentQty   = 1;
+
+// ── Filter ────────────────────────────────────────────────────────────────────
+function filterMenu(btn, type) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  let count = 0;
+  document.querySelectorAll('.food-tile').forEach(tile => {
+    const show = type === 'all' || tile.dataset.type === type;
+    tile.style.display = show ? '' : 'none';
+    if (show) count++;
+  });
+  document.getElementById('noResult').style.display = count ? 'none' : 'block';
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function openModal(tile) {
+  currentFood = {
+    id:        Number(tile.dataset.id),
+    name:      tile.dataset.name,
+    basePrice: Number(tile.dataset.price),
+    type:      tile.dataset.type,
+  };
+  currentQty = 1;
+
+  document.getElementById('modalEmoji').textContent    = EMOJI_MAP[currentFood.type] || '🍽';
+  document.getElementById('modalFoodName').textContent  = currentFood.name;
+  document.getElementById('modalBasePrice').textContent = fmt(currentFood.basePrice) + 'đ / món';
+  document.getElementById('qtyVal').textContent         = '1';
+
+  buildToppings(currentFood.type);
+  updatePrice();
+  document.getElementById('modalBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalBackdrop').classList.remove('open');
+  document.body.style.overflow = '';
+  currentFood = null;
+}
+
+function handleBackdropClick(e) {
+  if (e.target === document.getElementById('modalBackdrop')) closeModal();
+}
+
+function buildToppings(type) {
+  const grid     = document.getElementById('toppingGrid');
+  const relevant = ALL_TOPPINGS.filter(t => t.types.includes(type));
+  if (!relevant.length) {
+    grid.innerHTML = '<span style="color:var(--text-muted);font-size:.85rem;">Không có topping cho món này</span>';
+    return;
+  }
+  grid.innerHTML = relevant.map(t => `
+    <label class="topping-label" id="top-${t.key}" onclick="toggleTopping(this,'${t.key}')">
+      <input type="checkbox" value="${t.key}">
+      <span class="topping-meta">
+        <span class="topping-name">${t.label}</span>
+        <span class="topping-price">${t.price ? '+' + fmt(t.price) + 'đ' : 'Miễn phí'}</span>
+      </span>
+    </label>
+  `).join('');
+}
+
+function toggleTopping(label, key) {
+  label.classList.toggle('checked');
+  const cb = label.querySelector('input');
+  cb.checked = label.classList.contains('checked');
+  updatePrice();
+}
+
+function changeQty(delta) {
+  currentQty = Math.max(1, Math.min(20, currentQty + delta));
+  document.getElementById('qtyVal').textContent = currentQty;
+  updatePrice();
+}
+
+function updatePrice() {
+  if (!currentFood) return;
+  const checked = [...document.querySelectorAll('#toppingGrid input:checked')].map(i => i.value);
+  const extra   = checked.reduce((s, k) => {
+    const t = ALL_TOPPINGS.find(t => t.key === k);
+    return s + (t ? t.price : 0);
+  }, 0);
+  const total   = (currentFood.basePrice + extra) * currentQty;
+  document.getElementById('pricePreview').textContent = fmt(total) + 'đ';
+}
+
+// ── Add to cart ───────────────────────────────────────────────────────────────
+async function addToCart() {
+  if (!currentFood) return;
+  const btn       = document.getElementById('btnAddToCart');
+  btn.disabled    = true;
+  btn.textContent = 'Đang thêm…';
+
+  const toppingKeys = [...document.querySelectorAll('#toppingGrid input:checked')].map(i => i.value);
+
+  try {
+    const res  = await fetch('/cart/add', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ foodId: currentFood.id, quantity: currentQty, toppingKeys }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Lỗi');
+
+    closeModal();
+    // Update cart badge in header
+    const badge = document.getElementById('cartCountBadge');
+    if (badge) badge.textContent = data.cart.totalQty;
+
+    showToast(`✅ Đã thêm ${currentFood.name} vào giỏ hàng!`);
+  } catch (err) {
+    showToast('❌ ' + err.message, true);
+  } finally {
+    btn.disabled    = false;
+    btn.innerHTML   = '<i class="bi bi-cart-plus me-1"></i>Thêm vào giỏ';
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function fmt(n) {
+  return new Intl.NumberFormat('vi-VN').format(n);
+}
+
+function showToast(msg, isErr = false) {
+  const t      = document.getElementById('cart-toast');
+  t.textContent = msg;
+  t.style.background = isErr ? '#c62828' : '#1f2933';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
 
 <script>
-  function filterMenu(btn, type) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const cards = document.querySelectorAll('.food-card');
-    let count = 0;
-    cards.forEach(card => {
-      const show = type === 'all' || card.dataset.type === type;
-      card.style.display = show ? 'block' : 'none';
-      if (show) count++;
-    });
-    document.getElementById('noResult').style.display = count === 0 ? 'block' : 'none';
+  let currentFoodId = null;
+  let selectedRating = 0;
+  const isLoggedIn = {{#if authUser}}true{{else}}false{{/if}};
+
+  // Search (server-side)
+  async function doSearch() {
+    const q        = document.getElementById('searchQ').value.trim();
+    const category = document.getElementById('searchCategory').value;
+    const priceMin = document.getElementById('searchMin').value;
+    const priceMax = document.getElementById('searchMax').value;
+
+    const params = new URLSearchParams();
+    if (q)        params.append('q', q);
+    if (category) params.append('category', category);
+    if (priceMin) params.append('priceMin', priceMin);
+    if (priceMax) params.append('priceMax', priceMax);
+
+    try {
+      const res  = await fetch('/menu/search?' + params.toString());
+      const data = await res.json();
+      const grid = document.getElementById('foodGrid');
+
+      if (!data.success || data.foods.length === 0) {
+        grid.innerHTML = '';
+        document.getElementById('noResult').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('noResult').style.display = 'none';
+      grid.innerHTML = data.foods.map(f => `
+        <div class="food-tile" data-type="${f.type}"
+            data-id="${f.id}"
+            data-name="${f.name}"
+            data-price="${f.price}"
+            data-type-label="${f.type}">
+          <div class="food-tile-img">${EMOJI_MAP[f.type] || '🍽️'}</div>
+          <div class="food-tile-body">
+            <div class="food-tile-type">${f.type}</div>
+            <div class="food-tile-name">${f.name}</div>
+            <div class="food-tile-footer">
+              <span class="food-tile-price">${fmt(f.price)}đ</span>
+              <button class="btn-add-tile" onclick="event.stopPropagation();openModal(this.closest('.food-tile'))">
+                <i class="bi bi-plus-lg"></i> Thêm
+              </button>
+            </div>
+            <div class="food-card-actions">
+              <button class="btn-review-open" data-food-id="${f.id}" data-food-name="${f.name}">⭐ Đánh giá</button>
+              <button class="btn-fav" data-food-id="${f.id}" title="Yêu thích">❤️</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    } catch(err) {
+      alert('Lỗi tìm kiếm!');
+    }
   }
+
+  document.getElementById('searchQ').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doSearch();
+  });
+
+  function clearSearch() {
+    document.getElementById('searchQ').value = '';
+    document.getElementById('searchCategory').value = '';
+    document.getElementById('searchMin').value = '';
+    document.getElementById('searchMax').value = '';
+    location.reload();
+  }
+
+  // Favorite
+  document.addEventListener('click', async function(e) {
+    const btn = e.target.closest('.btn-fav');
+    if (!btn) return;
+    e.stopPropagation();
+    if (!isLoggedIn) return alert('Vui lòng đăng nhập để lưu yêu thích!');
+    const foodId = btn.dataset.foodId;
+    const isActive = btn.classList.contains('active');
+    const method = isActive ? 'DELETE' : 'POST';
+    try {
+      const res = await fetch('/favorite/' + foodId, { method });
+      const data = await res.json();
+      if (data.success) {
+        btn.classList.toggle('active');
+        btn.textContent = btn.classList.contains('active') ? '💖' : '❤️';
+      } else {
+        alert(data.message || 'Lỗi!');
+      }
+    } catch(err) {
+      alert('Lỗi kết nối!');
+    }
+  });
+
+  // Mở modal review
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.btn-review-open');
+    if (!btn) return;
+    e.stopPropagation();
+    currentFoodId = btn.dataset.foodId;
+    document.getElementById('modalFoodName').textContent = '⭐ ' + btn.dataset.foodName;
+    document.getElementById('reviewModal').classList.add('open');
+    loadReviews(currentFoodId);
+  });
+
+  document.getElementById('btnCloseReview').addEventListener('click', closeReview);
+  document.getElementById('reviewModal').addEventListener('click', function(e) {
+    if (e.target === this) closeReview();
+  });
+
+  function closeReview() {
+    document.getElementById('reviewModal').classList.remove('open');
+    selectedRating = 0;
+    document.getElementById('reviewComment').value = '';
+    document.querySelectorAll('#starSelect span').forEach(s => s.classList.remove('active'));
+  }
+
+  async function loadReviews(foodId) {
+    const list = document.getElementById('reviewList');
+    list.innerHTML = '<p class="review-empty">Đang tải...</p>';
+    try {
+      const res = await fetch('/review/food/' + foodId);
+      const data = await res.json();
+      if (!data.reviews || data.reviews.length === 0) {
+        list.innerHTML = '<p class="review-empty">Chưa có đánh giá nào.</p>';
+        return;
+      }
+      list.innerHTML = data.reviews.map(r => `
+        <div class="review-item">
+          <div class="review-meta">
+            <span class="review-user">Người dùng #${r.user_id}</span>
+            <span class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+          </div>
+          <div class="review-comment">${r.comment || ''}</div>
+        </div>
+      `).join('');
+    } catch(err) {
+      list.innerHTML = '<p class="review-empty">Lỗi tải đánh giá.</p>';
+    }
+  }
+
+  document.querySelectorAll('#starSelect span').forEach(function(s) {
+    s.addEventListener('click', function() {
+      selectedRating = parseInt(this.dataset.star);
+      document.querySelectorAll('#starSelect span').forEach(function(x, i) {
+        x.classList.toggle('active', i < selectedRating);
+      });
+    });
+  });
+
+  document.getElementById('btnSubmitReview').addEventListener('click', async function() {
+    if (!isLoggedIn) return alert('Vui lòng đăng nhập để đánh giá!');
+    if (!selectedRating) return alert('Vui lòng chọn số sao!');
+    const comment = document.getElementById('reviewComment').value.trim();
+    try {
+      const res = await fetch('/review/food/' + currentFoodId, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating: selectedRating, comment }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('reviewComment').value = '';
+        selectedRating = 0;
+        document.querySelectorAll('#starSelect span').forEach(s => s.classList.remove('active'));
+        await loadReviews(currentFoodId);
+      } else {
+        alert(data.message || 'Lỗi gửi đánh giá');
+      }
+    } catch(err) {
+      alert('Lỗi kết nối!');
+    }
+  });
 </script>
+{{/fillSection}}

@@ -63,6 +63,11 @@ export const FoodService = {
     async remove(id) {
         return FoodModel.remove(id);
     },
+    /* Tìm kiếm món ăn theo từ khoá, loại, khoảng giá (Customer) */
+    async search({ q, category, priceMin, priceMax }) {
+    const rows = await FoodModel.search({ q, category, priceMin, priceMax });
+    return rows.map(row => FoodFactory.create(Food.fromRow(row)));
+},
 };
 
 export default FoodService;

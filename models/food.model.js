@@ -65,6 +65,15 @@ const FoodModel = {
     async remove(id) {
         return base().where({ id: Number(id) }).delete();
     },
+    /* tìm kiếm món ăn cho khách hàng */
+    async search({ q, category, priceMin, priceMax }) {
+    let query = base().where({ is_available: true });
+    if (q)        query = query.whereILike('name', `%${q}%`);
+    if (category) query = query.where({ type: category });
+    if (priceMin) query = query.where('base_price', '>=', Number(priceMin));
+    if (priceMax) query = query.where('base_price', '<=', Number(priceMax));
+    return query.orderBy('type').orderBy('name');
+},
 };
 
 export default FoodModel;

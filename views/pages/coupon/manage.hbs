@@ -1,0 +1,145 @@
+{{#fillSection "css"}}
+<style>
+    .manage-header {
+        background: linear-gradient(135deg, #ff6b35, #f7931e);
+        border-radius: 16px;
+        padding: 24px 32px;
+        color: white;
+        margin-bottom: 28px;
+    }
+
+    .manage-header h2 {
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .coupon-table {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .coupon-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        color: #6c757d;
+        padding: 12px 16px;
+    }
+
+    .coupon-table td {
+        padding: 12px 16px;
+        vertical-align: middle;
+    }
+
+    .code-cell {
+        font-family: 'Courier New', monospace;
+        font-weight: 700;
+        color: #ff6b35;
+        letter-spacing: 1px;
+    }
+
+    .badge-active {
+        background: #d3f9d8;
+        color: #2b8a3e;
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-weight: 600;
+        font-size: 0.78rem;
+    }
+
+    .badge-inactive {
+        background: #ffe3e3;
+        color: #c92a2a;
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-weight: 600;
+        font-size: 0.78rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 0;
+        color: #adb5bd;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+    }
+</style>
+{{/fillSection}}
+
+<div class="col-12">
+    <div class="container py-4" style="max-width: 960px;">
+        <div class="manage-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2>🎫 Quản lý mã giảm giá</h2>
+                <p class="mb-0 opacity-75">Tất cả coupon trong hệ thống</p>
+            </div>
+            <a href="/coupon/create" class="btn btn-light rounded-pill px-4 fw-semibold">
+                <i class="bi bi-plus-circle me-1"></i>Tạo mới
+            </a>
+        </div>
+
+        {{#if (isEmpty coupons)}}
+        <div class="empty-state">
+            <i class="bi bi-ticket-perforated"></i>
+            <p class="mt-3 fs-5">Chưa có mã giảm giá nào</p>
+            <a href="/coupon/create" class="btn btn-outline-primary mt-2">Tạo mã đầu tiên</a>
+        </div>
+        {{else}}
+        <div class="table-responsive">
+            <table class="table coupon-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Mã</th>
+                        <th>Giảm giá</th>
+                        <th>Đơn tối thiểu</th>
+                        <th>Đã dùng</th>
+                        <th>Hết hạn</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each coupons}}
+                    <tr>
+                        <td class="code-cell">{{code}}</td>
+                        <td>
+                            {{#if (eq discountType "PERCENT")}}
+                            <span class="fw-bold">{{discountValue}}%</span>
+                            {{else}}
+                            <span class="fw-bold">{{formatCurrency discountValue}}</span>
+                            {{/if}}
+                        </td>
+                        <td>
+                            {{#if minOrderAmount}}
+                            {{formatCurrency minOrderAmount}}
+                            {{else}}
+                            <span class="text-muted">—</span>
+                            {{/if}}
+                        </td>
+                        <td>
+                            {{usedCount}}{{#if maxUses}} / {{maxUses}}{{/if}}
+                        </td>
+                        <td>
+                            {{#if expiresAt}}
+                            {{formatDate expiresAt}}
+                            {{else}}
+                            <span class="text-muted">Không giới hạn</span>
+                            {{/if}}
+                        </td>
+                        <td>
+                            {{#if isActive}}
+                            <span class="badge-active">Hoạt động</span>
+                            {{else}}
+                            <span class="badge-inactive">Ngưng</span>
+                            {{/if}}
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+        {{/if}}
+    </div>
+</div>

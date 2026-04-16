@@ -1,96 +1,135 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">G1 RESTAURANT</a>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                
-            </ul>
-            <form class="d-flex me-5" role="search" method="get" action="/course/search">
-                <input class="form-control me-2" type="search" placeholder="Feeling hungry?" name="q" />
-                <button class="btn btn-outline-success d-flex align-items-center flex-nowrap" type="submit">
-                    <i class="bi bi-search me-2"></i>
-                    <span>Search</span>
-                </button>
-            </form>
+        <a class="navbar-brand" href="/">Nhà Hàng Nhóm 08</a>
+        
 
-            <ul class="navbar-nav mb-2 mb-lg-0">
-                {{#if isAuthenticated}}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                        Hello, <b>{{authUser.name}}</b>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <!-- Left nav links -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="btn btn-outline-success me-1" href="/menu">
+                        <i class="bi bi-grid me-1"></i>Thực đơn
                     </a>
-                    <ul class="dropdown-menu">
+                </li>
+            </ul>
+
+            <!-- Right side -->
+            <div class="d-flex align-items-center gap-2">
+
+                <!-- Cart icon -->
+                <a href="/cart" class="btn btn-outline-success position-relative" title="Giỏ hàng">
+                    <i class="bi bi-cart3"></i>
+                    {{#if cartCount}}
+                    <span id="cartCountBadge"
+                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                          style="font-size:.65rem">
+                        {{cartCount}}
+                    </span>
+                    {{else}}
+                    <span id="cartCountBadge"
+                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                          style="font-size:.65rem;display:none">0</span>
+                    {{/if}}
+                </a>
+                <a href="/notification" class="btn btn-outline-success position-relative" title="Giỏ hàng">
+                    <i class="bi bi-bell"></i>
+                    
+                </a>
+
+                {{#if isAuthenticated}}
+                <div class="dropdown">
+                    <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle me-1"></i>{{authUser.name}}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                             <a class="dropdown-item" href="/account/profile">
-                                <i class="bi bi-person"></i>
-                                Profile
+                                <i class="bi bi-person me-2"></i>Hồ sơ cá nhân
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/coupon/available">
+                                <i class="bi bi-ticket-perforated"></i>
+                                Mã giảm giá
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/favorite">
+                                <i class="bi bi-heart me-2"></i>Món yêu thích
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="/order">
-                                <i class="bi bi-person"></i>
-                                My order
+                                <i class="bi bi-receipt me-2"></i>Lịch sử đơn hàng
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="/payment/history">
-                                <i class="bi bi-person"></i>
-                                Payment history
+                                <i class="bi bi-credit-card me-2"></i>Lịch sử thanh toán
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="/account/change-password">
                                 <i class="bi bi-key"></i>
-                                Change password
+                                Đổi mật khẩu
                             </a>
                         </li>
+
+                        {{!-- {{#if isStaff}}
+                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <hr class="dropdown-divider">
-                        </li>
+                        </li> --}}
                         {{#if (eq authUser.role "MANAGER")}}
-                        {{!-- <li>
-                            <a class="dropdown-item" href="/admin/category/list">
-                                <i class="bi bi-key"></i>
-                                History
+                        <li>
+                            <a class="dropdown-item" href="/coupon/create">
+                                <i class="bi bi-plus-circle"></i>
+                                Tạo mã giảm giá
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="/admin/category/list">
-                                <i class="bi bi-key"></i>
-                                History
+                            <a class="dropdown-item" href="/coupon/manage">
+                                <i class="bi bi-gear"></i>
+                                Quản lý coupon
                             </a>
-                        </li> --}}
-                        
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/notification/kitchen">
+                                <i class="bi bi-fire"></i>
+                                Thông báo bếp
+                            </a>
+                        </li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
                         {{/if}}
+
+                        <li><hr class="dropdown-divider"></li>
                         <li>
-                            <form id="frmSignout" action="/account/signout" method="post">
-                                <button type="submit" class="dropdown-item">
-                                    <i class="bi bi-box-arrow-right"></i>
-                                    Sign out
+                            <form action="/account/signout" method="post" class="d-inline">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
                                 </button>
                             </form>
                         </li>
                     </ul>
-                </li>
+                </div>
                 {{else}}
-                <li class="nav-item">
-                    <a class="btn btn-outline-success me-2" href="/account/signup">
-                        <i class="bi bi-person-plus"></i>
-                        Sign up
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="btn btn-outline-success me-2" href="/account/signin">
-                        <i class="bi bi-person"></i>
-                        Sign in
-                    </a>
-                </li>
+                <a class="btn btn-outline-success me-1" href="/account/signup">
+                    <i class="bi bi-person-plus me-1"></i>Đăng ký
+                </a>
+                <a class="btn btn-outline-success me-1" href="/account/signin">
+                    <i class="bi bi-person me-1"></i>Đăng nhập
+                </a>
                 {{/if}}
-            </ul>
+            </div>
         </div>
     </div>
 </nav>

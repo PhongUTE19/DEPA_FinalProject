@@ -1,7 +1,7 @@
 <div class="page-food-app col-12 px-0">
   <div class="page-hero">
-    <h1><i class="bi bi-receipt-cutoff"></i> Đơn hàng</h1>
-    <p>{{#if loadError}}Không tải được dữ liệu. Thử lại sau.{{else}}Danh sách đơn gần đây (demo){{/if}}</p>
+    <h1><i class="bi bi-receipt-cutoff"></i> Lịch sử đơn hàng</h1>
+    <p>{{#if loadError}}Không tải được dữ liệu. Thử lại sau.{{else}}Danh sách đơn gần đây{{/if}}</p>
   </div>
 
   <div class="order-list">
@@ -9,7 +9,6 @@
     <div class="empty-state text-center">
       <i class="bi bi-inbox"></i>
       <p class="mt-3 mb-0">Chưa có đơn hàng nào.</p>
-      <a href="/menu" class="btn btn-outline-success mt-3">Xem thực đơn</a>
     </div>
     {{else}}
     {{#each orders}}
