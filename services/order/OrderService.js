@@ -8,10 +8,10 @@
  *   orders.id là SERIAL (int4) — DB tự sinh.
  *   Sau OrderModel.create(), id được gán từ row trả về.
  */
-import { Order }        from './Order.js';
-import OrderModel       from '../../models/order.model.js';
-import FoodModel        from '../../models/food.model.js';
-import orderSubject     from '../notification/OrderSubject.js';
+import { Order } from './Order.js';
+import OrderModel from '../../models/order.model.js';
+import FoodModel from '../../models/food.model.js';
+import orderSubject from '../notification/OrderSubject.js';
 import { ORDER_STATUS } from './OrderState.js';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -22,9 +22,9 @@ function rowToOrder(row) {
         : (row.items ?? []);
 
     const order = new Order({
-        id:        row.id,          // integer từ DB
-        userId:    row.user_id,
-        items:     rawItems,
+        id: row.id,          // integer từ DB
+        userId: row.user_id,
+        items: rawItems,
         createdAt: row.created_at,
     });
     order.restoreFromStatus(row.status);
@@ -36,12 +36,12 @@ function rowToListItem(row) {
         ? JSON.parse(row.items)
         : (row.items ?? []);
     return {
-        id:          row.id,
-        userId:      row.user_id,
-        status:      row.status,
+        id: row.id,
+        userId: row.user_id,
+        status: row.status,
         totalAmount: Number(row.total_amount || 0),
-        createdAt:   row.created_at,
-        itemCount:   items.length,
+        createdAt: row.created_at,
+        itemCount: items.length,
     };
 }
 
@@ -66,8 +66,8 @@ export const OrderService = {
         }
 
         // 1. Lấy giá từ DB — không tin giá client gửi lên
-        const foodIds  = [...new Set(items.map(i => Number(i.foodId)).filter(Number.isFinite))];
-        const rows     = await FoodModel.getByIds(foodIds);
+        const foodIds = [...new Set(items.map(i => Number(i.foodId)).filter(Number.isFinite))];
+        const rows = await FoodModel.getByIds(foodIds);
         const priceMap = new Map(
             rows.map(r => [Number(r.id), Number(r.base_price ?? r.basePrice ?? 0)])
         );
@@ -83,6 +83,7 @@ export const OrderService = {
 
             order.addItem({
                 foodId,
+                name: raw.name,
                 quantity: Number(raw.quantity) || 1,
                 unitPrice,
                 toppings: Array.isArray(raw.toppings) ? raw.toppings : [],
@@ -91,12 +92,12 @@ export const OrderService = {
 
         // 3. Lưu DB — id do DB sinh (SERIAL), gán lại vào domain object
         const savedRow = await OrderModel.create({
-            userId:      order.userId,
-            items:       order.items,
-            status:      order.getStatus(),
+            userId: order.userId,
+            items: order.items,
+            status: order.getStatus(),
             totalAmount: order.calculateTotal(),
         });
-        order.id        = savedRow.id;          // gán integer id từ DB
+        order.id = savedRow.id;          // gán integer id từ DB
         order.createdAt = savedRow.created_at;
 
         // 4. Observer
@@ -112,8 +113,8 @@ export const OrderService = {
 
         orderSubject.notify('ORDER_STATUS_CHANGED', {
             orderId: order.id,
-            userId:  order.userId,
-            status:  order.getStatus(),
+            userId: order.userId,
+            status: order.getStatus(),
         });
 
         if (order.getStatus() === ORDER_STATUS.COMPLETED) {

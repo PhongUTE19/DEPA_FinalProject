@@ -1,8 +1,8 @@
 
 import FoodModel from '../../models/food.model.js';
-import { Food }  from '../food/Food.js';
+import { Food } from '../food/Food.js';
 import { applyToppings } from '../food/ToppingDecorator.js';
-import { FoodFactory }   from '../food/FoodFactory.js';
+import { FoodFactory } from '../food/FoodFactory.js';
 
 function emptyCart() {
     return { items: [] };
@@ -18,7 +18,7 @@ function calcSubtotal(unitPrice, quantity) {
 }
 
 function cartTotals(cart) {
-    const totalQty    = cart.items.reduce((s, i) => s + i.quantity, 0);
+    const totalQty = cart.items.reduce((s, i) => s + i.quantity, 0);
     const totalAmount = cart.items.reduce((s, i) => s + i.subtotal, 0);
     return { totalQty, totalAmount };
 }
@@ -41,28 +41,28 @@ export const CartService = {
         }
 
         const unitPrice = food.getPrice();
-        const qty       = Math.max(1, Number(quantity));
-        const lineKey   = `${foodId}::${toppingKeys.slice().sort().join(',')}`;
+        const qty = Math.max(1, Number(quantity));
+        const lineKey = `${foodId}::${toppingKeys.slice().sort().join(',')}`;
 
-        const cart      = getCart(session);
-        const existing  = cart.items.find(i => i.lineKey === lineKey);
+        const cart = getCart(session);
+        const existing = cart.items.find(i => i.lineKey === lineKey);
 
         if (existing) {
             existing.quantity += qty;
-            existing.subtotal  = calcSubtotal(existing.unitPrice, existing.quantity);
+            existing.subtotal = calcSubtotal(existing.unitPrice, existing.quantity);
         } else {
             cart.items.push({
                 cartItemId: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
                 lineKey,
-                foodId:    Number(foodId),
-                name:      food.getName(),
-                type:      food.type,
-                imageUrl:  food.imageUrl,
-                toppings:  food.getToppings(),
+                foodId: Number(foodId),
+                name: food.getName(),
+                type: food.type,
+                imageUrl: food.imageUrl,
+                toppings: food.getToppings(),
                 toppingKeys,
                 unitPrice,
-                quantity:  qty,
-                subtotal:  calcSubtotal(unitPrice, qty),
+                quantity: qty,
+                subtotal: calcSubtotal(unitPrice, qty),
             });
         }
 
@@ -71,7 +71,7 @@ export const CartService = {
 
     updateItem(session, { cartItemId, quantity }) {
         const cart = getCart(session);
-        const qty  = Number(quantity);
+        const qty = Number(quantity);
 
         if (qty <= 0) {
             cart.items = cart.items.filter(i => i.cartItemId !== cartItemId);
@@ -87,8 +87,8 @@ export const CartService = {
     },
 
     removeItem(session, cartItemId) {
-        const cart  = getCart(session);
-        cart.items  = cart.items.filter(i => i.cartItemId !== cartItemId);
+        const cart = getCart(session);
+        cart.items = cart.items.filter(i => i.cartItemId !== cartItemId);
         return { ...cart, ...cartTotals(cart) };
     },
 
@@ -101,7 +101,8 @@ export const CartService = {
         const cart = getCart(session);
         if (!cart.items.length) throw new Error('Giỏ hàng trống');
         return cart.items.map(i => ({
-            foodId:   i.foodId,
+            foodId: i.foodId,
+            name: i.name,
             quantity: i.quantity,
             toppings: i.toppings,
         }));

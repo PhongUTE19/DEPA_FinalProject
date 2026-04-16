@@ -5,6 +5,7 @@
  * KHÔNG import OrderModel, Order, OrderState trực tiếp.
  */
 import { OrderService } from '../services/order/OrderService.js';
+import { PaymentService } from '../services/payment/PaymentService.js';
 
 export const OrderController = {
 
@@ -17,6 +18,21 @@ export const OrderController = {
                 : { limit: 100 };
 
             const orders = await OrderService.listOrdersForView(opts);
+
+            // Merge payment info into orders
+            if (userId) {
+                const payments = await PaymentService.getPaymentHistory(userId);
+                const payMap = new Map(payments.map(p => [p.orderId, p.toJSON()]));
+                for (const o of orders) {
+                    const pay = payMap.get(o.id);
+                    if (pay) {
+                        o.paymentStatus = pay.status;
+                        o.paymentMethod = pay.method;
+                        o.paidAt = pay.paidAt;
+                    }
+                }
+            }
+
             return res.render('pages/order/index', {
                 title: 'Đơn hàng',
                 orders,
@@ -44,9 +60,9 @@ export const OrderController = {
         try {
             const order = await OrderService.getOrder(req.params.id);
             return res.render('pages/order/tracking', {
-                title:   `Theo dõi đơn #${order.id}`,
+                title: `Theo dõi đơn #${order.id}`,
                 orderId: order.id,
-                order:   order.toJSON(),
+                order: order.toJSON(),
             });
         } catch (err) {
             if (err.message === 'Order not found') {
@@ -60,14 +76,14 @@ export const OrderController = {
     async getOrderStatus(req, res, next) {
         try {
             const order = await OrderService.getOrder(req.params.id);
-            const data  = order.toJSON();
+            const data = order.toJSON();
             return res.json({
-                success:     true,
-                id:          data.id,
-                status:      data.status,
+                success: true,
+                id: data.id,
+                status: data.status,
                 totalAmount: data.totalAmount,
-                items:       data.items,
-                createdAt:   data.createdAt,
+                items: data.items,
+                createdAt: data.createdAt,
             });
         } catch (err) {
             if (err.message === 'Order not found') {
@@ -85,13 +101,13 @@ export const OrderController = {
                 return res.status(400).json({ success: false, message: 'items array is required' });
             }
 
-            const userId   = req.session?.authUser?.id ?? null;
+            const userId = req.session?.authUser?.id ?? null;
             const newOrder = await OrderService.createOrder(items, userId);
 
             return res.status(201).json({
                 success: true,
                 message: 'Đặt hàng thành công',
-                order:   newOrder.toJSON(),
+                order: newOrder.toJSON(),
             });
         } catch (err) {
             if (err.message.startsWith('Không tìm thấy món') || err.message.startsWith('foodId')) {
@@ -111,10 +127,10 @@ export const OrderController = {
 
             const order = await OrderService.advanceOrderStatus(orderId);
             return res.json({
-                success:  true,
-                message:  'Cập nhật trạng thái thành công',
-                orderId:  order.id,
-                status:   order.getStatus(),
+                success: true,
+                message: 'Cập nhật trạng thái thành công',
+                orderId: order.id,
+                status: order.getStatus(),
             });
         } catch (err) {
             if (err.message === 'Order not found') {
@@ -134,10 +150,10 @@ export const OrderController = {
 
             const order = await OrderService.cancelOrder(orderId);
             return res.json({
-                success:  true,
-                message:  'Đơn hàng đã được huỷ',
-                orderId:  order.id,
-                status:   order.getStatus(),
+                success: true,
+                message: 'Đơn hàng đã được huỷ',
+                orderId: order.id,
+                status: order.getStatus(),
             });
         } catch (err) {
             if (err.message === 'Order not found') {

@@ -1,5 +1,5 @@
 
-import { CartService }  from '../services/cart/CartService.js';
+import { CartService } from '../services/cart/CartService.js';
 import { OrderService } from '../services/order/OrderService.js';
 
 const CartController = {
@@ -61,12 +61,13 @@ const CartController = {
     async checkout(req, res, next) {
         try {
             const userId = req.session?.authUser?.id ?? null;
-            const items  = CartService.toOrderItems(req.session);
+            const items = CartService.toOrderItems(req.session);
 
             const order = await OrderService.createOrder(items, userId);
-            CartService.clearCart(req.session);
 
-            // Redirect to payment page after checkout
+            // Save pending order ID — cart will be cleared after payment
+            req.session.pendingOrderId = order.id;
+
             return res.redirect(`/payment/${order.id}`);
         } catch (err) {
             if (err.message === 'Giỏ hàng trống') {

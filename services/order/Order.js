@@ -13,11 +13,11 @@ import { PendingState, restoreState } from './OrderState.js';
 
 export class Order {
     constructor({ id = null, userId = null, items = [], createdAt = null }) {
-        this.id        = id;       // null trước khi INSERT, integer sau khi INSERT
-        this.userId    = userId;
-        this.items     = [];
+        this.id = id;       // null trước khi INSERT, integer sau khi INSERT
+        this.userId = userId;
+        this.items = [];
         this.createdAt = createdAt;
-        this.state     = new PendingState(this);
+        this.state = new PendingState(this);
 
         for (const item of items) {
             this._pushItem(item);
@@ -28,9 +28,10 @@ export class Order {
 
     _pushItem(item) {
         const unitPrice = Number(item.unitPrice ?? item.price ?? 0);
-        const quantity  = Math.max(1, Number(item.quantity) || 1);
+        const quantity = Math.max(1, Number(item.quantity) || 1);
         this.items.push({
-            foodId:   Number(item.foodId),
+            foodId: Number(item.foodId),
+            name: item.name || `Món #${item.foodId}`,
             quantity,
             unitPrice,
             toppings: Array.isArray(item.toppings) ? item.toppings : [],
@@ -46,22 +47,22 @@ export class Order {
 
     // ── State ──────────────────────────────────────────────────────────────
 
-    setState(state)           { this.state = state; }
-    nextState()               { this.state.next(); }
-    cancelOrder()             { this.state.cancel(); }
-    getStatus()               { return this.state.getStatus(); }
+    setState(state) { this.state = state; }
+    nextState() { this.state.next(); }
+    cancelOrder() { this.state.cancel(); }
+    getStatus() { return this.state.getStatus(); }
     restoreFromStatus(status) { restoreState(this, status); }
 
     // ── Serialization ──────────────────────────────────────────────────────
 
     toJSON() {
         return {
-            id:          this.id,
-            userId:      this.userId,
-            items:       this.items,
-            status:      this.getStatus(),
+            id: this.id,
+            userId: this.userId,
+            items: this.items,
+            status: this.getStatus(),
             totalAmount: this.calculateTotal(),
-            createdAt:   this.createdAt,
+            createdAt: this.createdAt,
         };
     }
 }

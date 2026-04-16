@@ -31,11 +31,17 @@ export const CouponService = {
         const discount = coupon.calculateDiscount(orderAmount);
         const finalAmount = orderAmount - discount;
 
-        // Tăng used_count
-        await CouponModel.incrementUsedCount(coupon.id);
-        coupon.usedCount += 1;
+        // Không increment ở đây - chỉ return discount
+        // incrementUsedCount sẽ được gọi sau khi thanh toán SUCCESS
 
         return { coupon: coupon.toJSON(), discount, finalAmount };
+    },
+
+    /** Increment used_count khi thanh toán thành công */
+    async markCouponUsed(code) {
+        const row = await CouponModel.findByCode(code);
+        if (!row) throw new Error('Mã giảm giá không tồn tại');
+        await CouponModel.incrementUsedCount(row.id);
     },
 
     /** Lấy danh sách coupon khả dụng → Coupon domain[] */

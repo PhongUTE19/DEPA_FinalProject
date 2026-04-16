@@ -4,7 +4,7 @@
     <p>{{#if loadError}}Không tải được dữ liệu. Thử lại sau.{{else}}Danh sách đơn gần đây{{/if}}</p>
   </div>
 
-  <div class="order-list">
+  <div class="order-list" style="max-width:800px;margin:0 auto;padding:0 16px;">
     {{#if (isEmpty orders)}}
     <div class="empty-state text-center">
       <i class="bi bi-inbox"></i>
@@ -12,24 +12,38 @@
     </div>
     {{else}}
     {{#each orders}}
-    <div class="card mb-3 p-3">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <div class="fw-bold">#{{id}}</div>
-          <div class="text-muted">
-            <i class="bi bi-clock"></i> {{formatDate createdAt}}
+    <a href="/order/{{id}}/tracking" class="text-decoration-none text-reset">
+      <div class="card mb-3 p-3" style="transition:box-shadow .2s;cursor:pointer;"
+        onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow=''">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-bold">Đơn hàng #{{id}}</div>
+            <div class="text-muted" style="font-size:.85rem;">
+              <i class="bi bi-clock"></i> {{formatDate createdAt}}
+              &bull; {{itemCount}} món
+            </div>
+            {{#if paymentMethod}}
+            <div style="font-size:.8rem;margin-top:4px;">
+              <span
+                class="badge {{#if (eq paymentStatus 'SUCCESS')}}bg-success{{else if (eq paymentStatus 'FAILED')}}bg-danger{{else}}bg-warning text-dark{{/if}}">
+                {{#if (eq paymentStatus "SUCCESS")}}Đã thanh toán{{else if (eq paymentStatus "FAILED")}}Thanh toán thất
+                bại{{else}}Chờ thanh toán{{/if}}
+              </span>
+              <span class="text-muted ms-1">
+                {{#if (eq paymentMethod "cash")}}💵 Tiền mặt{{else if (eq paymentMethod "bank")}}🏦 Ngân hàng{{else if
+                (eq paymentMethod "momo")}}📱 MoMo{{else}}{{paymentMethod}}{{/if}}
+              </span>
+            </div>
+            {{/if}}
           </div>
-          <div class="text-muted small">
-            {{itemCount}} món • user #{{#if userId}}{{userId}}{{else}}—{{/if}}
-          </div>
-        </div>
 
-        <div class="text-end">
-          <span class="badge bg-secondary text-uppercase">{{status}}</span>
-          <div class="fw-bold mt-1">{{formatCurrency totalAmount}}</div>
+          <div class="text-end">
+            <span class="badge bg-{{statusColor status}} text-uppercase">{{statusLabel status}}</span>
+            <div class="fw-bold mt-1" style="color:#ff6b35;">{{formatCurrency totalAmount}}</div>
+          </div>
         </div>
       </div>
-    </div>
+    </a>
     {{/each}}
     {{/if}}
   </div>

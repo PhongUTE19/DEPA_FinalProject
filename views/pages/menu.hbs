@@ -40,11 +40,8 @@
 <!-- Food grid -->
 <div class="food-grid" id="foodGrid">
   {{#each foods}}
-  <div class="food-tile" data-type="{{type}}"
-       data-id="{{id}}"
-       data-name="{{name}}"
-       data-price="{{price}}"
-       data-type-label="{{type}}">
+  <div class="food-tile" data-type="{{type}}" data-id="{{id}}" data-name="{{name}}" data-price="{{price}}"
+    data-type-label="{{type}}">
     <div class="food-tile-img">{{typeEmoji type}}</div>
     <div class="food-tile-body">
       <div class="food-tile-type">{{type}}</div>
@@ -81,7 +78,8 @@
     </div>
 
     <!-- Toppings -->
-    <div style="font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">
+    <div
+      style="font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">
       Tuỳ chỉnh topping
     </div>
     <div class="topping-grid" id="toppingGrid">
@@ -89,7 +87,8 @@
     </div>
 
     <!-- Quantity -->
-    <div style="font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">
+    <div
+      style="font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">
       Số lượng
     </div>
     <div class="qty-row">
@@ -143,81 +142,81 @@
 
 {{#fillSection "js"}}
 <script>
-// ── Topping definitions ───────────────────────────────────────────────────────
-const ALL_TOPPINGS = [
-  { key: 'extraCheese',  label: 'Thêm Phô Mai',    price: 10000, types: ['pizza','burger','pasta','salad'] },
-  { key: 'extraSauce',   label: 'Thêm Sốt',         price:  5000, types: ['pizza','burger','pasta'] },
-  { key: 'noOnion',      label: 'Không Hành',        price:     0, types: ['pizza','burger','salad','soup'] },
-  { key: 'extraMeat',    label: 'Thêm Thịt',         price: 20000, types: ['pizza','burger','pasta','soup'] },
-  { key: 'spicy',        label: 'Cay',               price:     0, types: ['pizza','burger','pasta','soup'] },
-  { key: 'extraVeggies', label: 'Thêm Rau',          price:  8000, types: ['burger','salad','soup'] },
-  { key: 'noDressing',   label: 'Không Sốt',         price:     0, types: ['salad'] },
-  { key: 'extraIce',     label: 'Thêm Đá',           price:     0, types: ['drink'] },
-  { key: 'noSugar',      label: 'Không Đường',       price:     0, types: ['drink','dessert'] },
-];
+  // ── Topping definitions ───────────────────────────────────────────────────────
+  const ALL_TOPPINGS = [
+    { key: 'extraCheese', label: 'Thêm Phô Mai', price: 10000, types: ['pizza', 'burger', 'pasta', 'salad'] },
+    { key: 'extraSauce', label: 'Thêm Sốt', price: 5000, types: ['pizza', 'burger', 'pasta'] },
+    { key: 'noOnion', label: 'Không Hành', price: 0, types: ['pizza', 'burger', 'salad', 'soup'] },
+    { key: 'extraMeat', label: 'Thêm Thịt', price: 20000, types: ['pizza', 'burger', 'pasta', 'soup'] },
+    { key: 'spicy', label: 'Cay', price: 0, types: ['pizza', 'burger', 'pasta', 'soup'] },
+    { key: 'extraVeggies', label: 'Thêm Rau', price: 8000, types: ['burger', 'salad', 'soup'] },
+    { key: 'noDressing', label: 'Không Sốt', price: 0, types: ['salad'] },
+    { key: 'extraIce', label: 'Thêm Đá', price: 0, types: ['drink'] },
+    { key: 'noSugar', label: 'Không Đường', price: 0, types: ['drink', 'dessert'] },
+  ];
 
-const EMOJI_MAP = {
-  pizza:'🍕', burger:'🍔', pasta:'🍝',
-  salad:'🥗', soup:'🍲', dessert:'🍰', drink:'🥤',
-};
-
-// ── State ─────────────────────────────────────────────────────────────────────
-let currentFood  = null;   // { id, name, basePrice, type }
-let currentQty   = 1;
-
-// ── Filter ────────────────────────────────────────────────────────────────────
-function filterMenu(btn, type) {
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  let count = 0;
-  document.querySelectorAll('.food-tile').forEach(tile => {
-    const show = type === 'all' || tile.dataset.type === type;
-    tile.style.display = show ? '' : 'none';
-    if (show) count++;
-  });
-  document.getElementById('noResult').style.display = count ? 'none' : 'block';
-}
-
-// ── Modal ─────────────────────────────────────────────────────────────────────
-function openModal(tile) {
-  currentFood = {
-    id:        Number(tile.dataset.id),
-    name:      tile.dataset.name,
-    basePrice: Number(tile.dataset.price),
-    type:      tile.dataset.type,
+  const EMOJI_MAP = {
+    pizza: '🍕', burger: '🍔', pasta: '🍝',
+    salad: '🥗', soup: '🍲', dessert: '🍰', drink: '🥤',
   };
-  currentQty = 1;
 
-  document.getElementById('modalEmoji').textContent    = EMOJI_MAP[currentFood.type] || '🍽';
-  document.getElementById('modalFoodName').textContent  = currentFood.name;
-  document.getElementById('modalBasePrice').textContent = fmt(currentFood.basePrice) + 'đ / món';
-  document.getElementById('qtyVal').textContent         = '1';
+  // ── State ─────────────────────────────────────────────────────────────────────
+  let currentFood = null;   // { id, name, basePrice, type }
+  let currentQty = 1;
 
-  buildToppings(currentFood.type);
-  updatePrice();
-  document.getElementById('modalBackdrop').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeModal() {
-  document.getElementById('modalBackdrop').classList.remove('open');
-  document.body.style.overflow = '';
-  currentFood = null;
-}
-
-function handleBackdropClick(e) {
-  if (e.target === document.getElementById('modalBackdrop')) closeModal();
-}
-
-function buildToppings(type) {
-  const grid     = document.getElementById('toppingGrid');
-  const relevant = ALL_TOPPINGS.filter(t => t.types.includes(type));
-  if (!relevant.length) {
-    grid.innerHTML = '<span style="color:var(--text-muted);font-size:.85rem;">Không có topping cho món này</span>';
-    return;
+  // ── Filter ────────────────────────────────────────────────────────────────────
+  function filterMenu(btn, type) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    let count = 0;
+    document.querySelectorAll('.food-tile').forEach(tile => {
+      const show = type === 'all' || tile.dataset.type === type;
+      tile.style.display = show ? '' : 'none';
+      if (show) count++;
+    });
+    document.getElementById('noResult').style.display = count ? 'none' : 'block';
   }
-  grid.innerHTML = relevant.map(t => `
-    <label class="topping-label" id="top-${t.key}" onclick="toggleTopping(this,'${t.key}')">
+
+  // ── Modal ─────────────────────────────────────────────────────────────────────
+  function openModal(tile) {
+    currentFood = {
+      id: Number(tile.dataset.id),
+      name: tile.dataset.name,
+      basePrice: Number(tile.dataset.price),
+      type: tile.dataset.type,
+    };
+    currentQty = 1;
+
+    document.getElementById('modalEmoji').textContent = EMOJI_MAP[currentFood.type] || '🍽';
+    document.getElementById('modalFoodName').textContent = currentFood.name;
+    document.getElementById('modalBasePrice').textContent = fmt(currentFood.basePrice) + 'đ / món';
+    document.getElementById('qtyVal').textContent = '1';
+
+    buildToppings(currentFood.type);
+    updatePrice();
+    document.getElementById('modalBackdrop').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('modalBackdrop').classList.remove('open');
+    document.body.style.overflow = '';
+    currentFood = null;
+  }
+
+  function handleBackdropClick(e) {
+    if (e.target === document.getElementById('modalBackdrop')) closeModal();
+  }
+
+  function buildToppings(type) {
+    const grid = document.getElementById('toppingGrid');
+    const relevant = ALL_TOPPINGS.filter(t => t.types.includes(type));
+    if (!relevant.length) {
+      grid.innerHTML = '<span style="color:var(--text-muted);font-size:.85rem;">Không có topping cho món này</span>';
+      return;
+    }
+    grid.innerHTML = relevant.map(t => `
+    <label class="topping-label" data-key="${t.key}">
       <input type="checkbox" value="${t.key}">
       <span class="topping-meta">
         <span class="topping-name">${t.label}</span>
@@ -225,98 +224,108 @@ function buildToppings(type) {
       </span>
     </label>
   `).join('');
-}
 
-function toggleTopping(label, key) {
-  label.classList.toggle('checked');
-  const cb = label.querySelector('input');
-  cb.checked = label.classList.contains('checked');
-  updatePrice();
-}
-
-function changeQty(delta) {
-  currentQty = Math.max(1, Math.min(20, currentQty + delta));
-  document.getElementById('qtyVal').textContent = currentQty;
-  updatePrice();
-}
-
-function updatePrice() {
-  if (!currentFood) return;
-  const checked = [...document.querySelectorAll('#toppingGrid input:checked')].map(i => i.value);
-  const extra   = checked.reduce((s, k) => {
-    const t = ALL_TOPPINGS.find(t => t.key === k);
-    return s + (t ? t.price : 0);
-  }, 0);
-  const total   = (currentFood.basePrice + extra) * currentQty;
-  document.getElementById('pricePreview').textContent = fmt(total) + 'đ';
-}
-
-// ── Add to cart ───────────────────────────────────────────────────────────────
-async function addToCart() {
-  if (!currentFood) return;
-  const btn       = document.getElementById('btnAddToCart');
-  btn.disabled    = true;
-  btn.textContent = 'Đang thêm…';
-
-  const toppingKeys = [...document.querySelectorAll('#toppingGrid input:checked')].map(i => i.value);
-
-  try {
-    const res  = await fetch('/cart/add', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ foodId: currentFood.id, quantity: currentQty, toppingKeys }),
+    // Add event listeners to topping labels
+    grid.querySelectorAll('.topping-label').forEach(label => {
+      label.addEventListener('click', function (e) {
+        e.preventDefault();
+        this.classList.toggle('checked');
+        const cb = this.querySelector('input');
+        cb.checked = this.classList.contains('checked');
+        updatePrice();
+      });
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Lỗi');
-
-    closeModal();
-    // Update cart badge in header
-    const badge = document.getElementById('cartCountBadge');
-    if (badge) badge.textContent = data.cart.totalQty;
-
-    showToast(`✅ Đã thêm ${currentFood.name} vào giỏ hàng!`);
-  } catch (err) {
-    showToast('❌ ' + err.message, true);
-  } finally {
-    btn.disabled    = false;
-    btn.innerHTML   = '<i class="bi bi-cart-plus me-1"></i>Thêm vào giỏ';
   }
-}
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function fmt(n) {
-  return new Intl.NumberFormat('vi-VN').format(n);
-}
+  function changeQty(delta) {
+    currentQty = Math.max(1, Math.min(20, currentQty + delta));
+    document.getElementById('qtyVal').textContent = currentQty;
+    updatePrice();
+  }
 
-function showToast(msg, isErr = false) {
-  const t      = document.getElementById('cart-toast');
-  t.textContent = msg;
-  t.style.background = isErr ? '#c62828' : '#1f2933';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
+  function updatePrice() {
+    if (!currentFood) return;
+    const checked = [...document.querySelectorAll('#toppingGrid input:checked')].map(i => i.value);
+    const extra = checked.reduce((s, k) => {
+      const t = ALL_TOPPINGS.find(t => t.key === k);
+      return s + (t ? t.price : 0);
+    }, 0);
+    const total = (currentFood.basePrice + extra) * currentQty;
+    document.getElementById('pricePreview').textContent = fmt(total) + 'đ';
+  }
+
+  // ── Add to cart ───────────────────────────────────────────────────────────────
+  async function addToCart() {
+    if (!currentFood) return;
+    const btn = document.getElementById('btnAddToCart');
+    btn.disabled = true;
+    btn.textContent = 'Đang thêm…';
+
+    const toppingKeys = [...document.querySelectorAll('#toppingGrid input:checked')].map(i => i.value);
+
+    try {
+      const res = await fetch('/cart/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ foodId: currentFood.id, quantity: currentQty, toppingKeys }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Lỗi');
+
+      const addedName = currentFood.name;
+      closeModal();
+      // Update cart badge in header
+      const badge = document.getElementById('cartCountBadge');
+      if (badge) {
+        badge.textContent = data.cart.totalQty;
+        badge.style.display = data.cart.totalQty > 0 ? '' : 'none';
+      }
+
+      showToast(`✅ Đã thêm ${addedName} vào giỏ hàng!`);
+    } catch (err) {
+      showToast('❌ ' + err.message, true);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-cart-plus me-1"></i>Thêm vào giỏ';
+    }
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────────
+  function fmt(n) {
+    return new Intl.NumberFormat('vi-VN').format(n);
+  }
+
+  function showToast(msg, isErr = false) {
+    const t = document.getElementById('cart-toast');
+    t.textContent = msg;
+    t.style.background = isErr ? '#c62828' : '#1f2933';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
 </script>
+
+<div id="auth-status" data-logged-in="{{#if authUser}}true{{else}}false{{/if}}"></div>
 
 <script>
   let currentFoodId = null;
   let selectedRating = 0;
-  const isLoggedIn = {{#if authUser}}true{{else}}false{{/if}};
+  const isLoggedIn = document.getElementById('auth-status').getAttribute('data-logged-in') === 'true';
 
   // Search (server-side)
   async function doSearch() {
-    const q        = document.getElementById('searchQ').value.trim();
+    const q = document.getElementById('searchQ').value.trim();
     const category = document.getElementById('searchCategory').value;
     const priceMin = document.getElementById('searchMin').value;
     const priceMax = document.getElementById('searchMax').value;
 
     const params = new URLSearchParams();
-    if (q)        params.append('q', q);
+    if (q) params.append('q', q);
     if (category) params.append('category', category);
     if (priceMin) params.append('priceMin', priceMin);
     if (priceMax) params.append('priceMax', priceMax);
 
     try {
-      const res  = await fetch('/menu/search?' + params.toString());
+      const res = await fetch('/menu/search?' + params.toString());
       const data = await res.json();
       const grid = document.getElementById('foodGrid');
 
@@ -350,12 +359,12 @@ function showToast(msg, isErr = false) {
           </div>
         </div>
       `).join('');
-    } catch(err) {
+    } catch (err) {
       alert('Lỗi tìm kiếm!');
     }
   }
 
-  document.getElementById('searchQ').addEventListener('keydown', function(e) {
+  document.getElementById('searchQ').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') doSearch();
   });
 
@@ -368,7 +377,7 @@ function showToast(msg, isErr = false) {
   }
 
   // Favorite
-  document.addEventListener('click', async function(e) {
+  document.addEventListener('click', async function (e) {
     const btn = e.target.closest('.btn-fav');
     if (!btn) return;
     e.stopPropagation();
@@ -381,17 +390,19 @@ function showToast(msg, isErr = false) {
       const data = await res.json();
       if (data.success) {
         btn.classList.toggle('active');
-        btn.textContent = btn.classList.contains('active') ? '💖' : '❤️';
+        const added = btn.classList.contains('active');
+        btn.textContent = added ? '💖' : '❤️';
+        showToast(added ? '💖 Đã thêm vào yêu thích!' : '💔 Đã xoá khỏi yêu thích!');
       } else {
-        alert(data.message || 'Lỗi!');
+        showToast('❌ ' + (data.message || 'Lỗi!'), true);
       }
-    } catch(err) {
+    } catch (err) {
       alert('Lỗi kết nối!');
     }
   });
 
   // Mở modal review
-  document.addEventListener('click', function(e) {
+  document.addEventListener('click', function (e) {
     const btn = e.target.closest('.btn-review-open');
     if (!btn) return;
     e.stopPropagation();
@@ -402,7 +413,7 @@ function showToast(msg, isErr = false) {
   });
 
   document.getElementById('btnCloseReview').addEventListener('click', closeReview);
-  document.getElementById('reviewModal').addEventListener('click', function(e) {
+  document.getElementById('reviewModal').addEventListener('click', function (e) {
     if (e.target === this) closeReview();
   });
 
@@ -426,27 +437,27 @@ function showToast(msg, isErr = false) {
       list.innerHTML = data.reviews.map(r => `
         <div class="review-item">
           <div class="review-meta">
-            <span class="review-user">Người dùng #${r.user_id}</span>
+            <span class="review-user">${r.user_name || ('Người dùng #' + r.user_id)}</span>
             <span class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
           </div>
           <div class="review-comment">${r.comment || ''}</div>
         </div>
       `).join('');
-    } catch(err) {
+    } catch (err) {
       list.innerHTML = '<p class="review-empty">Lỗi tải đánh giá.</p>';
     }
   }
 
-  document.querySelectorAll('#starSelect span').forEach(function(s) {
-    s.addEventListener('click', function() {
+  document.querySelectorAll('#starSelect span').forEach(function (s) {
+    s.addEventListener('click', function () {
       selectedRating = parseInt(this.dataset.star);
-      document.querySelectorAll('#starSelect span').forEach(function(x, i) {
+      document.querySelectorAll('#starSelect span').forEach(function (x, i) {
         x.classList.toggle('active', i < selectedRating);
       });
     });
   });
 
-  document.getElementById('btnSubmitReview').addEventListener('click', async function() {
+  document.getElementById('btnSubmitReview').addEventListener('click', async function () {
     if (!isLoggedIn) return alert('Vui lòng đăng nhập để đánh giá!');
     if (!selectedRating) return alert('Vui lòng chọn số sao!');
     const comment = document.getElementById('reviewComment').value.trim();
@@ -465,7 +476,7 @@ function showToast(msg, isErr = false) {
       } else {
         alert(data.message || 'Lỗi gửi đánh giá');
       }
-    } catch(err) {
+    } catch (err) {
       alert('Lỗi kết nối!');
     }
   });

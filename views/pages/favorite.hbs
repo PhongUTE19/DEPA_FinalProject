@@ -16,7 +16,7 @@
       <div class="food-tile-type">{{type}}</div>
       <div class="food-tile-name">{{name}}</div>
       <div class="food-tile-footer">
-       <span class="food-tile-price">{{base_price}}k</span>
+        <span class="food-tile-price">{{formatNumber base_price}}đ</span>
       </div>
       <button class="btn-remove-tile" onclick="removeFav({{id}}, this)">🗑️ Xoá khỏi yêu thích</button>
     </div>
@@ -31,6 +31,12 @@
   async function removeFav(foodId, btn) {
     const res = await fetch('/favorite/' + foodId, { method: 'DELETE' });
     const data = await res.json();
-    if (data.success) btn.closest('.food-card').remove();
+    if (data.success) {
+      btn.closest('.food-tile').remove();
+      // If no favorites left, reload to show empty state
+      if (!document.querySelectorAll('.food-tile').length) {
+        location.reload();
+      }
+    }
   }
 </script>

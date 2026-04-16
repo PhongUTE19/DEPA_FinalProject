@@ -142,6 +142,29 @@
         margin: 0;
         font-size: 1.6rem;
     }
+
+    .coupon-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        font-size: 0.85rem;
+    }
+
+    .coupon-card:hover {
+        border-color: #ff6b35;
+        background: #fff5f0;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(255, 107, 53, 0.15);
+    }
+
+    .coupon-card:active {
+        border-color: #ff6b35;
+        background: #ffe8dc;
+    }
 </style>
 {{/fillSection}}
 
@@ -166,9 +189,31 @@
                     <span class="text-muted">Mã đơn hàng</span>
                     <span class="fw-medium">#{{orderId}}</span>
                 </div>
+
+                {{!-- Danh sách món trong đơn --}}
+                {{#if orderItems}}
+                <div class="mb-3" style="border:1px solid #eee; border-radius:10px; padding:12px;">
+                    <div class="fw-semibold mb-2" style="font-size:0.9rem;"><i class="bi bi-bag-check me-1"></i>Các món
+                        đã đặt</div>
+                    {{#each orderItems}}
+                    <div class="d-flex justify-content-between align-items-center py-1"
+                        style="font-size:0.88rem; border-bottom:1px solid #f5f5f5;">
+                        <div>
+                            <span class="fw-medium">{{name}} × {{quantity}}</span>
+                            {{#if toppings.length}}
+                            <div style="font-size:0.75rem; color:#888;">{{#each toppings}}{{this}}{{#unless @last}},
+                                {{/unless}}{{/each}}</div>
+                            {{/if}}
+                        </div>
+                        <span class="fw-semibold" style="color:#ff6b35;">{{formatNumber subtotal}}đ</span>
+                    </div>
+                    {{/each}}
+                </div>
+                {{/if}}
+
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">Tạm tính</span>
-                    <span class="fw-medium" id="subtotalDisplay">Đang tải...</span>
+                    <span class="fw-medium" id="subtotalDisplay">{{formatCurrency totalAmount}}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2 discount-row" id="discountRow">
                     <span><i class="bi bi-tag-fill me-1"></i>Giảm giá</span>
@@ -177,24 +222,41 @@
                 <hr>
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="fw-semibold">Tổng thanh toán</span>
-                    <span class="total-amount" id="displayAmount">Đang tải...</span>
+                    <span class="total-amount" id="displayAmount">{{formatCurrency totalAmount}}</span>
                 </div>
             </div>
 
             {{!-- Coupon Section --}}
             <div class="coupon-section mb-4">
                 <h6 class="fw-semibold mb-2"><i class="bi bi-ticket-perforated me-1"></i>Mã giảm giá</h6>
-                <div class="coupon-input-group">
-                    <input type="text" id="couponInput" placeholder="Nhập mã giảm giá...">
-                    <button type="button" class="btn-coupon" id="btnApplyCoupon">
-                        Áp dụng
-                    </button>
+
+                {{#if availableCoupons.length}}
+                <div style="margin-bottom:12px;">
+                    <div class="text-muted" style="font-size:0.9rem; margin-bottom:8px;">Chọn mã giảm giá khả dụng:
+                    </div>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:8px;">
+                        {{#each availableCoupons}}
+                        <button type="button" class="coupon-card"
+                            onclick="applyCouponQuick('{{code}}', {{discountAmount}}, this)">
+                            <div style="font-weight:600; color:#ff6b35; font-size:0.9rem;">{{code}}</div>
+                            <div style="font-size:0.75rem; color:#666;">Giảm {{formatNumber discountAmount}}đ</div>
+                        </button>
+                        {{/each}}
+                    </div>
                 </div>
+                {{/if}}
+
+                <div style="margin-top:12px; padding-top:12px; border-top:1px solid #eee;">
+                    <div class="text-muted" style="font-size:0.9rem; margin-bottom:8px;">Hoặc nhập mã khác:</div>
+                    <div class="coupon-input-group">
+                        <input type="text" id="couponInput" placeholder="Nhập mã giảm giá...">
+                        <button type="button" class="btn-coupon" id="btnApplyCoupon">
+                            Áp dụng
+                        </button>
+                    </div>
+                </div>
+
                 <div class="coupon-result" id="couponResult"></div>
-                <a href="/coupon/available" class="d-inline-block mt-2 text-decoration-none"
-                    style="font-size:0.82rem; color:#ff6b35;">
-                    <i class="bi bi-collection me-1"></i>Xem mã giảm giá khả dụng
-                </a>
             </div>
 
             {{!-- Payment Methods --}}
@@ -252,6 +314,40 @@
         document.getElementById('subtotalDisplay').textContent = fmt(originalAmount);
         document.getElementById('displayAmount').textContent = fmt(finalAmount);
         document.getElementById('totalAmountInput').value = finalAmount;
+    }
+
+    async function applyCouponQuick(code, discount, btn) {
+        const resultEl = document.getElementById('couponResult');
+        try {
+            // Verify coupon server-side to ensure it's still valid
+            const res = await fetch('/coupon/apply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, orderAmount: originalAmount }),
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                discountAmount = data.discount;
+                document.getElementById('couponCodeInput').value = code;
+                document.getElementById('discountRow').classList.add('show');
+                document.getElementById('discountDisplay').textContent = '-' + fmt(data.discount) + 'đ';
+                document.getElementById('couponInput').value = '';
+                resultEl.className = 'coupon-result success';
+                resultEl.innerHTML = '<i class="bi bi-check-circle me-1"></i>Đã áp dụng mã <strong>' + code.toUpperCase() + '</strong>: giảm ' + fmt(data.discount) + 'đ';
+                updateDisplay();
+                // Highlight the selected coupon card
+                document.querySelectorAll('.coupon-card').forEach(c => c.style.opacity = '0.6');
+                if (btn) btn.style.opacity = '1';
+            } else {
+                resultEl.className = 'coupon-result error';
+                resultEl.innerHTML = '<i class="bi bi-x-circle me-1"></i>' + (data.message || 'Không thể áp dụng mã giảm giá');
+            }
+        } catch (err) {
+            console.error('Error applying coupon:', err);
+            resultEl.className = 'coupon-result error';
+            resultEl.innerHTML = '<i class="bi bi-x-circle me-1"></i>Lỗi: ' + err.message;
+        }
     }
 
     document.getElementById('btnApplyCoupon')?.addEventListener('click', async () => {
