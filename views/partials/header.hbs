@@ -20,7 +20,7 @@
 
             <!-- Right side -->
             <div class="d-flex align-items-center gap-2">
-
+                {{#if isAuthenticated}}
                 <!-- Cart icon -->
                 <a href="/cart" class="btn btn-outline-success position-relative" title="Giỏ hàng">
                     <i class="bi bi-cart3"></i>
@@ -38,10 +38,7 @@
                 </a>
                 <a href="/notification" class="btn btn-outline-success position-relative" title="Giỏ hàng">
                     <i class="bi bi-bell"></i>
-
                 </a>
-
-                {{#if isAuthenticated}}
                 <div class="dropdown">
                     <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
@@ -55,8 +52,7 @@
                         </li>
                         <li>
                             <a class="dropdown-item" href="/coupon/available">
-                                <i class="bi bi-ticket-perforated"></i>
-                                Mã giảm giá
+                                <i class="bi bi-ticket-perforated me-2"></i>Mã giảm giá
                             </a>
                         </li>
                         <li>
@@ -69,12 +65,6 @@
                                 <i class="bi bi-receipt me-2"></i>Đơn hàng của tôi
                             </a>
                         </li>
-                        <li>
-                            <a class="dropdown-item" href="/account/change-password">
-                                <i class="bi bi-key"></i>
-                                Đổi mật khẩu
-                            </a>
-                        </li>
 
                         {{!-- {{#if isStaff}}
                         <li>
@@ -85,26 +75,17 @@
                         </li> --}}
                         {{#if (eq authUser.role "MANAGER")}}
                         <li>
-                            <a class="dropdown-item" href="/coupon/create">
-                                <i class="bi bi-plus-circle"></i>
-                                Tạo mã giảm giá
-                            </a>
-                        </li>
-                        <li>
                             <a class="dropdown-item" href="/coupon/manage">
                                 <i class="bi bi-gear"></i>
                                 Quản lý coupon
                             </a>
                         </li>
-                        <li>
+                        {{!-- <li>
                             <a class="dropdown-item" href="/notification/kitchen">
                                 <i class="bi bi-fire"></i>
                                 Thông báo bếp
                             </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
+                        </li> --}}
                         {{/if}}
 
                         <li>

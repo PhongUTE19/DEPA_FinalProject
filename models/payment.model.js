@@ -1,9 +1,3 @@
-/**
- * PaymentModel
- * Schema: payments(id SERIAL, order_id int4, user_id int4, method, transaction_id,
- *                  amount, status, paid_at, failure_reason, created_at)
- * order_id là integer (khớp với orders.id SERIAL int4).
- */
 import db from '../config/database.js';
 
 const TABLE = 'payments';

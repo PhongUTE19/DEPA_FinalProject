@@ -1,12 +1,3 @@
-/**
- * CouponModel
- * Schema: coupons(id SERIAL, code VARCHAR UNIQUE, discount_type VARCHAR,
- *                 discount_value NUMERIC, min_order_amount NUMERIC,
- *                 max_uses INT, used_count INT, expires_at TIMESTAMP,
- *                 is_active BOOLEAN, created_at TIMESTAMP)
- *
- * discount_type: 'PERCENT' | 'FIXED'
- */
 import db from '../config/database.js';
 
 const TABLE = 'coupons';

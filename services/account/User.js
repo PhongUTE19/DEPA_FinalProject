@@ -1,13 +1,12 @@
 /**
  * User Domain Object
  *
- * Role enum: CUSTOMER | STAFF | CHEF | MANAGER
+ * Role enum: CUSTOMER | STAFF | MANAGER
  * Cột 'permission' đã bị xoá, chỉ còn 'role' (text) trên DB.
  */
 export const ROLES = Object.freeze({
     CUSTOMER: 'CUSTOMER',
     STAFF:    'STAFF',
-    CHEF:     'CHEF',
     MANAGER:  'MANAGER',
 });
 
@@ -24,9 +23,8 @@ export class User {
 
     isCustomer()    { return this.role === ROLES.CUSTOMER; }
     isStaff()       { return this.role === ROLES.STAFF; }
-    isChef()        { return this.role === ROLES.CHEF; }
     isManager()     { return this.role === ROLES.MANAGER; }
-    isStaffOrAbove(){ return [ROLES.STAFF, ROLES.CHEF, ROLES.MANAGER].includes(this.role); }
+    isStaffOrAbove(){ return [ROLES.STAFF, ROLES.MANAGER].includes(this.role); }
 
     static fromRow(row) {
         if (!row) return null;

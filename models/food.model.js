@@ -1,10 +1,3 @@
-/**
- * FoodModel — tầng DB duy nhất cho bảng 'foods'
- *
- * Chỉ làm việc với raw DB rows.
- * KHÔNG import bất kỳ domain class nào.
- * KHÔNG gọi từ Controller — phải qua FoodService.
- */
 import db from '../config/database.js';
 
 const TABLE = 'foods';

@@ -1,14 +1,3 @@
-/**
- * Auth Middleware
- *
- * requireAuth     — phải đăng nhập
- * requireRole     — phải có đúng role (hoặc MANAGER luôn qua)
- * requireStaff    — STAFF | CHEF | MANAGER
- * requireManager  — chỉ MANAGER
- *
- * Session lưu authUser là User.toJSON() → có field `role` (UPPERCASE string).
- */
-
 const requireAuth = (req, res, next) => {
     if (req.session?.isAuthenticated && req.session?.authUser) {
         return next();
@@ -20,7 +9,7 @@ const requireAuth = (req, res, next) => {
 /**
  * Factory: tạo middleware kiểm tra role cụ thể.
  * MANAGER luôn có quyền.
- * @param {...string} allowedRoles - 'CUSTOMER' | 'STAFF' | 'CHEF' | 'MANAGER'
+ * @param {...string} allowedRoles - 'CUSTOMER' | 'STAFF' | 'MANAGER'
  */
 const requireRole = (...allowedRoles) => (req, res, next) => {
     if (!req.session?.isAuthenticated || !req.session?.authUser) {
@@ -34,7 +23,7 @@ const requireRole = (...allowedRoles) => (req, res, next) => {
     return res.status(403).render('pages/error/403');
 };
 
-const requireStaff   = requireRole('STAFF', 'CHEF', 'MANAGER');
+const requireStaff   = requireRole('STAFF', 'MANAGER');
 const requireManager = requireRole('MANAGER');
 
 export default {

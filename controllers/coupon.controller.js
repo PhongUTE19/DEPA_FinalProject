@@ -1,9 +1,3 @@
-/**
- * CouponController
- *
- * Chỉ nhận req → gọi CouponService → gọi .toJSON() → trả res.
- * KHÔNG import CouponModel trực tiếp.
- */
 import { CouponService } from '../services/coupon/CouponService.js';
 
 const CouponController = {

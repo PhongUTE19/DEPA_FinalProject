@@ -1,6 +1,3 @@
-/**
- * ReviewController
- */
 import { ReviewService } from '../services/review/ReviewService.js';
 
 const ReviewController = {

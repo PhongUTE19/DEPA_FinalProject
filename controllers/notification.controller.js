@@ -1,9 +1,3 @@
-/**
- * NotificationController
- *
- * Chỉ nhận req → gọi NotificationService → gọi .toJSON() → trả res.
- * KHÔNG import NotificationModel trực tiếp.
- */
 import { NotificationService } from '../services/notification/NotificationService.js';
 
 const NotificationController = {
@@ -29,7 +23,7 @@ const NotificationController = {
         }
     },
 
-    // GET /notification/kitchen — trang thông báo bếp (Staff / Chef / Manager)
+    // GET /notification/kitchen — trang thông báo bếp (Staff / Manager)
     async showKitchenNotifications(req, res, next) {
         try {
             const notifications = await NotificationService.findKitchenNotifications();
@@ -58,7 +52,7 @@ const NotificationController = {
             if (notification.type === 'USER' && notification.userId !== userId) {
                 return res.status(403).render('pages/error/403');
             }
-            if (notification.type === 'KITCHEN' && !['STAFF', 'CHEF', 'MANAGER'].includes(role)) {
+            if (notification.type === 'KITCHEN' && !['STAFF', 'MANAGER'].includes(role)) {
                 return res.status(403).render('pages/error/403');
             }
 
@@ -98,11 +92,6 @@ const NotificationController = {
         } catch (err) {
             next(err);
         }
-    },
-
-    // POST /notification/trigger — test hook (dev only)
-    async triggerEvent(req, res) {
-        return res.json({ ok: true, message: 'Events are triggered by OrderService / PaymentService via Observer' });
     },
 };
 
