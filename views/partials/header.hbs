@@ -3,6 +3,7 @@
         <a class="navbar-brand" href="/">Nhà Hàng Nhóm 08</a>
 
 
+
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -66,18 +67,31 @@
                             </a>
                         </li>
 
-                        {{!-- {{#if isStaff}}
+                        {{#if isStaff}}
                         <li>
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <hr class="dropdown-divider">
-                        </li> --}}
+                            <a class="dropdown-item text-warning fw-semibold" href="/staff">
+                                <i class="bi bi-clipboard-list me-2"></i>Quản lý đơn hàng
+                            </a>
+                        </li>
+                        {{/if}}
                         {{#if (eq authUser.role "MANAGER")}}
                         <li>
                             <a class="dropdown-item" href="/coupon/manage">
                                 <i class="bi bi-gear"></i>
                                 Quản lý coupon
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item text-danger fw-semibold" href="/manager/foods">
+                                <i class="bi bi-egg-fried me-2"></i>Quản lý món ăn
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item text-danger fw-semibold" href="/manager/staff">
+                                <i class="bi bi-people me-2"></i>Quản lý nhân viên
                             </a>
                         </li>
                         {{!-- <li>

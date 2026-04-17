@@ -19,7 +19,6 @@ const FoodModel = {
         return base().whereIn('id', normalized);
     },
 
-    /** Manager: thêm món */
     async create({ name, basePrice, type = 'food', isAvailable = true, imageUrl = null, description = null }) {
         const [row] = await base()
             .insert({
@@ -35,7 +34,6 @@ const FoodModel = {
         return row;
     },
 
-    /** Manager: sửa món */
     async update(id, { name, basePrice, type, isAvailable, imageUrl, description }) {
         const fields = {};
         if (name        !== undefined) fields.name         = name;
@@ -54,19 +52,42 @@ const FoodModel = {
         return row;
     },
 
-    /** Manager: xoá món */
     async remove(id) {
         return base().where({ id: Number(id) }).delete();
     },
-    /* tìm kiếm món ăn cho khách hàng */
+
     async search({ q, category, priceMin, priceMax }) {
-    let query = base().where({ is_available: true });
-    if (q)        query = query.whereILike('name', `%${q}%`);
-    if (category) query = query.where({ type: category });
-    if (priceMin) query = query.where('base_price', '>=', Number(priceMin));
-    if (priceMax) query = query.where('base_price', '<=', Number(priceMax));
-    return query.orderBy('type').orderBy('name');
-},
+        let query = base().where({ is_available: true });
+        if (q)        query = query.whereILike('name', `%${q}%`);
+        if (category) query = query.where({ type: category });
+        if (priceMin) query = query.where('base_price', '>=', Number(priceMin));
+        if (priceMax) query = query.where('base_price', '<=', Number(priceMax));
+        return query.orderBy('type').orderBy('name');
+    },
+
+    /** Landing page: món nổi bật */
+    async getFeatured(limit = 6) {
+        return base()
+            .where({ is_available: true })
+            .orderByRaw('COALESCE(sold_count, 0) DESC, id DESC')
+            .limit(limit);
+    },
+
+    /** Landing page: bán chạy nhất */
+    async getBestSellers(limit = 6) {
+        return base()
+            .where({ is_available: true })
+            .orderByRaw('COALESCE(sold_count, 0) DESC')
+            .limit(limit);
+    },
+
+    /** Landing page: món mới nhất */
+    async getNewest(limit = 6) {
+        return base()
+            .where({ is_available: true })
+            .orderBy('created_at', 'desc')
+            .limit(limit);
+    },
 };
 
 export default FoodModel;
