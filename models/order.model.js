@@ -5,7 +5,6 @@ const base  = () => db(TABLE);
 
 const OrderModel = {
 
-    // id KHÔNG truyền vào — để DB tự sinh SERIAL
     async create({ userId, items, status, totalAmount }) {
         const [row] = await base()
             .insert({
@@ -20,7 +19,6 @@ const OrderModel = {
     },
 
     async findById(id) {
-        // id là integer
         return base().where({ id: Number(id) }).first();
     },
 

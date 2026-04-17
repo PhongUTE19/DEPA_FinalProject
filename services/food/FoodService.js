@@ -1,5 +1,5 @@
 import FoodModel from '../../models/food.model.js';
-import { Food }  from './Food.js';
+import { Food } from './Food.js';
 import { FoodFactory } from './FoodFactory.js';
 import { applyToppings } from './ToppingDecorator.js';
 
@@ -40,7 +40,7 @@ class FoodServiceClass {
     }
 
     async getByIds(ids = []) {
-        const rows  = await FoodModel.getByIds(ids);
+        const rows = await FoodModel.getByIds(ids);
         const foods = rows.map(row => FoodFactory.create(Food.fromRow(row)));
         return new Map(foods.map(f => [Number(f.id), f]));
     }

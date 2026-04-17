@@ -1,10 +1,4 @@
-/**
- * OrderSubject — Observer Pattern (Subject / Publisher)
- *
- * Singleton export — mọi service dùng chung instance này.
- * OrderService và PaymentService gọi orderSubject.notify(event, data).
- */
-import { UserNotifier }    from './UserNotifier.js';
+import { UserNotifier } from './UserNotifier.js';
 import { KitchenNotifier } from './KitchenNotifier.js';
 
 export class OrderSubject {
@@ -12,7 +6,7 @@ export class OrderSubject {
         this._observers = [];
     }
 
-    subscribe(observer)   { this._observers.push(observer); }
+    subscribe(observer) { this._observers.push(observer); }
     unsubscribe(observer) { this._observers = this._observers.filter(o => o !== observer); }
 
     notify(event, data) {

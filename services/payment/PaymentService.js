@@ -1,20 +1,3 @@
-/**
- * PaymentService
- *
- * Điểm vào duy nhất cho mọi thao tác Payment.
- * Controller không được gọi PaymentModel / PaymentAdapter trực tiếp.
- *
- * Luồng processPayment:
- *   1. Lấy Order domain qua OrderService
- *   2. Kiểm tra đơn chưa thanh toán
- *   3. Kiểm tra trạng thái đơn hợp lệ (PENDING hoặc CONFIRMED)
- *   4. Tạo Payment domain (PENDING)
- *   5. PaymentAdapter.process() → Strategy → kết quả
- *   6. markSuccess() hoặc markFailed() trên domain
- *   7. Lưu qua PaymentModel (plain data)
- *   8. Phát sự kiện ORDER_PAID qua Observer
- *   9. Trả Payment domain về Controller
- */
 import PaymentModel from '../../models/payment.model.js';
 import { Payment, PAYMENT_STATUS } from './Payment.js';
 import { PaymentAdapter } from './PaymentAdapter.js';

@@ -20,12 +20,10 @@ const UserModel = {
     },
 
     async add({ username, password, name, email, dob = null, role = 'CUSTOMER' }) {
-        // Không có cột permission nữa
         return base().insert({ username, password, name, email, dob, role });
     },
 
     async edit(id, fields) {
-        // Lọc bỏ 'permission' nếu ai đó vô tình truyền vào — cột đã xoá
         const { permission: _drop, ...safeFields } = fields;
         return base().where({ id: Number(id) }).update(safeFields);
     },

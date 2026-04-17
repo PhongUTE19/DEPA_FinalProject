@@ -1,13 +1,7 @@
-/**
- * UserNotifier — Observer Pattern (concrete observer)
- *
- * Lắng nghe sự kiện từ OrderSubject.
- * Gửi thông báo loại 'USER' → NotificationService (không gọi Model trực tiếp).
- */
-import { IObserver }                    from './IObserver.js';
-import { NotificationService }          from './NotificationService.js';
-import { NotificationMessageFactory }   from './NotificationMessageFactory.js';
-import { NOTIFICATION_TYPE }            from './Notification.js';
+import { IObserver } from './IObserver.js';
+import { NotificationService } from './NotificationService.js';
+import { NotificationMessageFactory } from './NotificationMessageFactory.js';
+import { NOTIFICATION_TYPE } from './Notification.js';
 
 export class UserNotifier extends IObserver {
     update(event, data) {
@@ -18,9 +12,9 @@ export class UserNotifier extends IObserver {
         if (!message) return;
 
         NotificationService.createRecord({
-            userId:  data.userId,
+            userId: data.userId,
             orderId: data.orderId ?? null,
-            type:    NOTIFICATION_TYPE.USER,
+            type: NOTIFICATION_TYPE.USER,
             event,
             message,
         }).catch(err => console.error('[UserNotifier] DB error:', err));

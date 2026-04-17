@@ -1,15 +1,3 @@
-/**
- * ToppingDecorator — Decorator Pattern
- *
- * Bọc Food domain object để thêm topping.
- * KHÔNG nhận raw DB row — chỉ nhận Food domain (hoặc decorator khác).
- *
- * Cách dùng:
- *   const food = FoodFactory.create(Food.fromRow(row));
- *   const result = applyToppings(food, { extraCheese: true, spicy: true });
- *   result.toJSON(); // → { price: tổng, toppings: [...] }
- */
-
 class ToppingDecorator {
     constructor(food) {
         this._food = food;
@@ -89,11 +77,6 @@ class NoSugar extends ToppingDecorator {
     getToppings() { return [...this._food.getToppings(), 'Không Đường']; }
 }
 
-// ===== Helper áp dụng nhiều topping liên tiếp =====
-
-/**
- *                             extraVeggies, noDressing, extraIce, noSugar }
- */
 export function applyToppings(food, options = {}) {
     let result = food;
     if (options.extraCheese) result = new ExtraCheese(result);

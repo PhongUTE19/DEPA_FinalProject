@@ -1,19 +1,8 @@
-/**
- * Order Domain Object — State Pattern
- *
- * id: number (integer, do DB sinh — SERIAL)
- *   Trước khi lưu DB: id = null
- *   Sau khi lưu DB:   id = số nguyên từ DB
- *
- * items: OrderItem[]
- *   { foodId, quantity, unitPrice, toppings[], subtotal }
- *   unitPrice là snapshot tại thời điểm đặt — không đổi dù Food thay đổi giá sau.
- */
 import { PendingState, restoreState } from './OrderState.js';
 
 export class Order {
     constructor({ id = null, userId = null, items = [], createdAt = null }) {
-        this.id = id;       // null trước khi INSERT, integer sau khi INSERT
+        this.id = id;
         this.userId = userId;
         this.items = [];
         this.createdAt = createdAt;
@@ -23,8 +12,6 @@ export class Order {
             this._pushItem(item);
         }
     }
-
-    // ── Items ──────────────────────────────────────────────────────────────
 
     _pushItem(item) {
         const unitPrice = Number(item.unitPrice ?? item.price ?? 0);
@@ -45,15 +32,11 @@ export class Order {
         return this.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
     }
 
-    // ── State ──────────────────────────────────────────────────────────────
-
     setState(state) { this.state = state; }
     nextState() { this.state.next(); }
     cancelOrder() { this.state.cancel(); }
     getStatus() { return this.state.getStatus(); }
     restoreFromStatus(status) { restoreState(this, status); }
-
-    // ── Serialization ──────────────────────────────────────────────────────
 
     toJSON() {
         return {

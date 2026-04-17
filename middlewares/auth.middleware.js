@@ -6,11 +6,6 @@ const requireAuth = (req, res, next) => {
     return res.redirect('/account/signin');
 };
 
-/**
- * Factory: tạo middleware kiểm tra role cụ thể.
- * MANAGER luôn có quyền.
- * @param {...string} allowedRoles - 'CUSTOMER' | 'STAFF' | 'MANAGER'
- */
 const requireRole = (...allowedRoles) => (req, res, next) => {
     if (!req.session?.isAuthenticated || !req.session?.authUser) {
         req.session.retUrl = req.originalUrl;

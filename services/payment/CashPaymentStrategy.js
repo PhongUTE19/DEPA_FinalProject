@@ -5,11 +5,11 @@ export class CashPaymentStrategy extends IPaymentStrategy {
 
     async pay({ orderId, totalAmount }) {
         return {
-            success:       true,
+            success: true,
             transactionId: `CASH-${Date.now()}-${orderId}`,
-            message:       'Thanh toán tiền mặt khi nhận hàng',
-            method:        'cash',
-            amount:        totalAmount,
+            message: 'Thanh toán tiền mặt khi nhận hàng',
+            method: 'cash',
+            amount: totalAmount,
         };
     }
 }

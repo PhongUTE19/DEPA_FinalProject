@@ -1,4 +1,3 @@
-
 import FoodModel from '../../models/food.model.js';
 import { Food } from '../food/Food.js';
 import { applyToppings } from '../food/ToppingDecorator.js';

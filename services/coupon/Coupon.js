@@ -1,11 +1,3 @@
-/**
- * Coupon Domain Object
- *
- * discount_type: 'PERCENT' | 'FIXED'
- * - PERCENT: giảm theo % tổng đơn
- * - FIXED: giảm số tiền cố định
- */
-
 export const DISCOUNT_TYPE = Object.freeze({
     PERCENT: 'PERCENT',
     FIXED: 'FIXED',
@@ -36,7 +28,6 @@ export class Coupon {
         this.createdAt = createdAt;
     }
 
-    /** Kiểm tra coupon có hợp lệ không */
     isValid(orderAmount = 0) {
         if (!this.isActive) return { valid: false, reason: 'Mã giảm giá không còn hoạt động' };
         if (this.expiresAt && new Date(this.expiresAt) < new Date()) {
@@ -51,7 +42,6 @@ export class Coupon {
         return { valid: true };
     }
 
-    /** Tính số tiền được giảm */
     calculateDiscount(orderAmount) {
         const { valid } = this.isValid(orderAmount);
         if (!valid) return 0;
@@ -59,7 +49,6 @@ export class Coupon {
         if (this.discountType === DISCOUNT_TYPE.PERCENT) {
             return Math.round(orderAmount * this.discountValue / 100);
         }
-        // FIXED
         return Math.min(this.discountValue, orderAmount);
     }
 

@@ -1,9 +1,3 @@
-/**
- * StaffController
- *
- * Dành cho role STAFF (và MANAGER kế thừa).
- * Xem và cập nhật trạng thái tất cả đơn hàng.
- */
 import { OrderService } from '../services/order/OrderService.js';
 
 export const StaffController = {

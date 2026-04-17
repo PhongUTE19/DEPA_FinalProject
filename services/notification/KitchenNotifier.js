@@ -1,13 +1,7 @@
-/**
- * KitchenNotifier — Observer Pattern (concrete observer)
- *
- * Lắng nghe sự kiện từ OrderSubject.
- * Gửi thông báo loại 'KITCHEN' → NotificationService (không gọi Model trực tiếp).
- */
-import { IObserver }                    from './IObserver.js';
-import { NotificationService }          from './NotificationService.js';
-import { NotificationMessageFactory }   from './NotificationMessageFactory.js';
-import { NOTIFICATION_TYPE }            from './Notification.js';
+import { IObserver } from './IObserver.js';
+import { NotificationService } from './NotificationService.js';
+import { NotificationMessageFactory } from './NotificationMessageFactory.js';
+import { NOTIFICATION_TYPE } from './Notification.js';
 
 export class KitchenNotifier extends IObserver {
     update(event, data) {
@@ -15,9 +9,9 @@ export class KitchenNotifier extends IObserver {
         if (!message) return;
 
         NotificationService.createRecord({
-            userId:  null,                      // Thông báo bếp không gắn userId
+            userId: null,
             orderId: data.orderId ?? null,
-            type:    NOTIFICATION_TYPE.KITCHEN,
+            type: NOTIFICATION_TYPE.KITCHEN,
             event,
             message,
         }).catch(err => console.error('[KitchenNotifier] DB error:', err));

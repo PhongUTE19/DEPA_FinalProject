@@ -5,11 +5,11 @@ export class MomoPaymentStrategy extends IPaymentStrategy {
 
     async pay({ orderId, totalAmount }) {
         return {
-            success:       true,
+            success: true,
             transactionId: `MOMO-${Date.now()}-${orderId}`,
-            message:       'Thanh toán MoMo thành công',
-            method:        'momo',
-            amount:        totalAmount,
+            message: 'Thanh toán MoMo thành công',
+            method: 'momo',
+            amount: totalAmount,
         };
     }
 }

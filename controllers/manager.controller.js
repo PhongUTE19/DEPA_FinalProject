@@ -1,16 +1,8 @@
-/**
- * ManagerController
- *
- * Dành cho role MANAGER.
- * Kế thừa tất cả quyền của Staff + quản lý món ăn + quản lý nhân viên.
- */
 import { FoodService } from '../services/food/FoodService.js';
 import UserModel       from '../models/user.model.js';
 import bcrypt          from 'bcryptjs';
 
 export const ManagerController = {
-
-    // ── Món ăn ────────────────────────────────────────────────────────────
 
     // GET /manager/foods — danh sách món ăn
     async showFoodsPage(req, res, next) {
@@ -63,8 +55,6 @@ export const ManagerController = {
             next(err);
         }
     },
-
-    // ── Nhân viên ─────────────────────────────────────────────────────────
 
     // GET /manager/staff — danh sách nhân viên
     async showStaffPage(req, res, next) {

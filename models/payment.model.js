@@ -8,7 +8,7 @@ const PaymentModel = {
     async create({ orderId, userId, method, transactionId, amount, status, paidAt, failureReason }) {
         const [row] = await base()
             .insert({
-                order_id:       Number(orderId),        // integer
+                order_id:       Number(orderId),
                 user_id:        userId == null ? null : Number(userId),
                 method:         method ?? null,
                 transaction_id: transactionId ?? null,

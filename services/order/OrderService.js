@@ -1,20 +1,8 @@
-/**
- * OrderService — Facade Pattern
- *
- * Điểm vào duy nhất cho mọi thao tác Order.
- * Controller chỉ gọi OrderService.
- *
- * Lưu ý về id:
- *   orders.id là SERIAL (int4) — DB tự sinh.
- *   Sau OrderModel.create(), id được gán từ row trả về.
- */
 import { Order } from './Order.js';
 import OrderModel from '../../models/order.model.js';
 import FoodModel from '../../models/food.model.js';
 import orderSubject from '../notification/OrderSubject.js';
 import { ORDER_STATUS } from './OrderState.js';
-
-// ── Helpers ────────────────────────────────────────────────────────────────
 
 function rowToOrder(row) {
     const rawItems = typeof row.items === 'string'
@@ -22,7 +10,7 @@ function rowToOrder(row) {
         : (row.items ?? []);
 
     const order = new Order({
-        id: row.id,          // integer từ DB
+        id: row.id,
         userId: row.user_id,
         items: rawItems,
         createdAt: row.created_at,
@@ -45,8 +33,6 @@ function rowToListItem(row) {
     };
 }
 
-// ── Service ────────────────────────────────────────────────────────────────
-
 export const OrderService = {
 
     async listOrdersForView({ limit = 80, userId } = {}) {
@@ -65,14 +51,12 @@ export const OrderService = {
             throw new Error('Items array is required and must not be empty');
         }
 
-        // 1. Lấy giá từ DB — không tin giá client gửi lên
         const foodIds = [...new Set(items.map(i => Number(i.foodId)).filter(Number.isFinite))];
         const rows = await FoodModel.getByIds(foodIds);
         const priceMap = new Map(
             rows.map(r => [Number(r.id), Number(r.base_price ?? r.basePrice ?? 0)])
         );
 
-        // 2. Build Order domain (id = null, chưa lưu DB)
         const order = new Order({ userId });
         for (const raw of items) {
             const foodId = Number(raw.foodId);
@@ -90,7 +74,6 @@ export const OrderService = {
             });
         }
 
-        // 3. Lưu DB — id do DB sinh (SERIAL), gán lại vào domain object
         const savedRow = await OrderModel.create({
             userId: order.userId,
             items: order.items,
@@ -100,7 +83,6 @@ export const OrderService = {
         order.id = savedRow.id;          // gán integer id từ DB
         order.createdAt = savedRow.created_at;
 
-        // 4. Observer
         orderSubject.notify('ORDER_CREATED', { orderId: order.id, userId: order.userId });
 
         return order;

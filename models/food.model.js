@@ -65,7 +65,6 @@ const FoodModel = {
         return query.orderBy('type').orderBy('name');
     },
 
-    /** Landing page: món nổi bật */
     async getFeatured(limit = 6) {
         return base()
             .where({ is_available: true })
@@ -73,7 +72,6 @@ const FoodModel = {
             .limit(limit);
     },
 
-    /** Landing page: bán chạy nhất */
     async getBestSellers(limit = 6) {
         return base()
             .where({ is_available: true })
@@ -81,7 +79,6 @@ const FoodModel = {
             .limit(limit);
     },
 
-    /** Landing page: món mới nhất */
     async getNewest(limit = 6) {
         return base()
             .where({ is_available: true })
