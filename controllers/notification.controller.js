@@ -1,9 +1,3 @@
-/**
- * NotificationController
- *
- * Chỉ nhận req → gọi NotificationService → gọi .toJSON() → trả res.
- * KHÔNG import NotificationModel trực tiếp.
- */
 import { NotificationService } from '../services/notification/NotificationService.js';
 
 const NotificationController = {
@@ -98,11 +92,6 @@ const NotificationController = {
         } catch (err) {
             next(err);
         }
-    },
-
-    // POST /notification/trigger — test hook (dev only)
-    async triggerEvent(req, res) {
-        return res.json({ ok: true, message: 'Events are triggered by OrderService / PaymentService via Observer' });
     },
 };
 

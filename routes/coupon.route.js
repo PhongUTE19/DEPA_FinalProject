@@ -4,7 +4,6 @@ import authMiddleware from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-// Danh sách mã giảm giá khả dụng (phải đăng nhập)
 router.get('/available', authMiddleware.requireAuth, CouponController.showAvailableCoupons);
 
 // Áp dụng mã giảm giá (JSON API, phải đăng nhập)

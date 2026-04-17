@@ -1,10 +1,3 @@
-/**
- * NotificationModel
- * Schema: notifications(id SERIAL, user_id int4, order_id int4, type, event,
- *                        message, is_read, created_at)
- * order_id là integer (khớp với orders.id SERIAL int4).
- * type: 'USER' | 'KITCHEN' (CHECK constraint trên DB).
- */
 import db from '../config/database.js';
 
 const TABLE = 'notifications';

@@ -1,0 +1,156 @@
+{{#fillSection 'css'}}
+<style>
+.staff-hero { text-align:center; padding:36px 20px 20px; }
+.staff-hero h1 { font-size:2rem; font-weight:800; color:var(--text-dark); }
+.staff-hero p  { color:var(--text-muted); }
+.status-badge { font-size:.78rem; padding:4px 10px; border-radius:20px; font-weight:600; text-transform:uppercase; }
+.tbl-wrap { max-width:1100px; margin:0 auto; padding:0 16px 40px; }
+.btn-advance { min-width:130px; }
+</style>
+{{/fillSection}}
+
+<div class="col-12 px-0">
+  <div class="staff-hero">
+    <h1><i class="bi bi-clipboard-list"></i> Quản lý đơn hàng</h1>
+    <p>Xem và cập nhật trạng thái toàn bộ đơn hàng</p>
+  </div>
+
+  <div class="tbl-wrap">
+    {{#if (isEmpty orders)}}
+    <div class="text-center py-5">
+      <i class="bi bi-inbox fs-1 text-muted"></i>
+      <p class="mt-3 text-muted">Chưa có đơn hàng nào.</p>
+    </div>
+    {{else}}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle" id="ordersTable">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Thời gian</th>
+            <th>Khách</th>
+            <th>Số món</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th class="text-center">Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each orders}}
+          <tr id="row-{{id}}">
+            <td class="fw-bold">{{id}}</td>
+            <td style="font-size:.85rem;">{{formatDate createdAt}}</td>
+            <td>{{#if userId}}<span class="text-muted">#{{userId}}</span>{{else}}<span class="text-muted fst-italic">Khách</span>{{/if}}</td>
+            <td>{{itemCount}} món</td>
+            <td class="fw-bold" style="color:#ff6b35;">{{formatCurrency totalAmount}}</td>
+            <td>
+              <span class="status-badge bg-{{statusColor status}} text-white" id="badge-{{id}}">
+                {{statusLabel status}}
+              </span>
+            </td>
+            <td class="text-center">
+              {{#unless (eq status "COMPLETED")}}
+              {{#unless (eq status "CANCELLED")}}
+              <button class="btn btn-sm btn-success btn-advance me-1"
+                onclick="advanceOrder({{id}}, this)"
+                id="btn-advance-{{id}}">
+                <i class="bi bi-arrow-right-circle"></i> Tiến tiếp
+              </button>
+              {{/unless}}
+              {{/unless}}
+
+              {{#if (eq status "PENDING")}}
+              <button class="btn btn-sm btn-outline-danger"
+                onclick="cancelOrder({{id}}, this)">
+                <i class="bi bi-x-circle"></i> Huỷ
+              </button>
+              {{/if}}
+              {{#if (eq status "CONFIRMED")}}
+              <button class="btn btn-sm btn-outline-danger"
+                onclick="cancelOrder({{id}}, this)">
+                <i class="bi bi-x-circle"></i> Huỷ
+              </button>
+              {{/if}}
+
+              {{#if (eq status "COMPLETED")}}
+              <span class="text-success fw-semibold"><i class="bi bi-check-circle-fill"></i> Hoàn tất</span>
+              {{/if}}
+              {{#if (eq status "CANCELLED")}}
+              <span class="text-danger fw-semibold"><i class="bi bi-x-circle-fill"></i> Đã huỷ</span>
+              {{/if}}
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    {{/if}}
+  </div>
+</div>
+
+{{#fillSection 'js'}}
+<script>
+const STATUS_COLOR = {
+  PENDING:'warning', CONFIRMED:'info', PREPARING:'primary',
+  READY:'success', COMPLETED:'success', CANCELLED:'danger'
+};
+const STATUS_LABEL = {
+  PENDING:'Chờ xác nhận', CONFIRMED:'Đã xác nhận', PREPARING:'Đang chế biến',
+  READY:'Sẵn sàng', COMPLETED:'Hoàn thành', CANCELLED:'Đã huỷ'
+};
+
+async function advanceOrder(orderId, btn) {
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+  try {
+    const res = await fetch('/staff/order/status', {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ orderId })
+    });
+    const data = await res.json();
+    if (!data.success) { alert(data.message); btn.disabled=false; btn.innerHTML='<i class="bi bi-arrow-right-circle"></i> Tiến tiếp'; return; }
+    updateRow(orderId, data.status);
+  } catch(e) {
+    alert('Lỗi kết nối'); btn.disabled=false; btn.innerHTML='<i class="bi bi-arrow-right-circle"></i> Tiến tiếp';
+  }
+}
+
+async function cancelOrder(orderId, btn) {
+  if (!confirm('Huỷ đơn hàng #' + orderId + '?')) return;
+  btn.disabled = true;
+  try {
+    const res = await fetch('/staff/order/cancel', {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ orderId })
+    });
+    const data = await res.json();
+    if (!data.success) { alert(data.message); btn.disabled=false; return; }
+    updateRow(orderId, data.status);
+  } catch(e) {
+    alert('Lỗi kết nối'); btn.disabled=false;
+  }
+}
+
+function updateRow(orderId, status) {
+  const badge = document.getElementById('badge-' + orderId);
+  if (badge) {
+    badge.className = 'status-badge bg-' + (STATUS_COLOR[status]||'secondary') + ' text-white';
+    badge.textContent = STATUS_LABEL[status] || status;
+  }
+  // Cập nhật nút
+  const advBtn = document.getElementById('btn-advance-' + orderId);
+  const row = document.getElementById('row-' + orderId);
+  if (!row) return;
+  const actionCell = row.querySelector('td:last-child');
+  if (status === 'COMPLETED') {
+    actionCell.innerHTML = '<span class="text-success fw-semibold"><i class="bi bi-check-circle-fill"></i> Hoàn tất</span>';
+  } else if (status === 'CANCELLED') {
+    actionCell.innerHTML = '<span class="text-danger fw-semibold"><i class="bi bi-x-circle-fill"></i> Đã huỷ</span>';
+  } else {
+    location.reload(); // Đơn giản reload để sync đúng trạng thái nút
+  }
+}
+</script>
+{{/fillSection}}

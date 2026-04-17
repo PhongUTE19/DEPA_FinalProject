@@ -1,11 +1,3 @@
-/**
- * Error Middleware
- *
- * notFound  — 404 handler
- * forbidden — 403 handler
- * handler   — generic error handler (đặt cuối cùng trong app.js)
- */
-
 const notFound = (req, res) => {
     res.status(404).render('pages/error/404');
 };

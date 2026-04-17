@@ -13,9 +13,10 @@ import reviewRouter from './routes/review.route.js';
 import favoriteRouter from './routes/favorite.route.js';
 import cartRouter from './routes/cart.route.js';
 import couponRouter from './routes/coupon.route.js';
+import staffRouter from './routes/staff.route.js';
+import managerRouter from './routes/manager.route.js';
 
 import helpers from './views/helpers.js';
-
 import viewMiddleware from './middlewares/view.middleware.js';
 import errorMiddleware from './middlewares/error.middleware.js';
 // import viewMiddleware from './middlewares/view.middleware.js';
@@ -72,6 +73,8 @@ app.use('/coupon', couponRouter);
 app.use('/review', reviewRouter);
 app.use('/favorite', favoriteRouter);
 app.use('/cart', cartRouter);
+app.use('/staff', staffRouter);
+app.use('/manager', managerRouter);
 
 // Error handlers
 app.use(errorMiddleware.notFound);

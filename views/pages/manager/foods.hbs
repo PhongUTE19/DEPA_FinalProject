@@ -1,0 +1,207 @@
+{{#fillSection 'css'}}
+<style>
+.mgr-hero { text-align:center; padding:36px 20px 20px; }
+.mgr-hero h1 { font-size:2rem; font-weight:800; color:var(--text-dark); }
+.mgr-hero p  { color:var(--text-muted); }
+.tbl-wrap { max-width:1200px; margin:0 auto; padding:0 16px 60px; }
+.food-thumb { width:56px; height:56px; object-fit:cover; border-radius:10px; }
+</style>
+{{/fillSection}}
+
+<div class="col-12 px-0">
+  <div class="mgr-hero">
+    <h1><i class="bi bi-egg-fried"></i> Quản lý món ăn</h1>
+    <p>Thêm, sửa, xoá món ăn trong thực đơn</p>
+  </div>
+
+  <div class="tbl-wrap">
+    <div class="d-flex justify-content-end mb-3">
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#foodModal" onclick="openAddModal()">
+        <i class="bi bi-plus-circle me-1"></i> Thêm món mới
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Ảnh</th>
+            <th>Tên món</th>
+            <th>Loại</th>
+            <th>Giá</th>
+            <th>Hiển thị</th>
+            <th class="text-center">Hành động</th>
+          </tr>
+        </thead>
+        <tbody id="foodBody">
+          {{#each foods}}
+          <tr id="food-row-{{id}}" data-food='{{{json this}}}'>
+            <td class="text-muted" style="font-size:.85rem;">{{id}}</td>
+            <td>
+              <img class="food-thumb"
+                src="{{#if imageUrl}}{{imageUrl}}{{else}}/public/imgs/no_image.jpg{{/if}}"
+                onerror="this.src='/public/imgs/no_image.jpg'"
+                alt="{{name}}">
+            </td>
+            <td class="fw-semibold">{{name}}</td>
+            <td><span class="badge bg-light text-dark border">{{typeEmoji type}} {{type}}</span></td>
+            <td style="color:#ff6b35;" class="fw-bold">{{formatCurrency basePrice}}</td>
+            <td>
+              {{#if isAvailable}}
+              <span class="badge bg-success">Hiển thị</span>
+              {{else}}
+              <span class="badge bg-secondary">Ẩn</span>
+              {{/if}}
+            </td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-primary me-1"
+                data-bs-toggle="modal" data-bs-target="#foodModal"
+                onclick="openEditModal({{id}})">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteFood({{id}}, this)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal thêm/sửa món -->
+<div class="modal fade" id="foodModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="foodModalTitle">Thêm món mới</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editFoodId">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Tên món <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="foodName" placeholder="VD: Burger Bò Nướng">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Giá cơ bản (VNĐ) <span class="text-danger">*</span></label>
+          <input type="number" class="form-control" id="foodPrice" placeholder="VD: 75000" min="0">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Loại món</label>
+          <select class="form-select" id="foodType">
+            <option value="food">🍽️ food</option>
+            <option value="pizza">🍕 pizza</option>
+            <option value="burger">🍔 burger</option>
+            <option value="pasta">🍝 pasta</option>
+            <option value="salad">🥗 salad</option>
+            <option value="soup">🍲 soup</option>
+            <option value="dessert">🍰 dessert</option>
+            <option value="drink">🥤 drink</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">URL ảnh</label>
+          <input type="text" class="form-control" id="foodImage" placeholder="https://...">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Mô tả</label>
+          <textarea class="form-control" id="foodDesc" rows="2" placeholder="Mô tả ngắn về món ăn"></textarea>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="foodAvailable" checked>
+          <label class="form-check-label" for="foodAvailable">Hiển thị trên thực đơn</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+        <button type="button" class="btn btn-success" id="saveFoodBtn" onclick="saveFood()">
+          <i class="bi bi-check-lg me-1"></i>Lưu
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{#fillSection 'js'}}
+<script>
+// Lưu data food từ DOM
+const foodData = {};
+document.querySelectorAll('[data-food]').forEach(row => {
+  const f = JSON.parse(row.dataset.food);
+  foodData[f.id] = f;
+});
+
+function openAddModal() {
+  document.getElementById('foodModalTitle').textContent = 'Thêm món mới';
+  document.getElementById('editFoodId').value = '';
+  document.getElementById('foodName').value = '';
+  document.getElementById('foodPrice').value = '';
+  document.getElementById('foodType').value = 'food';
+  document.getElementById('foodImage').value = '';
+  document.getElementById('foodDesc').value = '';
+  document.getElementById('foodAvailable').checked = true;
+}
+
+function openEditModal(id) {
+  const f = foodData[id];
+  if (!f) return;
+  document.getElementById('foodModalTitle').textContent = 'Sửa món: ' + f.name;
+  document.getElementById('editFoodId').value = id;
+  document.getElementById('foodName').value = f.name || '';
+  document.getElementById('foodPrice').value = f.basePrice || '';
+  document.getElementById('foodType').value = f.type || 'food';
+  document.getElementById('foodImage').value = f.imageUrl || '';
+  document.getElementById('foodDesc').value = f.description || '';
+  document.getElementById('foodAvailable').checked = !!f.isAvailable;
+}
+
+async function saveFood() {
+  const id    = document.getElementById('editFoodId').value;
+  const name  = document.getElementById('foodName').value.trim();
+  const price = document.getElementById('foodPrice').value;
+  if (!name || !price) { alert('Vui lòng nhập đủ tên và giá món'); return; }
+
+  const payload = {
+    name,
+    basePrice:   Number(price),
+    type:        document.getElementById('foodType').value,
+    imageUrl:    document.getElementById('foodImage').value.trim() || null,
+    description: document.getElementById('foodDesc').value.trim() || null,
+    isAvailable: document.getElementById('foodAvailable').checked,
+  };
+
+  const btn = document.getElementById('saveFoodBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+  try {
+    const url    = id ? `/manager/foods/${id}` : '/manager/foods';
+    const method = id ? 'PATCH' : 'POST';
+    const res  = await fetch(url, { method, headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (data.success) {
+      bootstrap.Modal.getInstance(document.getElementById('foodModal')).hide();
+      location.reload();
+    } else {
+      alert(data.message || 'Lỗi khi lưu');
+    }
+  } catch(e) { alert('Lỗi kết nối'); }
+  finally { btn.disabled=false; btn.innerHTML='<i class="bi bi-check-lg me-1"></i>Lưu'; }
+}
+
+async function deleteFood(id, btn) {
+  if (!confirm('Xoá món ăn #' + id + '? Hành động này không thể hoàn tác.')) return;
+  btn.disabled = true;
+  try {
+    const res  = await fetch(`/manager/foods/${id}`, { method:'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('food-row-' + id)?.remove();
+    } else { alert(data.message || 'Lỗi'); btn.disabled=false; }
+  } catch(e) { alert('Lỗi kết nối'); btn.disabled=false; }
+}
+</script>
+{{/fillSection}}
