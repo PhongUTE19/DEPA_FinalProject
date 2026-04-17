@@ -7,7 +7,7 @@ const router = express.Router();
 // User xem thông báo của mình
 router.get('/', NotificationController.showNotificationsPage);
 
-// Staff / Chef / Manager xem thông báo bếp
+// Staff / Manager xem thông báo bếp
 router.get('/kitchen', NotificationController.showKitchenNotifications);
 
 // Đánh dấu đã đọc

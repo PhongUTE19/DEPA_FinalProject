@@ -18,7 +18,7 @@ class User {
   name: string
   email: string
   dob: Date | null
-  role: 'CUSTOMER' | 'STAFF' | 'CHEF' | 'MANAGER'
+  role: 'CUSTOMER' | 'STAFF' | 'MANAGER'
   createdAt: Date
 }
 ```
@@ -137,7 +137,7 @@ class Notification {
 | name | VARCHAR(100) | NOT NULL |
 | email | VARCHAR(150) | UNIQUE, NOT NULL |
 | dob | DATE | NULL |
-| role | VARCHAR(10) | NOT NULL, DEFAULT 'CUSTOMER', CHECK IN ('CUSTOMER','STAFF','CHEF','MANAGER') |
+| role | VARCHAR(10) | NOT NULL, DEFAULT 'CUSTOMER', CHECK IN ('CUSTOMER','STAFF','MANAGER') |
 | created_at | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() |
 
 ### 2.2 Bảng `foods`
@@ -258,21 +258,13 @@ Response
 - UC06: Đăng xuất
 - UC09: Xem menu
 - UC18: Xem danh sách tất cả đơn hàng
-- UC19: Xác nhận đơn hàng (PENDING → CONFIRMED)
+- UC19: Xác nhận đơn hàng (PENDING, CONFIRMED, PREPARING, READY, COMPLETED, CANCELLED)
 - UC20: Cập nhật trạng thái đơn hàng
 - UC17: Nhận / xem thông báo
 - UC21: Gửi thông báo cho khách
 
-**Chef**
-- UC06: Đăng xuất
-- UC09: Xem menu
-- UC22: Xem danh sách đơn hàng cần chế biến
-- UC23: Cập nhật trạng thái chế biến (CONFIRMED → PREPARING → READY)
-- UC24: Xem thông báo bếp
-- UC21: Gửi thông báo
-
 **Manager**
-- Tất cả UC của Staff và Chef, cộng thêm:
+- Tất cả UC của Staff cộng thêm:
 - UC25: Thêm / sửa / xoá món ăn
 - UC26: Quản lý nhân viên (thêm/sửa/đổi vai trò)
 - UC27: Xem doanh thu / báo cáo
@@ -289,7 +281,7 @@ Response
 | 3 | Không có UC huỷ đơn | Thêm `OrderService.cancelOrder()` → trạng thái CANCELLED + notify |
 | 4 | Manager không có giao diện quản lý | Thêm routes `/admin/foods`, `/admin/users`, `/admin/revenue` |
 | 5 | `UserModel` thiếu `findById`, `findAll`, `updateRole` | Bổ sung để Manager quản lý nhân viên |
-| 6 | Không có phân quyền middleware theo role | Thêm `roleGuard('MANAGER')`, `roleGuard('CHEF')` middleware |
+| 6 | Không có phân quyền middleware theo role | Thêm `roleGuard('MANAGER')` middleware |
 | 7 | Không có `User` domain class | Tạo `services/account/User.js` với `fromRow()` + `toJSON()` |
 | 8 | Payment status mặc định 'success' | Fix: mặc định 'PENDING', service tự set sau |
 

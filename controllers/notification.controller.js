@@ -29,7 +29,7 @@ const NotificationController = {
         }
     },
 
-    // GET /notification/kitchen — trang thông báo bếp (Staff / Chef / Manager)
+    // GET /notification/kitchen — trang thông báo bếp (Staff / Manager)
     async showKitchenNotifications(req, res, next) {
         try {
             const notifications = await NotificationService.findKitchenNotifications();
@@ -58,7 +58,7 @@ const NotificationController = {
             if (notification.type === 'USER' && notification.userId !== userId) {
                 return res.status(403).render('pages/error/403');
             }
-            if (notification.type === 'KITCHEN' && !['STAFF', 'CHEF', 'MANAGER'].includes(role)) {
+            if (notification.type === 'KITCHEN' && !['STAFF', 'MANAGER'].includes(role)) {
                 return res.status(403).render('pages/error/403');
             }
 
