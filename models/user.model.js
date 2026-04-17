@@ -1,3 +1,8 @@
+/**
+ * UserModel
+ * Schema: users(id SERIAL, username, name, email, password, role, dob, created_at)
+ * Cột 'permission' đã bị xoá — chỉ còn cột 'role' text.
+ */
 import db from '../config/database.js';
 
 const TABLE = 'users';

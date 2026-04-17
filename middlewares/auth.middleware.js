@@ -1,3 +1,14 @@
+/**
+ * Auth Middleware
+ *
+ * requireAuth     — phải đăng nhập
+ * requireRole     — phải có đúng role (hoặc MANAGER luôn qua)
+ * requireStaff    — STAFF | MANAGER
+ * requireManager  — chỉ MANAGER
+ *
+ * Session lưu authUser là User.toJSON() → có field `role` (UPPERCASE string).
+ */
+
 const requireAuth = (req, res, next) => {
     if (req.session?.isAuthenticated && req.session?.authUser) {
         return next();

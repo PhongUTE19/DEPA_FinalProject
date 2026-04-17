@@ -1,3 +1,10 @@
+/**
+ * AccountController
+ *
+ * Chỉ nhận req → gọi AccountService → lưu User domain vào session → trả res.
+ * Session lưu user.toJSON() (plain object, an toàn, không có password).
+ * KHÔNG import UserModel trực tiếp.
+ */
 import AccountService from '../services/account/AccountService.js';
 
 const AccountController = {

@@ -2,7 +2,6 @@
     <div class="container-fluid">
         <a class="navbar-brand" href="/">Nhà Hàng Nhóm 08</a>
 
-
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -16,11 +15,30 @@
                         <i class="bi bi-grid me-1"></i>Thực đơn
                     </a>
                 </li>
+                {{#if isStaff}}
+                <li class="nav-item ms-1">
+                    <a class="btn btn-outline-warning me-1" href="/staff">
+                        <i class="bi bi-clipboard-list me-1"></i>Quản lý đơn hàng
+                    </a>
+                </li>
+                {{/if}}
+                {{#if isManager}}
+                <li class="nav-item ms-1">
+                    <a class="btn btn-outline-danger me-1" href="/manager/foods">
+                        <i class="bi bi-egg-fried me-1"></i>Quản lý món ăn
+                    </a>
+                </li>
+                <li class="nav-item ms-1">
+                    <a class="btn btn-outline-danger me-1" href="/manager/staff">
+                        <i class="bi bi-people me-1"></i>Quản lý nhân viên
+                    </a>
+                </li>
+                {{/if}}
             </ul>
 
             <!-- Right side -->
             <div class="d-flex align-items-center gap-2">
-                {{#if isAuthenticated}}
+
                 <!-- Cart icon -->
                 <a href="/cart" class="btn btn-outline-success position-relative" title="Giỏ hàng">
                     <i class="bi bi-cart3"></i>
@@ -36,13 +54,20 @@
                         style="font-size:.65rem;display:none">0</span>
                     {{/if}}
                 </a>
-                <a href="/notification" class="btn btn-outline-success position-relative" title="Giỏ hàng">
+                <a href="/notification" class="btn btn-outline-success position-relative" title="Thông báo">
                     <i class="bi bi-bell"></i>
                 </a>
+
+                {{#if isAuthenticated}}
                 <div class="dropdown">
                     <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-person-circle me-1"></i>{{authUser.name}}
+                        {{#if isManager}}
+                        <span class="badge bg-danger ms-1" style="font-size:.6rem;">MANAGER</span>
+                        {{else if isStaff}}
+                        <span class="badge bg-warning text-dark ms-1" style="font-size:.6rem;">STAFF</span>
+                        {{/if}}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
@@ -65,32 +90,51 @@
                                 <i class="bi bi-receipt me-2"></i>Đơn hàng của tôi
                             </a>
                         </li>
+                        <li>
+                            <a class="dropdown-item" href="/account/change-password">
+                                <i class="bi bi-key me-2"></i>Đổi mật khẩu
+                            </a>
+                        </li>
 
-                        {{!-- {{#if isStaff}}
+                        {{#if isStaff}}
+                        <li><hr class="dropdown-divider"></li>
                         <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li> --}}
-                        {{#if (eq authUser.role "MANAGER")}}
-                        <li>
-                            <a class="dropdown-item" href="/coupon/manage">
-                                <i class="bi bi-gear"></i>
-                                Quản lý coupon
+                            <a class="dropdown-item text-warning fw-semibold" href="/staff">
+                                <i class="bi bi-clipboard-list me-2"></i>Quản lý đơn hàng
                             </a>
                         </li>
-                        {{!-- <li>
-                            <a class="dropdown-item" href="/notification/kitchen">
-                                <i class="bi bi-fire"></i>
-                                Thông báo bếp
-                            </a>
-                        </li> --}}
                         {{/if}}
 
+                        {{#if isManager}}
+                        <li><hr class="dropdown-divider"></li>
                         <li>
-                            <hr class="dropdown-divider">
+                            <a class="dropdown-item" href="/coupon/create">
+                                <i class="bi bi-plus-circle me-2"></i>Tạo mã giảm giá
+                            </a>
                         </li>
+                        <li>
+                            <a class="dropdown-item" href="/coupon/manage">
+                                <i class="bi bi-gear me-2"></i>Quản lý coupon
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/notification/kitchen">
+                                <i class="bi bi-fire me-2"></i>Thông báo bếp
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item text-danger fw-semibold" href="/manager/foods">
+                                <i class="bi bi-egg-fried me-2"></i>Quản lý món ăn
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item text-danger fw-semibold" href="/manager/staff">
+                                <i class="bi bi-people me-2"></i>Quản lý nhân viên
+                            </a>
+                        </li>
+                        {{/if}}
+
+                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <form action="/account/signout" method="post" class="d-inline">
                                 <button type="submit" class="dropdown-item text-danger">

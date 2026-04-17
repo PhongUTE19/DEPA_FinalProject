@@ -1,3 +1,9 @@
+/**
+ * PaymentController
+ *
+ * Chỉ nhận req → gọi PaymentService → gọi .toJSON() → trả res.
+ * KHÔNG import PaymentModel, Payment, PaymentAdapter trực tiếp.
+ */
 import { PaymentService } from '../services/payment/PaymentService.js';
 import { OrderService } from '../services/order/OrderService.js';
 import { CartService } from '../services/cart/CartService.js';

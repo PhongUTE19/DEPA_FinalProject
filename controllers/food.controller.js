@@ -1,3 +1,10 @@
+/**
+ * FoodController
+ *
+ * Chỉ nhận req → gọi FoodService → trả res.
+ * KHÔNG import FoodModel, FoodFactory, hay ToppingDecorator trực tiếp.
+ * Mọi logic domain đều nằm trong FoodService.
+ */
 import { FoodService } from '../services/food/FoodService.js';
 
 const FoodController = {

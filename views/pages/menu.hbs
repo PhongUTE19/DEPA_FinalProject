@@ -48,17 +48,13 @@
       <div class="food-tile-name">{{name}}</div>
       <div class="food-tile-footer">
         <span class="food-tile-price">{{formatNumber price}}đ</span>
-        {{#if ../isAuthenticated}}
         <button class="btn-add-tile" onclick="event.stopPropagation();openModal(this.closest('.food-tile'))">
           <i class="bi bi-plus-lg"></i> Thêm
         </button>
-        {{/if}}
       </div>
       <div class="food-card-actions">
         <button class="btn-review-open" data-food-id="{{id}}" data-food-name="{{name}}">⭐ Đánh giá</button>
-        {{#if ../isAuthenticated}}
         <button class="btn-fav" data-food-id="{{id}}" title="Yêu thích">❤️</button>
-        {{/if}}
       </div>
     </div>
   </div>
@@ -121,13 +117,12 @@
 <div id="reviewModal">
   <div class="rbox">
     <div class="rbox-header">
-      <span class="rbox-title" id="modalFoodName">Đánh giá</span>
+      <span class="rbox-title" id="modalFoodName"></span>
       <button class="rbox-close" id="btnCloseReview">✕</button>
     </div>
     <div id="reviewList">
       <p class="review-empty">Đang tải...</p>
     </div>
-    {{#if isAuthenticated}}
     <div class="rform">
       <h4>Viết đánh giá</h4>
       <div class="star-select" id="starSelect">
@@ -140,7 +135,6 @@
       <textarea class="review-textarea" id="reviewComment" placeholder="Nhận xét của bạn..."></textarea>
       <button class="btn-submit-review" id="btnSubmitReview">Gửi đánh giá</button>
     </div>
-    {{/if}}
   </div>
 </div>
 

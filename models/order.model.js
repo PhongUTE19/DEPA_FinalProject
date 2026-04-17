@@ -1,3 +1,8 @@
+/**
+ * OrderModel
+ * Schema: orders(id SERIAL int4, user_id, items, status, total_amount, created_at)
+ * id là integer — do DB tự sinh (SERIAL), không cần truyền vào khi INSERT.
+ */
 import db from '../config/database.js';
 
 const TABLE = 'orders';

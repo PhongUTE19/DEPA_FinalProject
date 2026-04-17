@@ -1,0 +1,178 @@
+{{#section 'css'}}
+<style>
+.mgr-hero { text-align:center; padding:36px 20px 20px; }
+.mgr-hero h1 { font-size:2rem; font-weight:800; color:var(--text-dark); }
+.mgr-hero p  { color:var(--text-muted); }
+.tbl-wrap { max-width:1000px; margin:0 auto; padding:0 16px 60px; }
+</style>
+{{/section}}
+
+<div class="col-12 px-0">
+  <div class="mgr-hero">
+    <h1><i class="bi bi-people"></i> Quản lý nhân viên</h1>
+    <p>Danh sách nhân viên có role STAFF</p>
+  </div>
+
+  <div class="tbl-wrap">
+    <div class="d-flex justify-content-end mb-3">
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#staffModal" onclick="openAddModal()">
+        <i class="bi bi-person-plus me-1"></i> Thêm nhân viên
+      </button>
+    </div>
+
+    {{#if (isEmpty staffList)}}
+    <div class="text-center py-5">
+      <i class="bi bi-people fs-1 text-muted"></i>
+      <p class="mt-3 text-muted">Chưa có nhân viên nào.</p>
+    </div>
+    {{else}}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>Ngày tạo</th>
+            <th class="text-center">Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each staffList}}
+          <tr id="staff-row-{{id}}">
+            <td class="text-muted">{{id}}</td>
+            <td class="fw-semibold"><i class="bi bi-person-badge me-1 text-success"></i>{{username}}</td>
+            <td>{{name}}</td>
+            <td class="text-muted">{{email}}</td>
+            <td style="font-size:.85rem;">{{formatDate created_at}}</td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-primary me-1"
+                data-bs-toggle="modal" data-bs-target="#staffModal"
+                onclick="openEditModal({{id}}, '{{name}}', '{{email}}')">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="removeStaff({{id}}, this)">
+                <i class="bi bi-person-dash"></i>
+              </button>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    {{/if}}
+  </div>
+</div>
+
+<!-- Modal thêm/sửa nhân viên -->
+<div class="modal fade" id="staffModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staffModalTitle">Thêm nhân viên</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editStaffId">
+        <div class="mb-3" id="usernameGroup">
+          <label class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="staffUsername" placeholder="VD: nhanvien01">
+        </div>
+        <div class="mb-3" id="passwordGroup">
+          <label class="form-label fw-semibold">Mật khẩu <span class="text-danger">*</span></label>
+          <input type="password" class="form-control" id="staffPassword" placeholder="Tối thiểu 6 ký tự">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Họ tên <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="staffName" placeholder="VD: Nguyễn Văn A">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Email</label>
+          <input type="email" class="form-control" id="staffEmail" placeholder="VD: nhanvien@email.com">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Ngày sinh</label>
+          <input type="date" class="form-control" id="staffDob">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+        <button type="button" class="btn btn-success" id="saveStaffBtn" onclick="saveStaff()">
+          <i class="bi bi-check-lg me-1"></i>Lưu
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{#section 'js'}}
+<script>
+function openAddModal() {
+  document.getElementById('staffModalTitle').textContent = 'Thêm nhân viên mới';
+  document.getElementById('editStaffId').value = '';
+  document.getElementById('staffUsername').value = '';
+  document.getElementById('staffPassword').value = '';
+  document.getElementById('staffName').value = '';
+  document.getElementById('staffEmail').value = '';
+  document.getElementById('staffDob').value = '';
+  document.getElementById('usernameGroup').style.display = '';
+  document.getElementById('passwordGroup').style.display = '';
+}
+
+function openEditModal(id, name, email) {
+  document.getElementById('staffModalTitle').textContent = 'Sửa nhân viên';
+  document.getElementById('editStaffId').value = id;
+  document.getElementById('staffName').value = name || '';
+  document.getElementById('staffEmail').value = email || '';
+  document.getElementById('staffDob').value = '';
+  // Ẩn username & password khi edit
+  document.getElementById('usernameGroup').style.display = 'none';
+  document.getElementById('passwordGroup').style.display = 'none';
+}
+
+async function saveStaff() {
+  const id   = document.getElementById('editStaffId').value;
+  const name = document.getElementById('staffName').value.trim();
+  if (!name) { alert('Vui lòng nhập họ tên'); return; }
+
+  const btn = document.getElementById('saveStaffBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+  try {
+    let payload, url, method;
+    if (id) {
+      // Edit
+      payload = { name, email: document.getElementById('staffEmail').value.trim(), dob: document.getElementById('staffDob').value || null };
+      url = `/manager/staff/${id}`; method = 'PATCH';
+    } else {
+      // Add
+      const username = document.getElementById('staffUsername').value.trim();
+      const password = document.getElementById('staffPassword').value;
+      if (!username || !password) { alert('Vui lòng nhập username và mật khẩu'); btn.disabled=false; btn.innerHTML='<i class="bi bi-check-lg me-1"></i>Lưu'; return; }
+      payload = { username, password, name, email: document.getElementById('staffEmail').value.trim(), dob: document.getElementById('staffDob').value || null };
+      url = '/manager/staff'; method = 'POST';
+    }
+
+    const res  = await fetch(url, { method, headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (data.success) {
+      bootstrap.Modal.getInstance(document.getElementById('staffModal')).hide();
+      location.reload();
+    } else { alert(data.message || 'Lỗi khi lưu'); }
+  } catch(e) { alert('Lỗi kết nối'); }
+  finally { btn.disabled=false; btn.innerHTML='<i class="bi bi-check-lg me-1"></i>Lưu'; }
+}
+
+async function removeStaff(id, btn) {
+  if (!confirm('Xoá quyền Staff của nhân viên #' + id + '? (Tài khoản sẽ bị hạ xuống CUSTOMER)')) return;
+  btn.disabled = true;
+  try {
+    const res  = await fetch(`/manager/staff/${id}`, { method:'DELETE' });
+    const data = await res.json();
+    if (data.success) { document.getElementById('staff-row-' + id)?.remove(); }
+    else { alert(data.message || 'Lỗi'); btn.disabled=false; }
+  } catch(e) { alert('Lỗi kết nối'); btn.disabled=false; }
+}
+</script>
+{{/section}}

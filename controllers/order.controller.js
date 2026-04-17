@@ -1,3 +1,9 @@
+/**
+ * OrderController
+ *
+ * Chỉ nhận req → gọi OrderService → gọi .toJSON() → trả res.
+ * KHÔNG import OrderModel, Order, OrderState trực tiếp.
+ */
 import { OrderService } from '../services/order/OrderService.js';
 import { PaymentService } from '../services/payment/PaymentService.js';
 
@@ -32,6 +38,19 @@ export const OrderController = {
                 orders,
             });
         } catch (err) {
+            next(err);
+        }
+    },
+
+    // GET /order/:id — lấy đơn (JSON)
+    async showOrderPage(req, res, next) {
+        try {
+            const order = await OrderService.getOrder(req.params.id);
+            return res.json({ success: true, order: order.toJSON() });
+        } catch (err) {
+            if (err.message === 'Order not found') {
+                return res.status(404).json({ success: false, message: err.message });
+            }
             next(err);
         }
     },

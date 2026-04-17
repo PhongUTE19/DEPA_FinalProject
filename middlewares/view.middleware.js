@@ -1,3 +1,10 @@
+/**
+ * View Middleware
+ *
+ * Inject thông tin auth vào res.locals để Handlebars template dùng được.
+ * authUser ở session là User.toJSON() (plain object, có field `role`).
+ */
+
 const injectAuthState = (req, res, next) => {
     if (req.session?.isAuthenticated && req.session?.authUser) {
         res.locals.isAuthenticated = true;
